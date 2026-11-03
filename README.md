@@ -50,7 +50,7 @@ Then open http://127.0.0.1:8000.
 ## Key points
 
 - **Prices** are stored as integers in the minor unit (sen/cents) to avoid float errors.
-  Display currency is set in `config/ordering.php` (`ORDERING_CURRENCY`, default `RM`).
+  Display currency is set in `config/ordering.php` (`ORDERING_CURRENCY`, default `฿` / Thai Baht).
 - **Timezone** defaults to `Asia/Kuala_Lumpur` (`APP_TIMEZONE` in `.env`). Open/close is computed
   in this timezone.
 - **Order numbers** are `ORD-YYYYMMDD-NNN`, generated server-side and reset daily.

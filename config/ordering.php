@@ -5,7 +5,7 @@ return [
     | Currency symbol shown throughout the storefront and admin. Prices are
     | stored as integers in the minor unit (e.g. sen/cents) — 100 minor = 1 major.
     */
-    'currency' => env('ORDERING_CURRENCY', 'RM'),
+    'currency' => env('ORDERING_CURRENCY', '฿'),
 
     // Max payment screenshot upload size in kilobytes (5 MB).
     'screenshot_max_kb' => 5120,

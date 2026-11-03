@@ -4,11 +4,24 @@
 
 @section('content')
     {{-- Hero --}}
-    <section class="mb-6 overflow-hidden rounded-3xl bg-gradient-to-br from-brand-600 to-brand-800 px-6 py-10 text-white sm:px-10 sm:py-14">
-        <div class="max-w-xl">
-            <p class="mb-2 text-sm font-semibold uppercase tracking-wide text-brand-100">AIU Campus Delivery</p>
-            <h1 class="text-3xl font-bold leading-tight sm:text-4xl">Good food, delivered to your dorm.</h1>
-            <p class="mt-3 text-brand-50/90">Browse the menu, build your cart, and check out in under a minute. Pay by QR transfer or cash on delivery.</p>
+    <section class="relative mb-7 overflow-hidden rounded-3xl px-6 py-11 text-white sm:px-10 sm:py-16"
+             style="background-image: linear-gradient(135deg, #ea580c 0%, #9a3412 60%, #7c2d12 100%);">
+        {{-- decorative glow blobs --}}
+        <div class="pointer-events-none absolute -right-16 -top-20 h-64 w-64 rounded-full bg-brand-400/40 blur-3xl"></div>
+        <div class="pointer-events-none absolute -bottom-24 right-24 h-56 w-56 rounded-full bg-teal-500/20 blur-3xl"></div>
+        <div class="pointer-events-none absolute right-6 top-6 hidden select-none text-[7rem] leading-none opacity-20 sm:block">🍜</div>
+
+        <div class="relative max-w-xl">
+            <span class="inline-flex items-center gap-2 rounded-full bg-white/15 px-3 py-1 text-xs font-semibold uppercase tracking-wide backdrop-blur">
+                @if ($storeStatus->isOpen())
+                    <span class="h-2 w-2 rounded-full bg-green-300 shadow-[0_0_8px_2px_rgba(134,239,172,0.7)]"></span> Open now
+                @else
+                    <span class="h-2 w-2 rounded-full bg-amber-300"></span> Closed{{ $storeStatus->nextOpeningLabel() ? ' · opens ' . $storeStatus->nextOpeningLabel() : '' }}
+                @endif
+            </span>
+            <h1 class="mt-4 text-3xl font-bold leading-[1.1] sm:text-5xl">Authentic Thai,<br>delivered to your dorm.</h1>
+            <p class="mt-4 max-w-md text-brand-50/90">Noodles, fried rice, and spicy basil favourites — built fresh and brought to your door. Pay by QR transfer or cash on delivery.</p>
+            <a href="#menu-start" class="btn-secondary mt-6 !bg-white !text-brand-700">Browse the menu</a>
         </div>
     </section>
 
@@ -33,23 +46,27 @@
             </p>
         </div>
     @else
-        <div x-data="{ cat: 'all' }">
+        <div x-data="{ cat: 'all' }" id="menu-start">
             {{-- Category chips --}}
-            <div class="mb-5 -mx-4 flex gap-2 overflow-x-auto px-4 pb-1">
+            <div class="sticky top-[60px] z-30 -mx-4 mb-6 flex gap-2 overflow-x-auto bg-cream/80 px-4 py-2 backdrop-blur [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
                 <button type="button" @click="cat = 'all'"
-                        :class="cat === 'all' ? 'border-brand-600 bg-brand-600 text-white' : 'border-black/10 bg-white text-ink-soft'"
+                        :class="cat === 'all' ? 'chip-active' : 'chip-idle'"
                         class="chip">All</button>
                 @foreach ($categories as $category)
                     <button type="button" @click="cat = '{{ $category->id }}'"
-                            :class="cat === '{{ $category->id }}' ? 'border-brand-600 bg-brand-600 text-white' : 'border-black/10 bg-white text-ink-soft'"
+                            :class="cat === '{{ $category->id }}' ? 'chip-active' : 'chip-idle'"
                             class="chip">{{ $category->name }}</button>
                 @endforeach
             </div>
 
             {{-- Item grid, grouped by category --}}
             @foreach ($categories as $category)
-                <section x-show="cat === 'all' || cat === '{{ $category->id }}'" class="mb-8">
-                    <h2 class="mb-3 text-lg font-bold">{{ $category->name }}</h2>
+                <section x-show="cat === 'all' || cat === '{{ $category->id }}'" class="mb-10">
+                    <h2 class="mb-4 flex items-center gap-2.5 text-xl font-bold">
+                        <span class="h-5 w-1.5 rounded-full bg-gradient-to-b from-brand-400 to-brand-600"></span>
+                        {{ $category->name }}
+                        <span class="rounded-full bg-brand-50 px-2 py-0.5 text-xs font-semibold text-brand-700">{{ $category->availableItems->count() }}</span>
+                    </h2>
                     <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                         @foreach ($category->availableItems as $item)
                             @include('menu.partials.item-card', ['item' => $item])
