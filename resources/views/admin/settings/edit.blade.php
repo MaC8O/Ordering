@@ -53,7 +53,7 @@
         <div class="space-y-6">
             <div class="card p-5">
                 <h2 class="text-lg font-bold">Payment QR image</h2>
-                <div class="mt-4 flex items-start gap-4">
+                <div class="mt-4 flex flex-col items-start gap-4 sm:flex-row">
                     <div class="h-36 w-36 shrink-0 overflow-hidden rounded-xl border bg-white p-2">
                         @if ($settings->qr_image_path && file_exists(public_path($settings->qr_image_path)))
                             <img src="{{ asset($settings->qr_image_path) }}?v={{ $settings->updated_at?->timestamp }}" alt="QR code" class="h-full w-full object-contain">
@@ -80,15 +80,15 @@
                     @csrf @method('PATCH')
                     @foreach ($weekdays as $num => $name)
                         @php $row = $schedule->get($num); @endphp
-                        <div class="grid grid-cols-[1.2fr_auto_1fr_1fr] items-center gap-2 rounded-lg border border-black/5 p-2 text-sm">
-                            <label class="flex items-center gap-2 font-semibold">
+                        <div class="flex flex-wrap items-center gap-2 rounded-lg border border-black/5 p-2 text-sm">
+                            <label class="flex w-full items-center gap-2 font-semibold sm:w-auto sm:flex-1">
                                 <input type="hidden" name="days[{{ $num }}][is_open]" value="0">
                                 <input type="checkbox" name="days[{{ $num }}][is_open]" value="1" @checked($row?->is_open ?? false) class="h-4 w-4 accent-brand-600">
                                 {{ $name }}
                             </label>
-                            <span class="text-ink-soft">open</span>
-                            <input type="time" name="days[{{ $num }}][open_time]" value="{{ \Illuminate\Support\Str::of($row?->open_time ?? '10:00')->substr(0,5) }}" class="input !py-1.5" required>
-                            <input type="time" name="days[{{ $num }}][close_time]" value="{{ \Illuminate\Support\Str::of($row?->close_time ?? '21:00')->substr(0,5) }}" class="input !py-1.5" required>
+                            <span class="hidden text-ink-soft sm:inline">open</span>
+                            <input type="time" name="days[{{ $num }}][open_time]" value="{{ \Illuminate\Support\Str::of($row?->open_time ?? '10:00')->substr(0,5) }}" class="input !py-1.5 min-w-0 flex-1" required>
+                            <input type="time" name="days[{{ $num }}][close_time]" value="{{ \Illuminate\Support\Str::of($row?->close_time ?? '21:00')->substr(0,5) }}" class="input !py-1.5 min-w-0 flex-1" required>
                         </div>
                     @endforeach
                     <button class="btn-primary mt-2">Save schedule</button>

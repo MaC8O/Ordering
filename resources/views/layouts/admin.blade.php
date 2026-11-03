@@ -10,13 +10,13 @@
 </head>
 <body class="min-h-screen bg-cream">
     <header class="sticky top-0 z-40 border-b border-black/5 bg-white">
-        <div class="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3">
+        <div class="mx-auto flex max-w-6xl items-center justify-between gap-2 px-3 py-3 sm:gap-4 sm:px-4">
             <a href="{{ route('admin.dashboard') }}" class="flex items-center gap-2 font-bold">
                 <span class="grid h-8 w-8 place-items-center rounded-lg bg-brand-600 text-white">🍽️</span>
                 <span class="hidden sm:inline">{{ config('app.name') }} Admin</span>
             </a>
 
-            <nav class="flex items-center gap-1 text-sm">
+            <nav class="flex items-center gap-0.5 text-sm sm:gap-1">
                 @php
                     $navItems = [
                         'admin.dashboard' => 'Dashboard',
@@ -27,14 +27,14 @@
                 @endphp
                 @foreach ($navItems as $route => $label)
                     <a href="{{ route($route) }}"
-                       class="rounded-lg px-3 py-2 font-semibold hover:bg-black/5 {{ request()->routeIs(str_replace('.index', '.*', str_replace('.edit','.*',$route))) || request()->routeIs($route) ? 'bg-brand-50 text-brand-700' : 'text-ink-soft' }}">
+                       class="rounded-lg px-2 py-2 font-semibold hover:bg-black/5 sm:px-3 {{ request()->routeIs(str_replace('.index', '.*', str_replace('.edit','.*',$route))) || request()->routeIs($route) ? 'bg-brand-50 text-brand-700' : 'text-ink-soft' }}">
                         {{ $label }}
                     </a>
                 @endforeach
                 <a href="{{ route('menu.index') }}" target="_blank" class="hidden rounded-lg px-3 py-2 font-semibold text-ink-soft hover:bg-black/5 sm:inline">View site ↗</a>
                 <form method="POST" action="{{ route('admin.logout') }}">
                     @csrf
-                    <button type="submit" class="rounded-lg px-3 py-2 font-semibold text-red-600 hover:bg-red-50">Log out</button>
+                    <button type="submit" class="rounded-lg px-2 py-2 font-semibold text-red-600 hover:bg-red-50 sm:px-3">Log out</button>
                 </form>
             </nav>
         </div>
