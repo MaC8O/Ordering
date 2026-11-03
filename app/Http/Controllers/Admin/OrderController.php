@@ -1,0 +1,128 @@
+<?php
+
+namespace App\Http\Controllers\Admin;
+
+use App\Http\Controllers\Controller;
+use App\Models\Order;
+use App\Services\StoreStatus;
+use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
+
+class OrderController extends Controller
+{
+    public function index(Request $request)
+    {
+        $query = Order::query()->withCount('items');
+
+        if ($request->filled('status')) {
+            $query->where('order_status', $request->input('status'));
+        }
+
+        if ($request->filled('payment_method')) {
+            $query->where('payment_method', $request->input('payment_method'));
+        }
+
+        if ($request->filled('payment_status')) {
+            $query->where('payment_status', $request->input('payment_status'));
+        }
+
+        if ($request->filled('from')) {
+            $query->whereDate('created_at', '>=', $request->date('from'));
+        }
+
+        if ($request->filled('to')) {
+            $query->whereDate('created_at', '<=', $request->date('to'));
+        }
+
+        if ($request->filled('q')) {
+            $q = trim($request->input('q'));
+            $query->where(function ($sub) use ($q) {
+                $sub->where('order_number', 'like', "%{$q}%")
+                    ->orWhere('customer_name', 'like', "%{$q}%")
+                    ->orWhere('customer_phone', 'like', "%{$q}%");
+            });
+        }
+
+        $orders = $query->latest()->paginate(20)->withQueryString();
+
+        return view('admin.orders.index', [
+            'orders' => $orders,
+            'filters' => $request->only(['status', 'payment_method', 'payment_status', 'from', 'to', 'q']),
+            'statuses' => Order::ORDER_STATUSES,
+            'paymentStatuses' => Order::PAYMENT_STATUSES,
+        ]);
+    }
+
+    public function show(Order $order)
+    {
+        $order->load('items');
+
+        return view('admin.orders.show', [
+            'order' => $order,
+            'statuses' => Order::ORDER_STATUSES,
+        ]);
+    }
+
+    public function ticket(Order $order, StoreStatus $status)
+    {
+        $order->load('items');
+
+        return view('admin.orders.ticket', [
+            'order' => $order,
+            'settings' => $status->settings(),
+        ]);
+    }
+
+    public function updateStatus(Request $request, Order $order)
+    {
+        $data = $request->validate([
+            'order_status' => ['required', Rule::in(array_keys(Order::ORDER_STATUSES))],
+        ]);
+
+        $order->update(['order_status' => $data['order_status']]);
+
+        return back()->with('success', 'Order status updated to ' . Order::ORDER_STATUSES[$data['order_status']] . '.');
+    }
+
+    public function updatePayment(Request $request, Order $order)
+    {
+        $data = $request->validate([
+            'payment_status' => ['required', Rule::in(array_keys(Order::PAYMENT_STATUSES))],
+            'admin_note' => ['nullable', 'string', 'max:200'],
+        ]);
+
+        $updates = ['payment_status' => $data['payment_status']];
+
+        if (array_key_exists('admin_note', $data)) {
+            $updates['admin_note'] = $data['admin_note'];
+        }
+
+        // Verifying payment advances a still-pending order to confirmed.
+        if ($data['payment_status'] === 'verified' && $order->order_status === 'pending') {
+            $updates['order_status'] = 'confirmed';
+        }
+
+        // A failed payment cancels the order.
+        if ($data['payment_status'] === 'failed') {
+            $updates['order_status'] = 'cancelled';
+        }
+
+        $order->update($updates);
+
+        return back()->with('success', 'Payment status updated.');
+    }
+
+    public function cancel(Request $request, Order $order)
+    {
+        $data = $request->validate([
+            'admin_note' => ['nullable', 'string', 'max:200'],
+        ]);
+
+        $order->update([
+            'order_status' => 'cancelled',
+            'admin_note' => $data['admin_note'] ?? $order->admin_note,
+        ]);
+
+        return back()->with('success', 'Order cancelled.');
+    }
+}

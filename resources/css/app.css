@@ -1,0 +1,91 @@
+@import 'tailwindcss';
+
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../storage/framework/views/*.php';
+@source '../views';
+
+@theme {
+    --font-sans: 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji',
+        'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+
+    /* Warm, food-friendly palette — deep orange accent on a cream canvas. */
+    --color-brand-50: #fff7ed;
+    --color-brand-100: #ffedd5;
+    --color-brand-200: #fed7aa;
+    --color-brand-300: #fdba74;
+    --color-brand-400: #fb923c;
+    --color-brand-500: #f97316;
+    --color-brand-600: #ea580c;
+    --color-brand-700: #c2410c;
+    --color-brand-800: #9a3412;
+    --color-brand-900: #7c2d12;
+
+    --color-cream: #fdfbf7;
+    --color-ink: #1f1a17;
+    --color-ink-soft: #57504a;
+
+    --radius-card: 1rem;
+}
+
+@layer base {
+    body {
+        background-color: var(--color-cream);
+        color: var(--color-ink);
+        -webkit-font-smoothing: antialiased;
+    }
+}
+
+@layer components {
+    .btn,
+    .btn-primary,
+    .btn-secondary,
+    .btn-ghost {
+        @apply inline-flex items-center justify-center gap-2 rounded-xl px-5 py-3 text-sm font-semibold
+            transition active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50;
+    }
+    .btn-primary {
+        @apply bg-brand-600 text-white shadow-sm hover:bg-brand-700;
+    }
+    .btn-secondary {
+        @apply border border-brand-200 bg-white text-brand-700 hover:bg-brand-50;
+    }
+    .btn-ghost {
+        @apply text-ink-soft hover:bg-black/5;
+    }
+    .card {
+        @apply rounded-2xl border border-black/5 bg-white shadow-sm;
+    }
+    .input {
+        @apply w-full rounded-xl border border-black/10 bg-white px-4 py-3 text-sm text-ink
+            shadow-sm outline-none transition focus:border-brand-400 focus:ring-2 focus:ring-brand-200;
+    }
+    .label {
+        @apply mb-1.5 block text-sm font-semibold text-ink;
+    }
+    .chip {
+        @apply inline-flex items-center whitespace-nowrap rounded-full border px-4 py-2 text-sm font-semibold transition;
+    }
+    .badge {
+        @apply inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold;
+    }
+}
+
+/* Skeleton shimmer for image loading */
+@keyframes shimmer {
+    100% {
+        transform: translateX(100%);
+    }
+}
+.skeleton {
+    position: relative;
+    overflow: hidden;
+    background-color: #eceae6;
+}
+.skeleton::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    transform: translateX(-100%);
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.6), transparent);
+    animation: shimmer 1.4s infinite;
+}

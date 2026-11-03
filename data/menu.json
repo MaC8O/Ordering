@@ -1,0 +1,45 @@
+{
+  "categories": [
+    {
+      "name": "Rice & Noodles",
+      "items": [
+        { "name": "Nasi Goreng Kampung", "price": 8.50, "description": "Wok-fried village-style rice with anchovies, egg, and sambal.", "image_filename": "nasi-goreng-kampung.jpg" },
+        { "name": "Nasi Lemak Ayam", "price": 9.00, "description": "Coconut rice, fried chicken, sambal, egg, peanuts, and cucumber.", "image_filename": "nasi-lemak-ayam.jpg" },
+        { "name": "Mee Goreng Mamak", "price": 7.50, "description": "Spicy stir-fried yellow noodles with tofu, egg, and greens.", "image_filename": "mee-goreng-mamak.jpg" },
+        { "name": "Chicken Rice", "price": 8.00, "description": "Steamed chicken over fragrant rice with chilli and soy.", "image_filename": "chicken-rice.jpg" }
+      ]
+    },
+    {
+      "name": "Burgers & Wraps",
+      "items": [
+        { "name": "Classic Beef Burger", "price": 10.50, "description": "Grilled beef patty, cheese, lettuce, tomato, house sauce.", "image_filename": "beef-burger.jpg" },
+        { "name": "Crispy Chicken Burger", "price": 9.50, "description": "Buttermilk fried chicken, slaw, and spicy mayo.", "image_filename": "chicken-burger.jpg" },
+        { "name": "Falafel Wrap", "price": 8.00, "description": "Chickpea falafel, hummus, salad, and garlic sauce in a warm wrap.", "image_filename": "falafel-wrap.jpg" }
+      ]
+    },
+    {
+      "name": "Snacks & Sides",
+      "items": [
+        { "name": "French Fries", "price": 4.50, "description": "Golden crispy fries with a pinch of salt.", "image_filename": "fries.jpg" },
+        { "name": "Chicken Pop", "price": 6.00, "description": "Bite-sized crispy fried chicken with dip.", "image_filename": "chicken-pop.jpg" },
+        { "name": "Spring Rolls (5 pcs)", "price": 5.50, "description": "Vegetable spring rolls with sweet chilli sauce.", "image_filename": "spring-rolls.jpg" }
+      ]
+    },
+    {
+      "name": "Drinks",
+      "items": [
+        { "name": "Teh Tarik", "price": 3.00, "description": "Pulled milk tea, hot or iced.", "image_filename": "teh-tarik.jpg" },
+        { "name": "Iced Lemon Tea", "price": 3.50, "description": "Refreshing iced tea with fresh lemon.", "image_filename": "iced-lemon-tea.jpg" },
+        { "name": "Mineral Water", "price": 2.00, "description": "500ml bottled water.", "image_filename": "water.jpg" },
+        { "name": "Fresh Orange Juice", "price": 5.00, "description": "Cold-pressed orange juice, no sugar added.", "image_filename": "orange-juice.jpg" }
+      ]
+    },
+    {
+      "name": "Desserts",
+      "items": [
+        { "name": "Chocolate Brownie", "price": 6.50, "description": "Warm fudgy brownie with a scoop of vanilla.", "image_filename": "brownie.jpg" },
+        { "name": "Cheesecake Slice", "price": 7.00, "description": "Creamy baked cheesecake with berry compote.", "image_filename": "cheesecake.jpg" }
+      ]
+    }
+  ]
+}
