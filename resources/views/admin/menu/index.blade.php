@@ -41,9 +41,9 @@
                             <th class="px-4 py-3"></th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-line">
                         @forelse ($items as $item)
-                            <tr x-data="{ editing: false }">
+                            <tbody x-data="{ editing: false }" class="border-t border-line">
+                            <tr>
                                 <td class="px-4 py-3">
                                     <div class="flex items-center gap-3">
                                         <div class="h-12 w-12 shrink-0 overflow-hidden rounded-lg bg-brand-50">
@@ -81,10 +81,12 @@
                                     @include('admin.menu.partials.item-form', ['action' => route('admin.items.update', $item), 'item' => $item, 'categories' => $categories])
                                 </td>
                             </tr>
+                            </tbody>
                         @empty
+                            <tbody>
                             <tr><td colspan="5" class="px-4 py-8 text-center text-sm text-ink-soft">No items yet.</td></tr>
+                            </tbody>
                         @endforelse
-                    </tbody>
                 </table>
             </div>
         </div>
