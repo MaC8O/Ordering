@@ -6,6 +6,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', $storeStatus->restaurantName())</title>
     <link rel="icon" href="{{ file_exists(public_path('logo.png')) ? asset('logo.png') : asset('favicon.ico') }}">
+    @include('partials.theme-head')
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <script>
         window.CURRENCY = @json(config('ordering.currency'));
@@ -14,7 +15,7 @@
 </head>
 <body class="min-h-screen flex flex-col">
     {{-- Sticky top nav --}}
-    <header class="sticky top-0 z-40 border-b border-black/5 bg-cream/90 backdrop-blur">
+    <header class="sticky top-0 z-40 border-b border-line bg-cream/90 backdrop-blur">
         <nav class="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3">
             <a href="{{ route('menu.index') }}" class="flex items-center gap-2 font-bold text-ink">
                 @if (file_exists(public_path('logo.png')))
@@ -26,10 +27,11 @@
             </a>
 
             <div class="flex items-center gap-1 sm:gap-2">
-                <a href="{{ route('menu.index') }}" class="rounded-lg px-3 py-2 text-sm font-semibold text-ink-soft hover:bg-black/5 {{ request()->routeIs('menu.*') ? 'text-brand-700' : '' }}">Menu</a>
-                <a href="{{ route('my-order.index') }}" class="rounded-lg px-3 py-2 text-sm font-semibold text-ink-soft hover:bg-black/5 {{ request()->routeIs('my-order.*') ? 'text-brand-700' : '' }}">My Order</a>
-                <a href="{{ route('about') }}" class="rounded-lg px-3 py-2 text-sm font-semibold text-ink-soft hover:bg-black/5 {{ request()->routeIs('about') ? 'text-brand-700' : '' }}">About</a>
-                <a href="{{ route('cart.index') }}" class="relative rounded-lg px-3 py-2 text-sm font-semibold text-ink hover:bg-black/5" aria-label="Cart">
+                @include('partials.theme-toggle')
+                <a href="{{ route('menu.index') }}" class="rounded-lg px-3 py-2 text-sm font-semibold text-ink-soft hover:bg-hover {{ request()->routeIs('menu.*') ? 'text-brand-700' : '' }}">Menu</a>
+                <a href="{{ route('my-order.index') }}" class="rounded-lg px-3 py-2 text-sm font-semibold text-ink-soft hover:bg-hover {{ request()->routeIs('my-order.*') ? 'text-brand-700' : '' }}">My Order</a>
+                <a href="{{ route('about') }}" class="rounded-lg px-3 py-2 text-sm font-semibold text-ink-soft hover:bg-hover {{ request()->routeIs('about') ? 'text-brand-700' : '' }}">About</a>
+                <a href="{{ route('cart.index') }}" class="relative rounded-lg px-3 py-2 text-sm font-semibold text-ink hover:bg-hover" aria-label="Cart">
                     <span class="flex items-center gap-1.5">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 0 0-3 3h15.75m-12.75-3h11.218c1.121-.534 2.3-3.429 2.74-5.5H6.91m0 0L5.106 5.272M7.5 14.25 5.106 5.272" /><circle cx="9" cy="20" r="1" /><circle cx="18" cy="20" r="1" /></svg>
                         <span class="hidden sm:inline">Cart</span>
@@ -56,7 +58,7 @@
         @yield('content')
     </main>
 
-    <footer class="border-t border-black/5 bg-white">
+    <footer class="border-t border-line bg-surface">
         <div class="mx-auto max-w-6xl px-4 py-8 text-sm text-ink-soft">
             <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                 <p class="font-semibold text-ink">{{ $storeStatus->restaurantName() }}</p>

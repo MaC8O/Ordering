@@ -65,7 +65,7 @@
                     <h2 class="text-lg font-bold">Payment</h2>
                     <div class="mt-4 grid gap-3 sm:grid-cols-2">
                         <label class="flex cursor-pointer items-center gap-3 rounded-xl border p-4 transition"
-                               :class="f.payment === 'qr' ? 'border-brand-600 bg-brand-50' : 'border-black/10'">
+                               :class="f.payment === 'qr' ? 'border-brand-600 bg-brand-50' : 'border-line'">
                             <input type="radio" name="payment_method" value="qr" x-model="f.payment" class="h-4 w-4 accent-brand-600">
                             <span>
                                 <span class="block font-semibold">QR bank transfer</span>
@@ -73,7 +73,7 @@
                             </span>
                         </label>
                         <label class="flex cursor-pointer items-center gap-3 rounded-xl border p-4 transition"
-                               :class="f.payment === 'cash' ? 'border-brand-600 bg-brand-50' : 'border-black/10'">
+                               :class="f.payment === 'cash' ? 'border-brand-600 bg-brand-50' : 'border-line'">
                             <input type="radio" name="payment_method" value="cash" x-model="f.payment" class="h-4 w-4 accent-brand-600">
                             <span>
                                 <span class="block font-semibold">Cash on delivery</span>
@@ -87,7 +87,7 @@
                     <div x-show="f.payment === 'qr'" x-transition class="mt-5 rounded-xl border border-brand-100 bg-brand-50/60 p-4">
                         <p class="text-sm font-semibold">Scan and transfer, then upload the screenshot.</p>
                         <div class="mt-3 flex flex-col items-start gap-4 sm:flex-row">
-                            <div class="h-44 w-44 shrink-0 overflow-hidden rounded-xl border bg-white p-2">
+                            <div class="h-44 w-44 shrink-0 overflow-hidden rounded-xl border border-line bg-white p-2">
                                 @if ($settings->qr_image_path && file_exists(public_path($settings->qr_image_path)))
                                     <img src="{{ asset($settings->qr_image_path) }}" alt="Payment QR code" class="h-full w-full object-contain">
                                 @else
@@ -143,7 +143,7 @@
                             </div>
                         </template>
 
-                        <hr class="border-black/5">
+                        <hr class="border-line">
                         <div class="flex justify-between text-sm">
                             <span class="text-ink-soft">Subtotal</span>
                             <span class="font-semibold" x-text="window.CURRENCY + ' ' + window.money($store.cart.subtotal)"></span>

@@ -6,10 +6,11 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'Admin') · {{ config('app.name') }}</title>
     <link rel="icon" href="{{ asset('favicon.ico') }}">
+    @include('partials.theme-head')
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="min-h-screen bg-cream">
-    <header class="sticky top-0 z-40 border-b border-black/5 bg-white">
+    <header class="sticky top-0 z-40 border-b border-line bg-surface">
         <div class="mx-auto flex max-w-6xl items-center justify-between gap-2 px-3 py-3 sm:gap-4 sm:px-4">
             <a href="{{ route('admin.dashboard') }}" class="flex items-center gap-2 font-bold">
                 <span class="grid h-8 w-8 place-items-center rounded-lg bg-brand-600 text-white">🍽️</span>
@@ -27,11 +28,12 @@
                 @endphp
                 @foreach ($navItems as $route => $label)
                     <a href="{{ route($route) }}"
-                       class="rounded-lg px-2 py-2 font-semibold hover:bg-black/5 sm:px-3 {{ request()->routeIs(str_replace('.index', '.*', str_replace('.edit','.*',$route))) || request()->routeIs($route) ? 'bg-brand-50 text-brand-700' : 'text-ink-soft' }}">
+                       class="rounded-lg px-2 py-2 font-semibold hover:bg-hover sm:px-3 {{ request()->routeIs(str_replace('.index', '.*', str_replace('.edit','.*',$route))) || request()->routeIs($route) ? 'bg-brand-50 text-brand-700' : 'text-ink-soft' }}">
                         {{ $label }}
                     </a>
                 @endforeach
-                <a href="{{ route('menu.index') }}" target="_blank" class="hidden rounded-lg px-3 py-2 font-semibold text-ink-soft hover:bg-black/5 sm:inline">View site ↗</a>
+                <a href="{{ route('menu.index') }}" target="_blank" class="hidden rounded-lg px-3 py-2 font-semibold text-ink-soft hover:bg-hover sm:inline">View site ↗</a>
+                @include('partials.theme-toggle')
                 <form method="POST" action="{{ route('admin.logout') }}">
                     @csrf
                     <button type="submit" class="rounded-lg px-2 py-2 font-semibold text-red-600 hover:bg-red-50 sm:px-3">Log out</button>

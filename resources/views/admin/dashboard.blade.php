@@ -9,7 +9,7 @@
         {{-- Manual accepting-orders override --}}
         <form method="POST" action="{{ route('admin.accepting.toggle') }}">
             @csrf
-            <div class="flex items-center gap-3 rounded-xl border border-black/10 bg-white px-4 py-2">
+            <div class="flex items-center gap-3 rounded-xl border border-line bg-surface px-4 py-2">
                 <span class="text-sm font-semibold">Accepting orders</span>
                 @if ($settings->accepting_orders)
                     <span class="badge bg-green-100 text-green-800">ON</span>
@@ -59,9 +59,9 @@
     @if ($orders->isEmpty())
         <div class="card mt-3 p-8 text-center text-sm text-ink-soft">No orders yet today.</div>
     @else
-        <div class="mt-3 overflow-hidden rounded-2xl border border-black/5 bg-white">
+        <div class="mt-3 overflow-hidden rounded-2xl border border-line bg-surface">
             <table class="w-full text-left text-sm">
-                <thead class="bg-black/[0.02] text-xs uppercase tracking-wide text-ink-soft">
+                <thead class="bg-surface-2 text-xs uppercase tracking-wide text-ink-soft">
                     <tr>
                         <th class="px-4 py-3">Order</th>
                         <th class="px-4 py-3">Time</th>
@@ -71,7 +71,7 @@
                         <th class="px-4 py-3">Status</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-black/5">
+                <tbody class="divide-y divide-line">
                     @foreach ($orders as $order)
                         <tr class="cursor-pointer hover:bg-brand-50/50" onclick="window.location='{{ route('admin.orders.show', $order) }}'">
                             <td class="px-4 py-3 font-semibold">{{ $order->order_number }}</td>

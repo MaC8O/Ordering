@@ -47,9 +47,9 @@
     @if ($orders->isEmpty())
         <div class="card p-8 text-center text-sm text-ink-soft">No orders match these filters.</div>
     @else
-        <div class="overflow-x-auto rounded-2xl border border-black/5 bg-white">
+        <div class="overflow-x-auto rounded-2xl border border-line bg-surface">
             <table class="w-full text-left text-sm">
-                <thead class="bg-black/[0.02] text-xs uppercase tracking-wide text-ink-soft">
+                <thead class="bg-surface-2 text-xs uppercase tracking-wide text-ink-soft">
                     <tr>
                         <th class="px-4 py-3">Order</th>
                         <th class="px-4 py-3">Time</th>
@@ -60,7 +60,7 @@
                         <th class="px-4 py-3">Status</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-black/5">
+                <tbody class="divide-y divide-line">
                     @foreach ($orders as $order)
                         <tr class="cursor-pointer hover:bg-brand-50/50" onclick="window.location='{{ route('admin.orders.show', $order) }}'">
                             <td class="px-4 py-3 font-semibold">{{ $order->order_number }}</td>

@@ -25,7 +25,7 @@
         <div class="space-y-6">
             <div class="card p-5">
                 <h2 class="text-sm font-bold uppercase tracking-wide text-ink-soft">Items</h2>
-                <div class="mt-3 divide-y divide-black/5">
+                <div class="mt-3 divide-y divide-line">
                     @foreach ($order->items as $line)
                         <div class="flex items-start justify-between gap-3 py-2 text-sm">
                             <span>
@@ -37,7 +37,7 @@
                         </div>
                     @endforeach
                 </div>
-                <div class="mt-3 space-y-1 border-t border-black/5 pt-3 text-sm">
+                <div class="mt-3 space-y-1 border-t border-line pt-3 text-sm">
                     <div class="flex justify-between"><span class="text-ink-soft">Subtotal</span><span>{{ config('ordering.currency') }} {{ $order->subtotal_formatted }}</span></div>
                     <div class="flex justify-between"><span class="text-ink-soft">Delivery fee</span><span>{{ config('ordering.currency') }} {{ $order->delivery_fee_formatted }}</span></div>
                     <div class="flex justify-between text-base font-bold"><span>Total</span><span>{{ config('ordering.currency') }} {{ $order->total_formatted }}</span></div>
@@ -53,8 +53,8 @@
                     <div><dt class="text-ink-soft">Room</dt><dd class="font-semibold">{{ $order->delivery_room }}</dd></div>
                     @if ($order->preferred_time)<div><dt class="text-ink-soft">Preferred time</dt><dd class="font-semibold">{{ \Illuminate\Support\Str::of($order->preferred_time)->substr(0,5) }}</dd></div>@endif
                 </dl>
-                @if ($order->delivery_notes)<p class="mt-3 rounded-lg bg-black/[0.03] p-3 text-sm"><span class="text-ink-soft">Delivery notes:</span> {{ $order->delivery_notes }}</p>@endif
-                @if ($order->notes)<p class="mt-2 rounded-lg bg-black/[0.03] p-3 text-sm"><span class="text-ink-soft">Order notes:</span> {{ $order->notes }}</p>@endif
+                @if ($order->delivery_notes)<p class="mt-3 rounded-lg bg-surface-2 p-3 text-sm"><span class="text-ink-soft">Delivery notes:</span> {{ $order->delivery_notes }}</p>@endif
+                @if ($order->notes)<p class="mt-2 rounded-lg bg-surface-2 p-3 text-sm"><span class="text-ink-soft">Order notes:</span> {{ $order->notes }}</p>@endif
             </div>
         </div>
 
@@ -68,7 +68,7 @@
                 @if ($order->payment_method === 'qr')
                     @if ($order->payment_screenshot_path && file_exists(public_path($order->payment_screenshot_path)))
                         <button type="button" @click="lightbox = true" class="mt-3 block w-full overflow-hidden rounded-xl border">
-                            <img src="{{ asset($order->payment_screenshot_path) }}" alt="Payment screenshot" class="max-h-56 w-full object-contain bg-black/[0.02]">
+                            <img src="{{ asset($order->payment_screenshot_path) }}" alt="Payment screenshot" class="max-h-56 w-full object-contain bg-surface-2">
                         </button>
                         <p class="mt-1 text-xs text-ink-soft">Tap to view full size.</p>
 
@@ -80,7 +80,7 @@
                         <p class="mt-3 rounded-lg bg-amber-50 p-3 text-sm text-amber-800">No screenshot uploaded.</p>
                     @endif
                 @else
-                    <p class="mt-3 rounded-lg bg-black/[0.03] p-3 text-sm">Collect {{ config('ordering.currency') }} {{ $order->total_formatted }} in cash on delivery.</p>
+                    <p class="mt-3 rounded-lg bg-surface-2 p-3 text-sm">Collect {{ config('ordering.currency') }} {{ $order->total_formatted }} in cash on delivery.</p>
                 @endif
 
                 <form method="POST" action="{{ route('admin.orders.payment', $order) }}" class="mt-4 space-y-2">

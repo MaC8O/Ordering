@@ -7,7 +7,7 @@
 
     <div x-data="{ tab: @js(request('tab', 'items')) }">
         {{-- Tabs --}}
-        <div class="mb-5 inline-flex rounded-xl border border-black/10 bg-white p-1">
+        <div class="mb-5 inline-flex rounded-xl border border-line bg-surface p-1">
             <button @click="tab = 'items'" :class="tab === 'items' ? 'bg-brand-600 text-white' : 'text-ink-soft'" class="rounded-lg px-4 py-2 text-sm font-semibold">Items</button>
             <button @click="tab = 'categories'" :class="tab === 'categories' ? 'bg-brand-600 text-white' : 'text-ink-soft'" class="rounded-lg px-4 py-2 text-sm font-semibold">Categories</button>
         </div>
@@ -30,9 +30,9 @@
             @endif
 
             {{-- Item list --}}
-            <div class="overflow-x-auto rounded-2xl border border-black/5 bg-white">
+            <div class="overflow-x-auto rounded-2xl border border-line bg-surface">
                 <table class="w-full text-left text-sm">
-                    <thead class="bg-black/[0.02] text-xs uppercase tracking-wide text-ink-soft">
+                    <thead class="bg-surface-2 text-xs uppercase tracking-wide text-ink-soft">
                         <tr>
                             <th class="px-4 py-3">Item</th>
                             <th class="px-4 py-3">Category</th>
@@ -41,7 +41,7 @@
                             <th class="px-4 py-3"></th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-black/5">
+                    <tbody class="divide-y divide-line">
                         @forelse ($items as $item)
                             <tr x-data="{ editing: false }">
                                 <td class="px-4 py-3">
@@ -77,7 +77,7 @@
                                 </td>
                             </tr>
                             <tr x-show="editing" x-cloak>
-                                <td colspan="5" class="bg-black/[0.02] px-4 py-4">
+                                <td colspan="5" class="bg-surface-2 px-4 py-4">
                                     @include('admin.menu.partials.item-form', ['action' => route('admin.items.update', $item), 'item' => $item, 'categories' => $categories])
                                 </td>
                             </tr>
@@ -101,9 +101,9 @@
                 @error('name') <p class="mt-2 text-sm text-red-600">{{ $message }}</p> @enderror
             </div>
 
-            <div class="overflow-hidden rounded-2xl border border-black/5 bg-white" id="category-list">
+            <div class="overflow-hidden rounded-2xl border border-line bg-surface" id="category-list">
                 <table class="w-full text-left text-sm">
-                    <thead class="bg-black/[0.02] text-xs uppercase tracking-wide text-ink-soft">
+                    <thead class="bg-surface-2 text-xs uppercase tracking-wide text-ink-soft">
                         <tr>
                             <th class="px-4 py-3">Order</th>
                             <th class="px-4 py-3">Name</th>
@@ -112,7 +112,7 @@
                             <th class="px-4 py-3"></th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-black/5">
+                    <tbody class="divide-y divide-line">
                         @foreach ($categories as $i => $category)
                             <tr>
                                 <td class="px-4 py-3">

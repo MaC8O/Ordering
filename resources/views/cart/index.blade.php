@@ -41,7 +41,7 @@
                                 <p x-show="line.note" class="mt-0.5 text-xs text-ink-soft" x-text="line.note"></p>
 
                                 <div class="mt-auto flex items-center justify-between gap-2 pt-2">
-                                    <div class="inline-flex items-center rounded-lg border border-black/10">
+                                    <div class="inline-flex items-center rounded-lg border border-line">
                                         <button type="button" @click="$store.cart.decrement(line.id)" class="grid h-9 w-9 place-items-center font-bold text-ink-soft hover:text-brand-700">−</button>
                                         <span class="w-8 text-center text-sm font-semibold" x-text="line.qty"></span>
                                         <button type="button" @click="$store.cart.increment(line.id)" class="grid h-9 w-9 place-items-center font-bold text-ink-soft hover:text-brand-700">+</button>

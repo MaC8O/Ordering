@@ -33,9 +33,9 @@
 
             <div class="mt-6">
                 <label class="label">Quantity</label>
-                <div class="inline-flex items-center rounded-xl border border-black/10 bg-white">
+                <div class="inline-flex items-center rounded-xl border border-line bg-surface">
                     <button type="button" @click="qty = Math.max(1, qty - 1)" class="grid h-11 w-11 place-items-center text-xl font-bold text-ink-soft hover:text-brand-700" aria-label="Decrease">−</button>
-                    <input type="number" min="1" max="20" x-model.number="qty" @change="qty = Math.max(1, Math.min(20, parseInt(qty)||1))" class="h-11 w-14 border-x border-black/10 text-center font-semibold outline-none">
+                    <input type="number" min="1" max="20" x-model.number="qty" @change="qty = Math.max(1, Math.min(20, parseInt(qty)||1))" class="h-11 w-14 border-x border-line text-center font-semibold outline-none">
                     <button type="button" @click="qty = Math.min(20, qty + 1)" class="grid h-11 w-11 place-items-center text-xl font-bold text-ink-soft hover:text-brand-700" aria-label="Increase">+</button>
                 </div>
                 <p class="mt-1 text-xs text-ink-soft">Up to 20 per item.</p>

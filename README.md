@@ -59,6 +59,10 @@ Then open http://127.0.0.1:8000.
 - **Open/close rule** (always server-side, never trusted from the client):
   `accepting_orders` (manual switch) **AND** today's schedule `is_open` **AND**
   `open_time ≤ now ≤ close_time − cutoff_minutes`.
+- **Dark mode**: a light/dark toggle in the nav (storefront and admin) that
+  persists per browser and defaults to the OS preference. Colours are CSS tokens
+  that flip under `[data-theme="dark"]`; a tiny inline script applies the saved
+  theme before first paint to avoid a flash.
 
 ## SMS notifications (Twilio)
 

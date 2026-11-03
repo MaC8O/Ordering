@@ -86,7 +86,7 @@
                     @endif
 
                     <h2 class="mt-6 text-sm font-bold uppercase tracking-wide text-ink-soft">Items</h2>
-                    <div class="mt-2 divide-y divide-black/5">
+                    <div class="mt-2 divide-y divide-line">
                         @foreach ($order->items as $line)
                             <div class="flex justify-between gap-3 py-2 text-sm">
                                 <span><span class="font-semibold">{{ $line->quantity }}×</span> {{ $line->item_name_snapshot }}</span>
@@ -94,7 +94,7 @@
                             </div>
                         @endforeach
                     </div>
-                    <div class="mt-2 flex justify-between border-t border-black/5 pt-2 text-base font-bold">
+                    <div class="mt-2 flex justify-between border-t border-line pt-2 text-base font-bold">
                         <span>Total</span><span>{{ config('ordering.currency') }} {{ $order->total_formatted }}</span>
                     </div>
 

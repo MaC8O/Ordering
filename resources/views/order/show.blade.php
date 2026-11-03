@@ -59,7 +59,7 @@
 
                 {{-- Items --}}
                 <h2 class="mt-6 text-sm font-bold uppercase tracking-wide text-ink-soft">Items</h2>
-                <div class="mt-2 divide-y divide-black/5">
+                <div class="mt-2 divide-y divide-line">
                     @foreach ($order->items as $line)
                         <div class="flex items-start justify-between gap-3 py-2 text-sm">
                             <span>
@@ -71,7 +71,7 @@
                     @endforeach
                 </div>
 
-                <div class="mt-3 space-y-1 border-t border-black/5 pt-3 text-sm">
+                <div class="mt-3 space-y-1 border-t border-line pt-3 text-sm">
                     <div class="flex justify-between"><span class="text-ink-soft">Subtotal</span><span>{{ config('ordering.currency') }} {{ $order->subtotal_formatted }}</span></div>
                     <div class="flex justify-between"><span class="text-ink-soft">Delivery fee</span><span>{{ config('ordering.currency') }} {{ $order->delivery_fee_formatted }}</span></div>
                     <div class="flex justify-between text-base font-bold"><span>Total</span><span>{{ config('ordering.currency') }} {{ $order->total_formatted }}</span></div>

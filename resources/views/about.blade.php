@@ -30,7 +30,7 @@
 
         <div class="card p-5">
             <h2 class="text-sm font-bold uppercase tracking-wide text-ink-soft">Opening hours</h2>
-            <dl class="mt-3 divide-y divide-black/5">
+            <dl class="mt-3 divide-y divide-line">
                 @foreach ($schedule as $day)
                     <div class="flex justify-between py-2 text-sm">
                         <dt class="font-semibold">{{ $day->weekday_name }}</dt>

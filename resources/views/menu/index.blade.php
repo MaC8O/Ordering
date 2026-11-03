@@ -21,7 +21,7 @@
             </span>
             <h1 class="mt-4 text-3xl font-bold leading-[1.1] sm:text-5xl">Authentic Thai,<br>delivered to your dorm.</h1>
             <p class="mt-4 max-w-md text-brand-50/90">Noodles, fried rice, and spicy basil favourites — built fresh and brought to your door. Pay by QR transfer or cash on delivery.</p>
-            <a href="#menu-start" class="btn-secondary mt-6 !bg-white !text-brand-700">Browse the menu</a>
+            <a href="#menu-start" class="btn-secondary mt-6 !bg-surface !text-brand-700">Browse the menu</a>
         </div>
     </section>
 

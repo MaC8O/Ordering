@@ -20,25 +20,71 @@
     --color-brand-800: #9a3412;
     --color-brand-900: #7c2d12;
 
-    /* Secondary accent — deep teal (echoes the restaurant's menu colours) */
+    /* Secondary accent — deep teal */
     --color-teal-50: #effcf9;
     --color-teal-100: #d6f5ef;
     --color-teal-500: #14b8a6;
     --color-teal-600: #0d9488;
     --color-teal-700: #0f766e;
 
-    /* Neutrals */
+    /* Semantic surfaces & text (these flip in dark mode) */
     --color-cream: #fdf8f2;
     --color-sand: #f6efe6;
     --color-ink: #231a14;
     --color-ink-soft: #6a5d52;
+    --color-surface: #ffffff;
+    --color-surface-2: #f4ede4;
+    --color-line: rgba(35, 26, 20, 0.08);
+    --color-hover: rgba(35, 26, 20, 0.05);
+    --color-disabled: #d8d1c9;
 
     --radius-card: 1.25rem;
+}
+
+/* ---------- Dark theme token overrides ---------- */
+/* System dark (unless the viewer explicitly chose light) */
+@media (prefers-color-scheme: dark) {
+    :root:not([data-theme='light']) {
+        --color-cream: #161210;
+        --color-sand: #211a15;
+        --color-ink: #f3ede6;
+        --color-ink-soft: #ab9f94;
+        --color-surface: #211a15;
+        --color-surface-2: #2b231d;
+        --color-line: rgba(255, 255, 255, 0.10);
+        --color-hover: rgba(255, 255, 255, 0.06);
+        --color-disabled: #3a322b;
+        --color-brand-50: #2e1c10;
+        --color-brand-100: #3a2415;
+        --color-teal-50: #0e241f;
+        --color-teal-100: #123a33;
+    }
+}
+/* Explicit dark choice */
+:root[data-theme='dark'] {
+    --color-cream: #161210;
+    --color-sand: #211a15;
+    --color-ink: #f3ede6;
+    --color-ink-soft: #ab9f94;
+    --color-surface: #211a15;
+    --color-surface-2: #2b231d;
+    --color-line: rgba(255, 255, 255, 0.10);
+    --color-hover: rgba(255, 255, 255, 0.06);
+    --color-disabled: #3a322b;
+    --color-brand-50: #2e1c10;
+    --color-brand-100: #3a2415;
+    --color-teal-50: #0e241f;
+    --color-teal-100: #123a33;
 }
 
 @layer base {
     html {
         -webkit-text-size-adjust: 100%;
+        color-scheme: light;
+    }
+    :root[data-theme='dark'] { color-scheme: dark; }
+    @media (prefers-color-scheme: dark) {
+        :root:not([data-theme='light']) { color-scheme: dark; }
     }
     body {
         background-color: var(--color-cream);
@@ -49,6 +95,22 @@
         color: var(--color-ink);
         -webkit-font-smoothing: antialiased;
         text-rendering: optimizeLegibility;
+    }
+    :root[data-theme='dark'] body,
+    :root:not([data-theme='light']) body {
+        /* overridden below by media query only when system is dark */
+    }
+    :root[data-theme='dark'] body {
+        background-image:
+            radial-gradient(900px 500px at 110% -5%, #2c1d11 0%, transparent 55%),
+            radial-gradient(700px 500px at -10% 0%, #10211d 0%, transparent 50%);
+    }
+    @media (prefers-color-scheme: dark) {
+        :root:not([data-theme='light']) body {
+            background-image:
+                radial-gradient(900px 500px at 110% -5%, #2c1d11 0%, transparent 55%),
+                radial-gradient(700px 500px at -10% 0%, #10211d 0%, transparent 50%);
+        }
     }
     ::selection {
         background: var(--color-brand-200);
@@ -78,12 +140,13 @@
     }
     .btn-primary:disabled {
         background-image: none;
-        background-color: #d8d1c9;
+        background-color: var(--color-disabled);
         color: #fff;
         box-shadow: none;
     }
     .btn-secondary {
-        @apply border bg-white text-brand-700;
+        @apply border text-brand-700;
+        background-color: var(--color-surface);
         border-color: var(--color-brand-200);
         box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
     }
@@ -94,27 +157,28 @@
         @apply text-ink-soft;
     }
     .btn-ghost:hover {
-        background: rgba(0, 0, 0, 0.05);
+        background: var(--color-hover);
     }
 
     .card {
-        @apply rounded-2xl bg-white;
-        border: 1px solid rgba(35, 26, 20, 0.06);
-        box-shadow: 0 1px 2px rgba(35, 26, 20, 0.04), 0 8px 24px -18px rgba(35, 26, 20, 0.25);
+        @apply rounded-2xl;
+        background-color: var(--color-surface);
+        border: 1px solid var(--color-line);
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04), 0 8px 24px -18px rgba(0, 0, 0, 0.25);
     }
 
-    /* Menu cards lift on hover */
     .card-lift {
         transition: transform 0.25s ease, box-shadow 0.25s ease;
     }
     .card-lift:hover {
         transform: translateY(-4px);
-        box-shadow: 0 1px 2px rgba(35, 26, 20, 0.05), 0 22px 40px -24px rgba(234, 88, 12, 0.45);
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05), 0 22px 40px -24px rgba(234, 88, 12, 0.45);
     }
 
     .input {
-        @apply w-full rounded-xl bg-white px-4 py-3 text-sm text-ink outline-none transition;
-        border: 1px solid rgba(35, 26, 20, 0.12);
+        @apply w-full rounded-xl px-4 py-3 text-sm text-ink outline-none transition;
+        background-color: var(--color-surface);
+        border: 1px solid var(--color-line);
         box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
     }
     .input:focus {
@@ -135,7 +199,9 @@
         box-shadow: 0 8px 18px -10px rgba(234, 88, 12, 0.7);
     }
     .chip-idle {
-        @apply border-black/10 bg-white text-ink-soft;
+        background-color: var(--color-surface);
+        border-color: var(--color-line);
+        color: var(--color-ink-soft);
     }
     .chip-idle:hover {
         @apply border-brand-200 text-brand-700;
@@ -149,8 +215,11 @@
         @apply text-lg font-bold;
         color: var(--color-brand-700);
     }
+    :root[data-theme='dark'] .price { color: var(--color-brand-400); }
+    @media (prefers-color-scheme: dark) {
+        :root:not([data-theme='light']) .price { color: var(--color-brand-400); }
+    }
 
-    /* Round icon add-button used on menu cards */
     .add-fab {
         @apply grid place-items-center rounded-full text-white transition-all duration-200 active:scale-90;
         height: 2.5rem;
@@ -163,21 +232,19 @@
     }
     .add-fab:disabled {
         background-image: none;
-        background-color: #d8d1c9;
+        background-color: var(--color-disabled);
         box-shadow: none;
     }
 }
 
 /* Skeleton shimmer for image loading */
 @keyframes shimmer {
-    100% {
-        transform: translateX(100%);
-    }
+    100% { transform: translateX(100%); }
 }
 .skeleton {
     position: relative;
     overflow: hidden;
-    background-color: #eceae6;
+    background-color: var(--color-surface-2);
 }
 .skeleton::after {
     content: '';
@@ -188,6 +255,4 @@
     animation: shimmer 1.4s infinite;
 }
 
-[x-cloak] {
-    display: none !important;
-}
+[x-cloak] { display: none !important; }
