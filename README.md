@@ -60,6 +60,20 @@ Then open http://127.0.0.1:8000.
   `accepting_orders` (manual switch) **AND** today's schedule `is_open` **AND**
   `open_time ≤ now ≤ close_time − cutoff_minutes`.
 
+## SMS notifications (Twilio)
+
+When an admin moves an order to **Out for delivery**, the customer is texted a
+"your order is on the way" message with the arrival ETA and a tracking link.
+
+- Configure Twilio in `.env`: `TWILIO_SID`, `TWILIO_TOKEN`, `TWILIO_FROM`
+  (a Twilio number or Messaging Service SID). `SMS_DEFAULT_COUNTRY_CODE`
+  (default `+66`) is prepended to local numbers when formatting to E.164.
+- **If Twilio is not configured, the message is written to the log instead of
+  being sent** (`storage/logs/laravel.log`, tagged `[SMS stub]`), so the feature
+  works in demo mode and starts sending for real the moment credentials are added.
+- The send is wrapped in a try/catch — a Twilio failure never blocks the status
+  update; the admin sees the outcome in the success message.
+
 ## Uploads
 
 Stored under `public/uploads/`:

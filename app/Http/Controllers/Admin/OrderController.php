@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Order;
+use App\Models\Setting;
+use App\Services\SmsService;
 use App\Services\StoreStatus;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -73,13 +75,14 @@ class OrderController extends Controller
         ]);
     }
 
-    public function updateStatus(Request $request, Order $order)
+    public function updateStatus(Request $request, Order $order, SmsService $sms)
     {
         $data = $request->validate([
             'order_status' => ['required', Rule::in(array_keys(Order::ORDER_STATUSES))],
             'eta_minutes' => ['nullable', 'integer', 'min:1', 'max:240'],
         ]);
 
+        $wasOutForDelivery = $order->order_status === 'out_for_delivery';
         $updates = ['order_status' => $data['order_status']];
 
         if ($data['order_status'] === 'out_for_delivery') {
@@ -91,7 +94,37 @@ class OrderController extends Controller
 
         $order->update($updates);
 
-        return back()->with('success', 'Order status updated to ' . Order::ORDER_STATUSES[$data['order_status']] . '.');
+        $message = 'Order status updated to ' . Order::ORDER_STATUSES[$data['order_status']] . '.';
+
+        // Text the customer when the order first goes out for delivery.
+        if ($data['order_status'] === 'out_for_delivery' && ! $wasOutForDelivery) {
+            $message .= ' ' . $this->sendOnTheWaySms($order, $sms);
+        }
+
+        return back()->with('success', $message);
+    }
+
+    protected function sendOnTheWaySms(Order $order, SmsService $sms): string
+    {
+        $settings = Setting::current();
+        $eta = $order->etaLabel();
+        $url = route('order.show', $order->order_number);
+
+        $body = "Hi {$order->customer_name}, your {$settings->restaurant_name} order "
+            . "{$order->order_number} is on the way!"
+            . ($eta ? " Arriving {$eta}." : '')
+            . " Track: {$url}";
+
+        $result = $sms->send($order->customer_phone, $body);
+
+        if ($result['stub']) {
+            return 'SMS logged (Twilio not configured — set TWILIO_* in .env to send for real).';
+        }
+        if ($result['sent']) {
+            return 'An SMS was sent to the customer.';
+        }
+
+        return 'Could not send the SMS (' . ($result['error'] ?? 'unknown error') . ').';
     }
 
     public function updatePayment(Request $request, Order $order)

@@ -121,6 +121,9 @@
                         <input type="number" name="eta_minutes" min="1" max="240" value="{{ $order->etaMinutesLeft() ?? 20 }}" class="input !w-20 !py-1.5 text-center">
                         minutes
                     </label>
+                    <p x-show="status === 'out_for_delivery' && '{{ $order->order_status }}' !== 'out_for_delivery'" x-cloak class="flex items-center gap-1.5 text-xs text-teal-700">
+                        <span>📲</span> The customer gets an SMS with the arrival time when you send this out.
+                    </p>
                 </form>
 
                 @if ($order->order_status !== 'cancelled')

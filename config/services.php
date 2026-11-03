@@ -35,4 +35,13 @@ return [
         ],
     ],
 
+    'twilio' => [
+        'sid' => env('TWILIO_SID'),
+        'token' => env('TWILIO_TOKEN'),
+        // The Twilio phone number (or Messaging Service SID) that sends the SMS.
+        'from' => env('TWILIO_FROM'),
+        // Prefixed to local numbers that don't start with "+" when formatting to E.164.
+        'default_country_code' => env('SMS_DEFAULT_COUNTRY_CODE', '+66'),
+    ],
+
 ];
