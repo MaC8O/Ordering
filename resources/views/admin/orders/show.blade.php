@@ -96,16 +96,31 @@
             </div>
 
             {{-- Status --}}
-            <div class="card p-5">
+            <div class="card p-5" x-data="{ status: @js($order->order_status) }">
                 <h2 class="text-sm font-bold uppercase tracking-wide text-ink-soft">Order status</h2>
-                <form method="POST" action="{{ route('admin.orders.status', $order) }}" class="mt-3 flex gap-2">
+
+                @if ($order->isOutForDelivery() && $order->eta_at)
+                    <p class="mt-2 rounded-lg bg-teal-50 px-3 py-2 text-sm font-semibold text-teal-700">
+                        🛵 Out for delivery — ETA {{ $order->etaLabel() }}
+                    </p>
+                @endif
+
+                <form method="POST" action="{{ route('admin.orders.status', $order) }}" class="mt-3 space-y-2">
                     @csrf @method('PATCH')
-                    <select name="order_status" class="input !py-2 text-sm">
-                        @foreach ($statuses as $key => $label)
-                            <option value="{{ $key }}" @selected($order->order_status === $key)>{{ $label }}</option>
-                        @endforeach
-                    </select>
-                    <button class="btn-primary !py-2 text-sm">Update</button>
+                    <div class="flex gap-2">
+                        <select name="order_status" x-model="status" class="input !py-2 text-sm">
+                            @foreach ($statuses as $key => $label)
+                                <option value="{{ $key }}" @selected($order->order_status === $key)>{{ $label }}</option>
+                            @endforeach
+                        </select>
+                        <button class="btn-primary !py-2 text-sm">Update</button>
+                    </div>
+                    {{-- ETA only matters when sending it out for delivery --}}
+                    <label x-show="status === 'out_for_delivery'" x-cloak class="flex items-center gap-2 text-sm text-ink-soft">
+                        Arriving in
+                        <input type="number" name="eta_minutes" min="1" max="240" value="{{ $order->etaMinutesLeft() ?? 20 }}" class="input !w-20 !py-1.5 text-center">
+                        minutes
+                    </label>
                 </form>
 
                 @if ($order->order_status !== 'cancelled')

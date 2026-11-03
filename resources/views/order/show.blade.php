@@ -29,6 +29,17 @@
                     <span class="badge bg-brand-100 text-brand-800">{{ $order->order_status_label }}</span>
                 </div>
 
+                @if ($order->isOutForDelivery())
+                    <div class="mt-4 flex items-center gap-3 rounded-xl bg-gradient-to-br from-teal-600 to-teal-700 p-4 text-white">
+                        <span class="text-3xl motion-safe:animate-bounce">🛵</span>
+                        <div>
+                            <p class="font-bold">On the way!</p>
+                            @if ($order->etaLabel())<p class="text-sm text-teal-50/90">Arriving {{ $order->etaLabel() }}.</p>@endif
+                        </div>
+                        <a href="{{ route('my-order.index') }}" class="ml-auto rounded-lg bg-white/15 px-3 py-1.5 text-sm font-semibold hover:bg-white/25">Track</a>
+                    </div>
+                @endif
+
                 @if ($order->payment_method === 'cash')
                     <div class="mt-4 rounded-xl border border-brand-100 bg-brand-50/60 p-4 text-sm">
                         Please prepare <span class="font-bold text-brand-700">{{ config('ordering.currency') }} {{ $order->total_formatted }}</span> in cash for the rider.

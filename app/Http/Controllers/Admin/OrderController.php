@@ -77,9 +77,19 @@ class OrderController extends Controller
     {
         $data = $request->validate([
             'order_status' => ['required', Rule::in(array_keys(Order::ORDER_STATUSES))],
+            'eta_minutes' => ['nullable', 'integer', 'min:1', 'max:240'],
         ]);
 
-        $order->update(['order_status' => $data['order_status']]);
+        $updates = ['order_status' => $data['order_status']];
+
+        if ($data['order_status'] === 'out_for_delivery') {
+            // Set an estimated arrival time (admin's minutes, or a 20-min default).
+            $updates['eta_at'] = now()->addMinutes((int) ($data['eta_minutes'] ?? 20));
+        } elseif (in_array($data['order_status'], ['completed', 'cancelled'], true)) {
+            $updates['eta_at'] = null;
+        }
+
+        $order->update($updates);
 
         return back()->with('success', 'Order status updated to ' . Order::ORDER_STATUSES[$data['order_status']] . '.');
     }

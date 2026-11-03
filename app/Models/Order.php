@@ -37,6 +37,7 @@ class Order extends Model
         'payment_screenshot_path',
         'payment_status',
         'order_status',
+        'eta_at',
         'subtotal',
         'delivery_fee',
         'total',
@@ -48,6 +49,7 @@ class Order extends Model
         'subtotal' => 'integer',
         'delivery_fee' => 'integer',
         'total' => 'integer',
+        'eta_at' => 'datetime',
     ];
 
     public function items(): HasMany
@@ -78,5 +80,49 @@ class Order extends Model
     public function getPaymentStatusLabelAttribute(): string
     {
         return self::PAYMENT_STATUSES[$this->payment_status] ?? ucfirst($this->payment_status);
+    }
+
+    public function isOutForDelivery(): bool
+    {
+        return $this->order_status === 'out_for_delivery';
+    }
+
+    public function isDone(): bool
+    {
+        return in_array($this->order_status, ['completed', 'cancelled'], true);
+    }
+
+    /**
+     * Whole minutes until the estimated arrival (0 when due/overdue), or null.
+     */
+    public function etaMinutesLeft(): ?int
+    {
+        if (! $this->eta_at) {
+            return null;
+        }
+
+        return max(0, (int) ceil(now()->diffInSeconds($this->eta_at, false) / 60));
+    }
+
+    /**
+     * Friendly arrival line, e.g. "around 18:45 · in about 12 min".
+     */
+    public function etaLabel(): ?string
+    {
+        if (! $this->eta_at) {
+            return null;
+        }
+
+        $time = $this->eta_at->format('H:i');
+        $mins = $this->etaMinutesLeft();
+
+        if ($mins === null) {
+            return "around {$time}";
+        }
+        if ($mins <= 0) {
+            return "around {$time} · arriving any moment";
+        }
+
+        return "around {$time} · in about {$mins} min";
     }
 }
