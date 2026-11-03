@@ -1,2 +1,2 @@
-*
-!.gitignore
+# Menu photos are seed assets for this project — keep them in the repo.
+# (Payment screenshots under ../payments stay ignored.)

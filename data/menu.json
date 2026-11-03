@@ -1,44 +1,80 @@
 {
   "categories": [
     {
-      "name": "Rice & Noodles",
+      "name": "Noodle Soups",
       "items": [
-        { "name": "Nasi Goreng Kampung", "price": 8.50, "description": "Wok-fried village-style rice with anchovies, egg, and sambal.", "image_filename": "nasi-goreng-kampung.jpg" },
-        { "name": "Nasi Lemak Ayam", "price": 9.00, "description": "Coconut rice, fried chicken, sambal, egg, peanuts, and cucumber.", "image_filename": "nasi-lemak-ayam.jpg" },
-        { "name": "Mee Goreng Mamak", "price": 7.50, "description": "Spicy stir-fried yellow noodles with tofu, egg, and greens.", "image_filename": "mee-goreng-mamak.jpg" },
-        { "name": "Chicken Rice", "price": 8.00, "description": "Steamed chicken over fragrant rice with chilli and soy.", "image_filename": "chicken-rice.jpg" }
+        { "name": "Pork Noodle Soup", "price": 8.00, "description": "Clear pork broth noodles (nam tok / nam sai) with fresh greens and fish balls.", "image_filename": "pork-noodle-soup.jpg" },
+        { "name": "Beef Noodle Soup", "price": 9.00, "description": "Rice noodles in a rich clear beef broth.", "image_filename": "pork-noodle-soup.jpg" },
+        { "name": "Tom Yum Pork Noodles", "price": 8.50, "description": "Spicy-sour tom yum noodle soup with pork.", "image_filename": "tomyum-pork-noodles.jpg" },
+        { "name": "Tom Yum Beef Noodles", "price": 9.50, "description": "Spicy-sour tom yum noodle soup with beef.", "image_filename": "tomyum-pork-noodles.jpg" },
+        { "name": "Yen Ta Fo Seafood Noodles", "price": 9.50, "description": "Pink fermented bean-curd noodle soup with mixed seafood.", "image_filename": "pork-noodle-soup.jpg" }
       ]
     },
     {
-      "name": "Burgers & Wraps",
+      "name": "Rad Na & Gravy Noodles",
       "items": [
-        { "name": "Classic Beef Burger", "price": 10.50, "description": "Grilled beef patty, cheese, lettuce, tomato, house sauce.", "image_filename": "beef-burger.jpg" },
-        { "name": "Crispy Chicken Burger", "price": 9.50, "description": "Buttermilk fried chicken, slaw, and spicy mayo.", "image_filename": "chicken-burger.jpg" },
-        { "name": "Falafel Wrap", "price": 8.00, "description": "Chickpea falafel, hummus, salad, and garlic sauce in a warm wrap.", "image_filename": "falafel-wrap.jpg" }
+        { "name": "Rad Na Pork", "price": 8.50, "description": "Flat noodles with pork in a silky gravy and Chinese greens.", "image_filename": "radna-pork.jpg" },
+        { "name": "Rad Na Chicken", "price": 8.50, "description": "Flat noodles with chicken in a silky gravy and greens.", "image_filename": "radna-pork.jpg" },
+        { "name": "Rad Na Seafood", "price": 10.50, "description": "Crispy noodles topped with seafood gravy and greens.", "image_filename": "radna-seafood.jpg" }
       ]
     },
     {
-      "name": "Snacks & Sides",
+      "name": "Stir-fried Noodles",
       "items": [
-        { "name": "French Fries", "price": 4.50, "description": "Golden crispy fries with a pinch of salt.", "image_filename": "fries.jpg" },
-        { "name": "Chicken Pop", "price": 6.00, "description": "Bite-sized crispy fried chicken with dip.", "image_filename": "chicken-pop.jpg" },
-        { "name": "Spring Rolls (5 pcs)", "price": 5.50, "description": "Vegetable spring rolls with sweet chilli sauce.", "image_filename": "spring-rolls.jpg" }
+        { "name": "Pad See Ew Pork", "price": 8.50, "description": "Flat noodles stir-fried in dark soy with pork, egg, and greens.", "image_filename": "pad-see-ew.jpg" },
+        { "name": "Pad See Ew Chicken", "price": 8.50, "description": "Flat noodles stir-fried in dark soy with chicken, egg, and greens.", "image_filename": "pad-see-ew.jpg" },
+        { "name": "Pad Thai Pork", "price": 9.00, "description": "Classic Thai fried noodles with egg, peanuts, and lime.", "image_filename": "pad-thai.jpg" },
+        { "name": "Pad Thai Seafood", "price": 11.00, "description": "Thai fried noodles with mixed seafood, egg, peanuts, and lime.", "image_filename": "pad-thai.jpg" },
+        { "name": "Drunken Noodles (Pad Kee Mao) Pork", "price": 9.00, "description": "Spicy stir-fried noodles with holy basil, chilli, and pork.", "image_filename": "drunken-noodles.jpg" },
+        { "name": "Drunken Noodles Seafood", "price": 11.00, "description": "Spicy stir-fried noodles with holy basil, chilli, and seafood.", "image_filename": "drunken-noodles.jpg" }
       ]
     },
     {
-      "name": "Drinks",
+      "name": "Fried Rice",
       "items": [
-        { "name": "Teh Tarik", "price": 3.00, "description": "Pulled milk tea, hot or iced.", "image_filename": "teh-tarik.jpg" },
-        { "name": "Iced Lemon Tea", "price": 3.50, "description": "Refreshing iced tea with fresh lemon.", "image_filename": "iced-lemon-tea.jpg" },
-        { "name": "Mineral Water", "price": 2.00, "description": "500ml bottled water.", "image_filename": "water.jpg" },
-        { "name": "Fresh Orange Juice", "price": 5.00, "description": "Cold-pressed orange juice, no sugar added.", "image_filename": "orange-juice.jpg" }
+        { "name": "Pork Fried Rice", "price": 8.00, "description": "Thai-style fried rice with pork, egg, and spring onion.", "image_filename": "pork-fried-rice.jpg" },
+        { "name": "Chicken Fried Rice", "price": 8.00, "description": "Thai-style fried rice with chicken, egg, and spring onion.", "image_filename": "pork-fried-rice.jpg" },
+        { "name": "Seafood Fried Rice", "price": 10.00, "description": "Thai-style fried rice with mixed seafood and egg.", "image_filename": "pork-fried-rice.jpg" },
+        { "name": "Tom Yum Fried Rice", "price": 9.00, "description": "Fried rice tossed with spicy-sour tom yum paste and herbs.", "image_filename": "tomyum-fried-rice.jpg" },
+        { "name": "Mixed Meat Fried Rice", "price": 9.50, "description": "Fried rice with a mix of pork, chicken, and beef.", "image_filename": "tomyum-fried-rice.jpg" }
       ]
     },
     {
-      "name": "Desserts",
+      "name": "Basil Stir-fry (Pad Kra Pao)",
       "items": [
-        { "name": "Chocolate Brownie", "price": 6.50, "description": "Warm fudgy brownie with a scoop of vanilla.", "image_filename": "brownie.jpg" },
-        { "name": "Cheesecake Slice", "price": 7.00, "description": "Creamy baked cheesecake with berry compote.", "image_filename": "cheesecake.jpg" }
+        { "name": "Spicy Basil Pork", "price": 8.50, "description": "Stir-fried pork with holy basil, chilli, and garlic. Served with rice.", "image_filename": "basil-pork.jpg" },
+        { "name": "Spicy Basil Chicken", "price": 8.50, "description": "Stir-fried chicken with holy basil, chilli, and garlic. Served with rice.", "image_filename": "basil-pork.jpg" },
+        { "name": "Spicy Basil Beef", "price": 9.50, "description": "Stir-fried beef with holy basil, chilli, and garlic. Served with rice.", "image_filename": "basil-pork.jpg" },
+        { "name": "Spicy Basil Seafood", "price": 10.50, "description": "Stir-fried seafood with holy basil, chilli, and garlic. Served with rice.", "image_filename": "basil-seafood.jpg" }
+      ]
+    },
+    {
+      "name": "Rice Plates & Specials",
+      "items": [
+        { "name": "Crispy Chicken Rice", "price": 9.50, "description": "Golden crispy fried chicken served over rice with sauce.", "image_filename": "crispy-chicken-rice.jpg" },
+        { "name": "Crispy Chicken with Kale", "price": 10.50, "description": "Crispy chicken stir-fried with kale, served with rice.", "image_filename": "crispy-chicken-kale.jpg" },
+        { "name": "Fried Chicken Rice", "price": 9.00, "description": "Southern-style fried chicken served with rice and dip.", "image_filename": "fried-chicken-rice.jpg" },
+        { "name": "Stir-fried Chilli Beef Rice", "price": 10.00, "description": "Beef stir-fried with roasted chilli paste, served with rice.", "image_filename": "chilli-beef.jpg" },
+        { "name": "Fried Chilli Salt Chicken", "price": 9.50, "description": "Chicken fried with chilli and salt, served with rice.", "image_filename": "chilli-salt-chicken.jpg" },
+        { "name": "Garlic & Pepper Pork", "price": 9.50, "description": "Pork stir-fried with garlic and peppercorns, served with rice.", "image_filename": "garlic-pepper.jpg" },
+        { "name": "Green Curry Chicken with Rice", "price": 10.50, "description": "Thai green curry with chicken, served with rice.", "image_filename": "green-curry-chicken.jpg" },
+        { "name": "Omelette Rice", "price": 7.50, "description": "Thai-style omelette served over steamed rice.", "image_filename": "omelette-rice.jpg" }
+      ]
+    },
+    {
+      "name": "Vegetables & Sides",
+      "items": [
+        { "name": "Stir-fried Mixed Vegetables", "price": 7.50, "description": "Mixed vegetables sautéed in oyster sauce.", "image_filename": "mixed-veg-oyster.jpg" },
+        { "name": "Stir-fried Vegetables", "price": 7.00, "description": "Seasonal vegetables stir-fried with garlic.", "image_filename": "stir-fried-veg.jpg" },
+        { "name": "Fried Egg", "price": 2.50, "description": "A classic Thai crispy-edged fried egg.", "image_filename": "omelette-rice.jpg" }
+      ]
+    },
+    {
+      "name": "Suki",
+      "items": [
+        { "name": "Suki (Soup or Dry)", "price": 10.00, "description": "Thai sukiyaki with glass noodles, egg, and vegetables in the signature sauce.", "image_filename": "suki.jpg" },
+        { "name": "Suki Chicken", "price": 10.00, "description": "Thai sukiyaki with chicken, glass noodles, and vegetables.", "image_filename": "suki.jpg" },
+        { "name": "Suki Seafood", "price": 12.00, "description": "Thai sukiyaki with mixed seafood, glass noodles, and vegetables.", "image_filename": "suki.jpg" }
       ]
     }
   ]
