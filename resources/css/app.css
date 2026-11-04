@@ -255,4 +255,41 @@
     animation: shimmer 1.4s infinite;
 }
 
+/* ---------- Header & footer flourishes ---------- */
+@keyframes logo-bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-2.5px); } }
+@keyframes logo-wiggle { 0%, 100% { transform: rotate(0); } 25% { transform: rotate(-9deg); } 75% { transform: rotate(9deg); } }
+@keyframes heart-beat { 0%, 100% { transform: scale(1); } 15% { transform: scale(1.25); } 30% { transform: scale(1); } 45% { transform: scale(1.12); } }
+@keyframes rise-in { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+/* Food logo gently bobs, and does a playful wiggle on hover */
+.logo-mark { animation: logo-bob 3.2s ease-in-out infinite; will-change: transform; }
+.logo-link:hover .logo-mark { animation: logo-wiggle 0.55s ease-in-out; }
+
+/* Nav links grow an animated underline on hover / when active */
+.nav-link { position: relative; }
+.nav-link::after {
+    content: '';
+    position: absolute;
+    left: 0.5rem; right: 0.5rem; bottom: 0.3rem;
+    height: 2px; border-radius: 2px;
+    background-image: linear-gradient(90deg, var(--color-brand-400), var(--color-brand-600));
+    transform: scaleX(0);
+    transform-origin: center;
+    transition: transform 0.25s ease;
+}
+.nav-link:hover::after,
+.nav-link.is-active::after { transform: scaleX(1); }
+
+.heart-beat { display: inline-block; animation: heart-beat 1.8s ease-in-out infinite; }
+
+/* Gentle reveal for menu category sections */
+.reveal { animation: rise-in 0.5s ease-out both; }
+
+@media (prefers-reduced-motion: reduce) {
+    .logo-mark,
+    .logo-link:hover .logo-mark,
+    .heart-beat,
+    .reveal { animation: none !important; }
+}
+
 [x-cloak] { display: none !important; }

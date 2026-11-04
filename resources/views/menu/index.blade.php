@@ -48,7 +48,7 @@
     @else
         <div x-data="{ cat: 'all' }" id="menu-start">
             {{-- Category chips --}}
-            <div class="sticky top-[60px] z-30 -mx-4 mb-6 flex gap-2 overflow-x-auto bg-cream/80 px-4 py-2 backdrop-blur [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+            <div class="sticky top-[60px] z-30 -mx-4 mb-6 flex flex-wrap gap-2 bg-cream/85 px-4 py-3 backdrop-blur">
                 <button type="button" @click="cat = 'all'"
                         :class="cat === 'all' ? 'chip-active' : 'chip-idle'"
                         class="chip">{{ __('All') }}</button>
@@ -61,7 +61,7 @@
 
             {{-- Item grid, grouped by category --}}
             @foreach ($categories as $category)
-                <section x-show="cat === 'all' || cat === '{{ $category->id }}'" class="mb-10">
+                <section x-show="cat === 'all' || cat === '{{ $category->id }}'" class="reveal mb-10">
                     <h2 class="mb-4 flex items-center gap-2.5 text-xl font-bold">
                         <span class="h-5 w-1.5 rounded-full bg-gradient-to-b from-brand-400 to-brand-600"></span>
                         {{ $category->localized_name }}
