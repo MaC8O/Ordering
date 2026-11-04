@@ -285,11 +285,23 @@
 /* Gentle reveal for menu category sections */
 .reveal { animation: rise-in 0.5s ease-out both; }
 
+/* Floating decorative food on the hero */
+@keyframes hero-float {
+    0%, 100% { transform: translateY(0) rotate(-3deg); }
+    50% { transform: translateY(-14px) rotate(3deg); }
+}
+.hero-float {
+    animation: hero-float 5.5s ease-in-out infinite;
+    filter: drop-shadow(0 10px 14px rgba(0, 0, 0, 0.25));
+    will-change: transform;
+}
+
 @media (prefers-reduced-motion: reduce) {
     .logo-mark,
     .logo-link:hover .logo-mark,
     .heart-beat,
-    .reveal { animation: none !important; }
+    .reveal,
+    .hero-float { animation: none !important; }
 }
 
 [x-cloak] { display: none !important; }

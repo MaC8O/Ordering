@@ -4,24 +4,55 @@
 
 @section('content')
     {{-- Hero --}}
-    <section class="relative mb-7 overflow-hidden rounded-3xl px-6 py-11 text-white sm:px-10 sm:py-16"
-             style="background-image: linear-gradient(135deg, #ea580c 0%, #9a3412 60%, #7c2d12 100%);">
+    <section class="relative mb-8 overflow-hidden rounded-3xl px-6 py-12 text-white shadow-xl shadow-brand-900/10 sm:px-10 sm:py-16"
+             style="background-image: linear-gradient(135deg, #fb923c 0%, #ea580c 42%, #9a3412 100%);">
         {{-- decorative glow blobs --}}
-        <div class="pointer-events-none absolute -right-16 -top-20 h-64 w-64 rounded-full bg-brand-400/40 blur-3xl"></div>
-        <div class="pointer-events-none absolute -bottom-24 right-24 h-56 w-56 rounded-full bg-teal-500/20 blur-3xl"></div>
-        <div class="pointer-events-none absolute right-6 top-6 hidden select-none text-[7rem] leading-none opacity-20 sm:block">🍜</div>
+        <div class="pointer-events-none absolute -right-20 -top-24 h-72 w-72 rounded-full bg-amber-200/40 blur-3xl"></div>
+        <div class="pointer-events-none absolute -bottom-28 left-10 h-64 w-64 rounded-full bg-rose-500/25 blur-3xl"></div>
+        {{-- subtle dotted texture --}}
+        <div class="pointer-events-none absolute inset-0 opacity-[0.08]"
+             style="background-image: radial-gradient(#fff 1px, transparent 1px); background-size: 22px 22px;"></div>
+
+        {{-- floating food, fills the right side --}}
+        <div aria-hidden="true" class="pointer-events-none absolute inset-y-0 right-0 hidden w-2/5 select-none md:block">
+            <span class="hero-float absolute right-16 top-9 text-6xl" style="animation-delay: 0s">🍜</span>
+            <span class="hero-float absolute right-44 top-24 text-4xl" style="animation-delay: .7s">🌶️</span>
+            <span class="hero-float absolute right-10 top-44 text-5xl" style="animation-delay: 1.3s">🍚</span>
+            <span class="hero-float absolute bottom-12 right-32 text-4xl" style="animation-delay: 1.9s">🥢</span>
+        </div>
 
         <div class="relative max-w-xl">
-            <span class="inline-flex items-center gap-2 rounded-full bg-white/15 px-3 py-1 text-xs font-semibold uppercase tracking-wide backdrop-blur">
+            <span class="inline-flex items-center gap-2 rounded-full bg-white/15 px-3.5 py-1.5 text-xs font-semibold uppercase tracking-wide ring-1 ring-white/20 backdrop-blur">
                 @if ($storeStatus->isOpen())
-                    <span class="h-2 w-2 rounded-full bg-green-300 shadow-[0_0_8px_2px_rgba(134,239,172,0.7)]"></span> {{ __('Open now') }}
+                    <span class="relative flex h-2.5 w-2.5">
+                        <span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-300 opacity-75"></span>
+                        <span class="relative inline-flex h-2.5 w-2.5 rounded-full bg-green-300"></span>
+                    </span>
+                    {{ __('Open now') }}
                 @else
                     <span class="h-2 w-2 rounded-full bg-amber-300"></span> {{ __('Closed') }}{{ $storeStatus->nextOpeningLabelLocalized() ? ' · ' . $storeStatus->nextOpeningLabelLocalized() : '' }}
                 @endif
             </span>
-            <h1 class="mt-4 text-3xl font-bold leading-[1.1] sm:text-5xl">{{ __('Authentic Thai,') }}<br>{{ __('delivered to your dorm.') }}</h1>
-            <p class="mt-4 max-w-md text-brand-50/90">{{ __('Noodles, fried rice, and spicy basil favourites — built fresh and brought to your door. Pay by QR transfer or cash on delivery.') }}</p>
-            <a href="#menu-start" class="btn-secondary mt-6 !bg-surface !text-brand-700">{{ __('Browse the menu') }}</a>
+
+            <h1 class="mt-5 text-4xl font-extrabold leading-[1.08] tracking-tight drop-shadow-sm sm:text-5xl">
+                {{ __('Authentic Thai,') }}<br>
+                <span class="bg-gradient-to-r from-amber-100 to-white bg-clip-text text-transparent">{{ __('delivered to your dorm.') }}</span>
+            </h1>
+
+            <p class="mt-4 max-w-md text-base leading-relaxed text-white/90">{{ __('Noodles, fried rice, and spicy basil favourites — built fresh and brought to your door. Pay by QR transfer or cash on delivery.') }}</p>
+
+            <div class="mt-7 flex flex-wrap items-center gap-3">
+                <a href="#menu-start" class="inline-flex items-center gap-2 rounded-full bg-white px-6 py-3 font-bold text-brand-700 shadow-lg shadow-brand-900/20 transition-transform duration-200 hover:-translate-y-0.5 hover:bg-amber-50">
+                    {{ __('Browse the menu') }}
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12h15m0 0-6-6m6 6-6 6"/></svg>
+                </a>
+            </div>
+
+            <div class="mt-7 flex flex-wrap gap-2 text-xs font-semibold">
+                <span class="rounded-full bg-white/15 px-3 py-1.5 ring-1 ring-white/15 backdrop-blur">⚡ {{ __('Fast campus delivery') }}</span>
+                <span class="rounded-full bg-white/15 px-3 py-1.5 ring-1 ring-white/15 backdrop-blur">💳 {{ __('QR or cash') }}</span>
+                <span class="rounded-full bg-white/15 px-3 py-1.5 ring-1 ring-white/15 backdrop-blur">🌶️ {{ __('Made fresh to order') }}</span>
+            </div>
         </div>
     </section>
 
