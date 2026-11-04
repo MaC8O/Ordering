@@ -15,7 +15,7 @@ class Order extends Model
         'confirmed' => 'Confirmed',
         'preparing' => 'Preparing',
         'out_for_delivery' => 'Out for delivery',
-        'completed' => 'Completed',
+        'completed' => 'Delivered',
         'cancelled' => 'Cancelled',
     ];
 
@@ -31,6 +31,7 @@ class Order extends Model
         'customer_phone',
         'delivery_dorm',
         'delivery_room',
+        'delivery_date',
         'delivery_notes',
         'preferred_time',
         'payment_method',
@@ -50,6 +51,7 @@ class Order extends Model
         'delivery_fee' => 'integer',
         'total' => 'integer',
         'eta_at' => 'datetime',
+        'delivery_date' => 'date',
     ];
 
     public function items(): HasMany

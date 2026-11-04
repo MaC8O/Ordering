@@ -2,7 +2,6 @@
 
 namespace App\Http\Requests;
 
-use App\Models\Setting;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -15,13 +14,11 @@ class CheckoutRequest extends FormRequest
 
     public function rules(): array
     {
-        $dorms = (array) (Setting::current()->dorms ?? []);
-
         return [
             'customer_name' => ['required', 'string', 'min:2', 'max:120'],
             'customer_phone' => ['required', 'string', 'regex:/^\+?[0-9]{7,15}$/'],
-            'delivery_dorm' => ['required', 'string', Rule::in($dorms)],
-            'delivery_room' => ['required', 'string', 'max:30'],
+            'delivery_dorm' => ['required', 'string', 'min:2', 'max:120'],
+            'delivery_date' => ['required', 'date_format:Y-m-d', 'after_or_equal:today'],
             'delivery_notes' => ['nullable', 'string', 'max:500'],
             'preferred_time' => ['nullable', 'date_format:H:i'],
             'notes' => ['nullable', 'string', 'max:500'],
@@ -41,7 +38,7 @@ class CheckoutRequest extends FormRequest
     {
         return [
             'customer_phone.regex' => 'Enter a valid phone number (digits only, 7–15 characters, optional leading +).',
-            'delivery_dorm.in' => 'Please choose a dorm or building from the list.',
+            'delivery_date.after_or_equal' => 'The delivery date cannot be in the past.',
             'payment_screenshot.required' => 'Please upload a screenshot of your transfer.',
             'payment_screenshot.max' => 'The screenshot must be 5 MB or smaller.',
             'payment_screenshot.image' => 'The upload must be an image file.',
@@ -53,8 +50,8 @@ class CheckoutRequest extends FormRequest
         return [
             'customer_name' => 'full name',
             'customer_phone' => 'phone number',
-            'delivery_dorm' => 'dorm / building',
-            'delivery_room' => 'room number',
+            'delivery_dorm' => 'dorm / building / address',
+            'delivery_date' => 'delivery date',
             'payment_screenshot' => 'payment screenshot',
         ];
     }

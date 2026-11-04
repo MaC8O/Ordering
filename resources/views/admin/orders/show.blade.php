@@ -49,8 +49,8 @@
                 <dl class="mt-3 grid gap-3 text-sm sm:grid-cols-2">
                     <div><dt class="text-ink-soft">Name</dt><dd class="font-semibold">{{ $order->customer_name }}</dd></div>
                     <div><dt class="text-ink-soft">Phone</dt><dd class="font-semibold"><a href="tel:{{ $order->customer_phone }}" class="text-brand-700">{{ $order->customer_phone }}</a></dd></div>
-                    <div><dt class="text-ink-soft">Dorm / building</dt><dd class="font-semibold">{{ $order->delivery_dorm }}</dd></div>
-                    <div><dt class="text-ink-soft">Room</dt><dd class="font-semibold">{{ $order->delivery_room }}</dd></div>
+                    <div class="sm:col-span-2"><dt class="text-ink-soft">Dorm / building / address</dt><dd class="font-semibold">{{ $order->delivery_dorm }}</dd></div>
+                    @if ($order->delivery_date)<div><dt class="text-ink-soft">Delivery date</dt><dd class="font-semibold">{{ $order->delivery_date->format('D, d M Y') }}</dd></div>@endif
                     @if ($order->preferred_time)<div><dt class="text-ink-soft">Preferred time</dt><dd class="font-semibold">{{ \Illuminate\Support\Str::of($order->preferred_time)->substr(0,5) }}</dd></div>@endif
                 </dl>
                 @if ($order->delivery_notes)<p class="mt-3 rounded-lg bg-surface-2 p-3 text-sm"><span class="text-ink-soft">Delivery notes:</span> {{ $order->delivery_notes }}</p>@endif

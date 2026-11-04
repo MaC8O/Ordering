@@ -56,9 +56,13 @@ class CheckoutController extends Controller
                 ->with('error', 'One or more items are no longer available. Please review your cart.');
         }
 
-        // 3. Validate preferred delivery time against today's hours.
+        // 3. Validate preferred delivery time against the chosen date's hours.
         if ($request->filled('preferred_time')) {
-            $error = $this->validatePreferredTime($request->input('preferred_time'), $status);
+            $error = $this->validatePreferredTime(
+                $request->input('preferred_time'),
+                $request->input('delivery_date'),
+                $status
+            );
             if ($error) {
                 return back()->withInput()->withErrors(['preferred_time' => $error]);
             }
@@ -97,7 +101,8 @@ class CheckoutController extends Controller
                 'customer_name' => $request->string('customer_name'),
                 'customer_phone' => $request->string('customer_phone'),
                 'delivery_dorm' => $request->string('delivery_dorm'),
-                'delivery_room' => $request->string('delivery_room'),
+                'delivery_room' => null,
+                'delivery_date' => $request->input('delivery_date'),
                 'delivery_notes' => $request->input('delivery_notes'),
                 'preferred_time' => $request->input('preferred_time'),
                 'payment_method' => $request->string('payment_method'),
@@ -168,7 +173,7 @@ class CheckoutController extends Controller
         return $cart;
     }
 
-    protected function validatePreferredTime(string $time, StoreStatus $status): ?string
+    protected function validatePreferredTime(string $time, ?string $date, StoreStatus $status): ?string
     {
         try {
             $preferred = Carbon::createFromFormat('H:i', $time);
@@ -177,20 +182,29 @@ class CheckoutController extends Controller
         }
 
         $now = Carbon::now();
-        $preferredToday = $now->copy()->setTime($preferred->hour, $preferred->minute, 0);
 
-        if ($preferredToday->lessThan($now)) {
+        // Anchor the preferred time to the chosen delivery date (fall back to today).
+        try {
+            $day = $date ? Carbon::createFromFormat('Y-m-d', $date)->startOfDay() : $now->copy()->startOfDay();
+        } catch (\Throwable) {
+            $day = $now->copy()->startOfDay();
+        }
+
+        $preferredAt = $day->copy()->setTime($preferred->hour, $preferred->minute, 0);
+
+        // Only guard against the past when the delivery is for today.
+        if ($preferredAt->lessThan($now)) {
             return 'Preferred time cannot be in the past.';
         }
 
-        $settings = $status->settings();
-        $row = \App\Models\Schedule::where('weekday', (int) $now->dayOfWeek)->first();
+        // Check against the opening hours for that weekday.
+        $row = \App\Models\Schedule::where('weekday', (int) $day->dayOfWeek)->first();
 
         if ($row && $row->is_open) {
             [$ch, $cm] = array_pad(explode(':', $row->close_time), 2, '0');
-            $close = $now->copy()->setTime((int) $ch, (int) $cm, 0);
-            if ($preferredToday->greaterThan($close)) {
-                return 'Preferred time must be before we close today (' . substr($row->close_time, 0, 5) . ').';
+            $close = $day->copy()->setTime((int) $ch, (int) $cm, 0);
+            if ($preferredAt->greaterThan($close)) {
+                return 'Preferred time must be before we close that day (' . substr($row->close_time, 0, 5) . ').';
             }
         }
 
