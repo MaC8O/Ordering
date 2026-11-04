@@ -7,11 +7,11 @@ use App\Services\StoreStatus;
 
 class OrderController extends Controller
 {
-    public function show(string $order_number, StoreStatus $status)
+    public function show(Order $order, StoreStatus $status)
     {
-        $order = Order::with('items')
-            ->where('order_number', $order_number)
-            ->firstOrFail();
+        // Bound by its unguessable public_token (see routes/web.php),
+        // so the page can't be reached by guessing the order number.
+        $order->load('items');
 
         return view('order.show', [
             'order' => $order,

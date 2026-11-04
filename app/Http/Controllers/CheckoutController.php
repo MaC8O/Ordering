@@ -119,11 +119,12 @@ class CheckoutController extends Controller
             return $order;
         });
 
-        // 6. QR screenshot upload (saved as /uploads/payments/{order_number}.{ext}).
+        // 6. QR screenshot upload. Named by the unguessable token (never the
+        //    sequential order number) so receipts can't be found by guessing.
         if ($request->input('payment_method') === 'qr' && $request->hasFile('payment_screenshot')) {
             $file = $request->file('payment_screenshot');
             $ext = strtolower($file->getClientOriginalExtension() ?: $file->extension());
-            $filename = $order->order_number . '.' . $ext;
+            $filename = $order->public_token . '.' . $ext;
 
             $dir = public_path('uploads/payments');
             if (! is_dir($dir)) {
@@ -134,7 +135,7 @@ class CheckoutController extends Controller
             $order->update(['payment_screenshot_path' => 'uploads/payments/' . $filename]);
         }
 
-        return redirect()->route('order.show', $order->order_number);
+        return redirect()->route('order.show', $order->public_token);
     }
 
     /**

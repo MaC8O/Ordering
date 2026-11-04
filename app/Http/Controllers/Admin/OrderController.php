@@ -108,7 +108,7 @@ class OrderController extends Controller
     {
         $settings = Setting::current();
         $eta = $order->etaLabel();
-        $url = route('order.show', $order->order_number);
+        $url = route('order.show', $order->public_token);
 
         $body = "Hi {$order->customer_name}, your {$settings->restaurant_name} order "
             . "{$order->order_number} is on the way!"

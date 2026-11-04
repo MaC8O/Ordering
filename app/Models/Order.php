@@ -5,10 +5,21 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Str;
 
 class Order extends Model
 {
     use HasFactory;
+
+    protected static function booted(): void
+    {
+        // Give every order an unguessable public token for its URL.
+        static::creating(function (Order $order) {
+            if (empty($order->public_token)) {
+                $order->public_token = Str::random(32);
+            }
+        });
+    }
 
     public const ORDER_STATUSES = [
         'pending' => 'Pending',
