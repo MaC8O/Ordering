@@ -2,9 +2,14 @@
     @csrf
     @if ($item) @method('PATCH') @endif
 
-    <div class="sm:col-span-2">
-        <label class="label">Name</label>
+    <div>
+        <label class="label">Name (English)</label>
         <input name="name" value="{{ old('name', $item?->name) }}" class="input" required>
+    </div>
+
+    <div>
+        <label class="label">ชื่อ (ไทย) <span class="font-normal text-ink-soft">— Thai name</span></label>
+        <input name="name_th" value="{{ old('name_th', $item?->name_th) }}" class="input" placeholder="เช่น ผัดไทยหมู">
     </div>
 
     <div>
@@ -22,8 +27,13 @@
     </div>
 
     <div class="sm:col-span-2">
-        <label class="label">Description</label>
+        <label class="label">Description (English)</label>
         <textarea name="description" rows="2" maxlength="500" class="input">{{ old('description', $item?->description) }}</textarea>
+    </div>
+
+    <div class="sm:col-span-2">
+        <label class="label">คำอธิบาย (ไทย) <span class="font-normal text-ink-soft">— Thai description</span></label>
+        <textarea name="description_th" rows="2" maxlength="500" class="input">{{ old('description_th', $item?->description_th) }}</textarea>
     </div>
 
     <div>

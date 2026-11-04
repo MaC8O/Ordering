@@ -21,6 +21,15 @@ use Illuminate\Support\Facades\Route;
 |--------------------------------------------------------------------------
 */
 
+// Language switch (EN / TH)
+Route::get('/lang/{locale}', function (string $locale) {
+    if (in_array($locale, config('ordering.locales', ['en', 'th']), true)) {
+        session(['locale' => $locale]);
+    }
+
+    return redirect()->back();
+})->name('lang.switch');
+
 Route::get('/', [MenuController::class, 'index'])->name('menu.index');
 Route::get('/item/{menuItem}', [MenuController::class, 'show'])->name('menu.show');
 

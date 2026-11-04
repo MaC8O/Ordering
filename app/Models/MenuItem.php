@@ -15,7 +15,9 @@ class MenuItem extends Model
     protected $fillable = [
         'category_id',
         'name',
+        'name_th',
         'description',
+        'description_th',
         'price',
         'image_path',
         'is_available',
@@ -39,6 +41,23 @@ class MenuItem extends Model
     public function getPriceFormattedAttribute(): string
     {
         return number_format($this->price / 100, 2);
+    }
+
+    /**
+     * Item name / description in the current locale, falling back to English.
+     */
+    public function getLocalizedNameAttribute(): string
+    {
+        return app()->getLocale() === 'th' && $this->name_th
+            ? $this->name_th
+            : $this->name;
+    }
+
+    public function getLocalizedDescriptionAttribute(): ?string
+    {
+        return app()->getLocale() === 'th' && $this->description_th
+            ? $this->description_th
+            : $this->description;
     }
 
     public function scopeAvailable($query)

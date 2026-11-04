@@ -29,7 +29,11 @@ class MenuSeeder extends Seeder
         foreach ($data['categories'] as $catIndex => $cat) {
             $category = Category::updateOrCreate(
                 ['name' => $cat['name']],
-                ['display_order' => $catIndex, 'is_active' => true],
+                [
+                    'name_th' => $cat['name_th'] ?? null,
+                    'display_order' => $catIndex,
+                    'is_active' => true,
+                ],
             );
 
             foreach ($cat['items'] ?? [] as $itemIndex => $item) {
@@ -46,7 +50,9 @@ class MenuSeeder extends Seeder
                 MenuItem::updateOrCreate(
                     ['name' => $item['name'], 'category_id' => $category->id],
                     [
+                        'name_th' => $item['name_th'] ?? null,
                         'description' => $item['description'] ?? null,
+                        'description_th' => $item['description_th'] ?? null,
                         'price' => (int) round(($item['price'] ?? 0) * 100),
                         'image_path' => $imagePath,
                         'is_available' => true,

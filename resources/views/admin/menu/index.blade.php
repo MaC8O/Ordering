@@ -95,9 +95,10 @@
         <div x-show="tab === 'categories'" x-cloak class="space-y-5">
             <div class="card p-5">
                 <h2 class="text-lg font-bold">Add category</h2>
-                <form method="POST" action="{{ route('admin.categories.store') }}" class="mt-3 flex gap-2">
+                <form method="POST" action="{{ route('admin.categories.store') }}" class="mt-3 flex flex-wrap gap-2">
                     @csrf
-                    <input name="name" placeholder="e.g. Breakfast" class="input" required>
+                    <input name="name" placeholder="Name (English)" class="input flex-1" required>
+                    <input name="name_th" placeholder="ชื่อ (ไทย)" class="input flex-1">
                     <button class="btn-primary">Add</button>
                 </form>
                 @error('name') <p class="mt-2 text-sm text-red-600">{{ $message }}</p> @enderror
@@ -108,7 +109,7 @@
                     <thead class="bg-surface-2 text-xs uppercase tracking-wide text-ink-soft">
                         <tr>
                             <th class="px-4 py-3">Order</th>
-                            <th class="px-4 py-3">Name</th>
+                            <th class="px-4 py-3">Name (EN / TH)</th>
                             <th class="px-4 py-3">Items</th>
                             <th class="px-4 py-3">Active</th>
                             <th class="px-4 py-3"></th>
@@ -124,9 +125,10 @@
                                     </div>
                                 </td>
                                 <td class="px-4 py-3">
-                                    <form method="POST" action="{{ route('admin.categories.update', $category) }}" class="flex items-center gap-2">
+                                    <form method="POST" action="{{ route('admin.categories.update', $category) }}" class="flex flex-wrap items-center gap-2">
                                         @csrf @method('PATCH')
-                                        <input name="name" value="{{ $category->name }}" class="input !py-1.5" required>
+                                        <input name="name" value="{{ $category->name }}" class="input !py-1.5 w-40" required>
+                                        <input name="name_th" value="{{ $category->name_th }}" placeholder="ชื่อ (ไทย)" class="input !py-1.5 w-40">
                                         <button class="btn-ghost !px-3 !py-1.5 text-xs">Save</button>
                                     </form>
                                 </td>

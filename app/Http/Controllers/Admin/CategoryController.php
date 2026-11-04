@@ -12,10 +12,12 @@ class CategoryController extends Controller
     {
         $data = $request->validate([
             'name' => ['required', 'string', 'max:80'],
+            'name_th' => ['nullable', 'string', 'max:80'],
         ]);
 
         Category::create([
             'name' => $data['name'],
+            'name_th' => $data['name_th'] ?? null,
             'display_order' => (int) (Category::max('display_order') ?? 0) + 1,
             'is_active' => true,
         ]);
@@ -27,9 +29,10 @@ class CategoryController extends Controller
     {
         $data = $request->validate([
             'name' => ['required', 'string', 'max:80'],
+            'name_th' => ['nullable', 'string', 'max:80'],
         ]);
 
-        $category->update(['name' => $data['name']]);
+        $category->update(['name' => $data['name'], 'name_th' => $data['name_th'] ?? null]);
 
         return back()->with('success', 'Category renamed.');
     }

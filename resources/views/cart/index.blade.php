@@ -1,18 +1,18 @@
 @extends('layouts.storefront')
 
-@section('title', 'Your Cart — ' . $storeStatus->restaurantName())
+@section('title', __('Your cart') . ' — ' . $storeStatus->restaurantName())
 
 @section('content')
-    <h1 class="mb-5 text-2xl font-bold">Your cart</h1>
+    <h1 class="mb-5 text-2xl font-bold">{{ __('Your cart') }}</h1>
 
     <div x-data x-cloak>
         {{-- Empty state --}}
         <template x-if="$store.cart.items.length === 0">
             <div class="card p-10 text-center">
                 <p class="text-5xl">🛒</p>
-                <h2 class="mt-3 text-lg font-bold">Your cart is empty</h2>
-                <p class="mt-1 text-sm text-ink-soft">Add something tasty from the menu to get started.</p>
-                <a href="{{ route('menu.index') }}" class="btn-primary mt-5">Browse the menu</a>
+                <h2 class="mt-3 text-lg font-bold">{{ __('Your cart is empty') }}</h2>
+                <p class="mt-1 text-sm text-ink-soft">{{ __('Add something tasty from the menu to get started.') }}</p>
+                <a href="{{ route('menu.index') }}" class="btn-primary mt-5">{{ __('Browse the menu') }}</a>
             </div>
         </template>
 
@@ -52,27 +52,33 @@
                         </div>
                     </template>
 
-                    <button type="button" @click="$store.cart.clear()" class="btn-ghost text-sm">Clear cart</button>
+                    <button type="button" @click="$store.cart.clear()" class="btn-ghost text-sm">{{ __('Clear cart') }}</button>
                 </div>
 
                 {{-- Summary --}}
                 <div class="h-max lg:sticky lg:top-24">
                     <div class="card p-5">
-                        <h2 class="text-lg font-bold">Summary</h2>
+                        <h2 class="text-lg font-bold">{{ __('Summary') }}</h2>
                         <div class="mt-4 flex items-center justify-between text-sm">
-                            <span class="text-ink-soft">Subtotal</span>
+                            <span class="text-ink-soft">{{ __('Subtotal') }}</span>
                             <span class="font-semibold" x-text="window.CURRENCY + ' ' + window.money($store.cart.subtotal)"></span>
                         </div>
-                        <p class="mt-1 text-xs text-ink-soft">Delivery fee is calculated at checkout.</p>
+                        <p class="mt-1 text-xs text-ink-soft">{{ __('Delivery fee is calculated at checkout.') }}</p>
 
                         @if ($storeStatus->isOpen())
-                            <a href="{{ route('checkout.index') }}" class="btn-primary mt-5 w-full">Checkout</a>
+                            <a href="{{ route('checkout.index') }}" class="btn-primary mt-5 w-full">{{ __('Checkout') }}</a>
                         @else
-                            <button type="button" disabled class="btn-primary mt-5 w-full bg-black/20 text-white/70" title="Ordering is closed right now">Ordering closed</button>
-                            <p class="mt-2 text-center text-xs text-ink-soft">{{ $storeStatus->closedReason() }}</p>
+                            <button type="button" disabled class="btn-primary mt-5 w-full bg-black/20 text-white/70" title="{{ __('Ordering is closed right now') }}">{{ __('Ordering closed') }}</button>
+                            <p class="mt-2 text-center text-xs text-ink-soft">
+                                @if ($storeStatus->nextOpeningLabelLocalized())
+                                    {{ __("We're closed right now.") }} {{ __('Next opening') }}: {{ $storeStatus->nextOpeningLabelLocalized() }}.
+                                @else
+                                    {{ __("We're closed right now.") }}
+                                @endif
+                            </p>
                         @endif
 
-                        <a href="{{ route('menu.index') }}" class="btn-ghost mt-2 w-full">Add more items</a>
+                        <a href="{{ route('menu.index') }}" class="btn-ghost mt-2 w-full">{{ __('Add more items') }}</a>
                     </div>
                 </div>
             </div>

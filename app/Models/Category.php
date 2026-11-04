@@ -12,6 +12,7 @@ class Category extends Model
 
     protected $fillable = [
         'name',
+        'name_th',
         'display_order',
         'is_active',
     ];
@@ -20,6 +21,16 @@ class Category extends Model
         'is_active' => 'boolean',
         'display_order' => 'integer',
     ];
+
+    /**
+     * Category name in the current locale, falling back to English.
+     */
+    public function getLocalizedNameAttribute(): string
+    {
+        return app()->getLocale() === 'th' && $this->name_th
+            ? $this->name_th
+            : $this->name;
+    }
 
     public function menuItems(): HasMany
     {

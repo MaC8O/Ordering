@@ -16,4 +16,7 @@ return [
     // Quantity bounds for a single line item.
     'min_qty' => 1,
     'max_qty' => 20,
+
+    // Supported interface languages (English / Thai).
+    'locales' => ['en', 'th'],
 ];

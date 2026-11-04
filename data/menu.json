@@ -2,79 +2,87 @@
   "categories": [
     {
       "name": "Noodle Soups",
+      "name_th": "ก๋วยเตี๋ยวน้ำ",
       "items": [
-        { "name": "Pork Noodle Soup", "price": 45, "description": "Clear pork broth noodles (nam tok / nam sai) with fresh greens and fish balls.", "image_filename": "pork-noodle-soup.jpg" },
-        { "name": "Beef Noodle Soup", "price": 50, "description": "Rice noodles in a rich clear beef broth.", "image_filename": "pork-noodle-soup.jpg" },
-        { "name": "Tom Yum Pork Noodles", "price": 50, "description": "Spicy-sour tom yum noodle soup with pork.", "image_filename": "tomyum-pork-noodles.jpg" },
-        { "name": "Tom Yum Beef Noodles", "price": 55, "description": "Spicy-sour tom yum noodle soup with beef.", "image_filename": "tomyum-pork-noodles.jpg" },
-        { "name": "Yen Ta Fo Seafood Noodles", "price": 60, "description": "Pink fermented bean-curd noodle soup with mixed seafood.", "image_filename": "pork-noodle-soup.jpg" }
+        { "name": "Pork Noodle Soup", "name_th": "ก๋วยเตี๋ยวหมู", "price": 45, "description": "Clear pork broth noodles (nam tok / nam sai) with fresh greens and fish balls.", "description_th": "ก๋วยเตี๋ยวน้ำซุปหมูใส ผักสด และลูกชิ้นปลา", "image_filename": "pork-noodle-soup.jpg" },
+        { "name": "Beef Noodle Soup", "name_th": "ก๋วยเตี๋ยวเนื้อ", "price": 50, "description": "Rice noodles in a rich clear beef broth.", "description_th": "เส้นก๋วยเตี๋ยวในน้ำซุปเนื้อใสรสเข้มข้น", "image_filename": "pork-noodle-soup.jpg" },
+        { "name": "Tom Yum Pork Noodles", "name_th": "ก๋วยเตี๋ยวต้มยำหมู", "price": 50, "description": "Spicy-sour tom yum noodle soup with pork.", "description_th": "ก๋วยเตี๋ยวต้มยำรสเปรี้ยวเผ็ดใส่หมู", "image_filename": "tomyum-pork-noodles.jpg" },
+        { "name": "Tom Yum Beef Noodles", "name_th": "ก๋วยเตี๋ยวต้มยำเนื้อ", "price": 55, "description": "Spicy-sour tom yum noodle soup with beef.", "description_th": "ก๋วยเตี๋ยวต้มยำรสเปรี้ยวเผ็ดใส่เนื้อ", "image_filename": "tomyum-pork-noodles.jpg" },
+        { "name": "Yen Ta Fo Seafood Noodles", "name_th": "เย็นตาโฟทะเล", "price": 60, "description": "Pink fermented bean-curd noodle soup with mixed seafood.", "description_th": "ก๋วยเตี๋ยวเย็นตาโฟน้ำสีชมพูใส่ทะเลรวม", "image_filename": "pork-noodle-soup.jpg" }
       ]
     },
     {
       "name": "Rad Na & Gravy Noodles",
+      "name_th": "ราดหน้า",
       "items": [
-        { "name": "Rad Na Pork", "price": 50, "description": "Flat noodles with pork in a silky gravy and Chinese greens.", "image_filename": "radna-pork.jpg" },
-        { "name": "Rad Na Chicken", "price": 50, "description": "Flat noodles with chicken in a silky gravy and greens.", "image_filename": "radna-pork.jpg" },
-        { "name": "Rad Na Seafood", "price": 70, "description": "Crispy noodles topped with seafood gravy and greens.", "image_filename": "radna-seafood.jpg" }
+        { "name": "Rad Na Pork", "name_th": "ราดหน้าหมู", "price": 50, "description": "Flat noodles with pork in a silky gravy and Chinese greens.", "description_th": "เส้นใหญ่ราดหน้าหมูน้ำข้นและผักคะน้า", "image_filename": "radna-pork.jpg" },
+        { "name": "Rad Na Chicken", "name_th": "ราดหน้าไก่", "price": 50, "description": "Flat noodles with chicken in a silky gravy and greens.", "description_th": "เส้นใหญ่ราดหน้าไก่น้ำข้นและผัก", "image_filename": "radna-pork.jpg" },
+        { "name": "Rad Na Seafood", "name_th": "ราดหน้าทะเล", "price": 70, "description": "Crispy noodles topped with seafood gravy and greens.", "description_th": "เส้นกรอบราดหน้าทะเลน้ำข้นและผัก", "image_filename": "radna-seafood.jpg" }
       ]
     },
     {
       "name": "Stir-fried Noodles",
+      "name_th": "เส้นผัด",
       "items": [
-        { "name": "Pad See Ew Pork", "price": 50, "description": "Flat noodles stir-fried in dark soy with pork, egg, and greens.", "image_filename": "pad-see-ew.jpg" },
-        { "name": "Pad See Ew Chicken", "price": 50, "description": "Flat noodles stir-fried in dark soy with chicken, egg, and greens.", "image_filename": "pad-see-ew.jpg" },
-        { "name": "Pad Thai Pork", "price": 55, "description": "Classic Thai fried noodles with egg, peanuts, and lime.", "image_filename": "pad-thai.jpg" },
-        { "name": "Pad Thai Seafood", "price": 75, "description": "Thai fried noodles with mixed seafood, egg, peanuts, and lime.", "image_filename": "pad-thai.jpg" },
-        { "name": "Drunken Noodles (Pad Kee Mao) Pork", "price": 55, "description": "Spicy stir-fried noodles with holy basil, chilli, and pork.", "image_filename": "drunken-noodles.jpg" },
-        { "name": "Drunken Noodles Seafood", "price": 75, "description": "Spicy stir-fried noodles with holy basil, chilli, and seafood.", "image_filename": "drunken-noodles.jpg" }
+        { "name": "Pad See Ew Pork", "name_th": "ผัดซีอิ๊วหมู", "price": 50, "description": "Flat noodles stir-fried in dark soy with pork, egg, and greens.", "description_th": "เส้นใหญ่ผัดซีอิ๊วดำใส่หมู ไข่ และผัก", "image_filename": "pad-see-ew.jpg" },
+        { "name": "Pad See Ew Chicken", "name_th": "ผัดซีอิ๊วไก่", "price": 50, "description": "Flat noodles stir-fried in dark soy with chicken, egg, and greens.", "description_th": "เส้นใหญ่ผัดซีอิ๊วดำใส่ไก่ ไข่ และผัก", "image_filename": "pad-see-ew.jpg" },
+        { "name": "Pad Thai Pork", "name_th": "ผัดไทยหมู", "price": 55, "description": "Classic Thai fried noodles with egg, peanuts, and lime.", "description_th": "ผัดไทยเส้นจันท์ใส่ไข่ ถั่ว และมะนาว", "image_filename": "pad-thai.jpg" },
+        { "name": "Pad Thai Seafood", "name_th": "ผัดไทยทะเล", "price": 75, "description": "Thai fried noodles with mixed seafood, egg, peanuts, and lime.", "description_th": "ผัดไทยใส่ทะเลรวม ไข่ ถั่ว และมะนาว", "image_filename": "pad-thai.jpg" },
+        { "name": "Drunken Noodles (Pad Kee Mao) Pork", "name_th": "ก๋วยเตี๋ยวผัดขี้เมาหมู", "price": 55, "description": "Spicy stir-fried noodles with holy basil, chilli, and pork.", "description_th": "เส้นผัดขี้เมารสจัดใส่ใบกะเพราและหมู", "image_filename": "drunken-noodles.jpg" },
+        { "name": "Drunken Noodles Seafood", "name_th": "ก๋วยเตี๋ยวผัดขี้เมาทะเล", "price": 75, "description": "Spicy stir-fried noodles with holy basil, chilli, and seafood.", "description_th": "เส้นผัดขี้เมารสจัดใส่ใบกะเพราและทะเล", "image_filename": "drunken-noodles.jpg" }
       ]
     },
     {
       "name": "Fried Rice",
+      "name_th": "ข้าวผัด",
       "items": [
-        { "name": "Pork Fried Rice", "price": 50, "description": "Thai-style fried rice with pork, egg, and spring onion.", "image_filename": "pork-fried-rice.jpg" },
-        { "name": "Chicken Fried Rice", "price": 50, "description": "Thai-style fried rice with chicken, egg, and spring onion.", "image_filename": "pork-fried-rice.jpg" },
-        { "name": "Seafood Fried Rice", "price": 70, "description": "Thai-style fried rice with mixed seafood and egg.", "image_filename": "pork-fried-rice.jpg" },
-        { "name": "Tom Yum Fried Rice", "price": 60, "description": "Fried rice tossed with spicy-sour tom yum paste and herbs.", "image_filename": "tomyum-fried-rice.jpg" },
-        { "name": "Mixed Meat Fried Rice", "price": 60, "description": "Fried rice with a mix of pork, chicken, and beef.", "image_filename": "tomyum-fried-rice.jpg" }
+        { "name": "Pork Fried Rice", "name_th": "ข้าวผัดหมู", "price": 50, "description": "Thai-style fried rice with pork, egg, and spring onion.", "description_th": "ข้าวผัดสไตล์ไทยใส่หมู ไข่ และต้นหอม", "image_filename": "pork-fried-rice.jpg" },
+        { "name": "Chicken Fried Rice", "name_th": "ข้าวผัดไก่", "price": 50, "description": "Thai-style fried rice with chicken, egg, and spring onion.", "description_th": "ข้าวผัดสไตล์ไทยใส่ไก่ ไข่ และต้นหอม", "image_filename": "pork-fried-rice.jpg" },
+        { "name": "Seafood Fried Rice", "name_th": "ข้าวผัดทะเล", "price": 70, "description": "Thai-style fried rice with mixed seafood and egg.", "description_th": "ข้าวผัดสไตล์ไทยใส่ทะเลรวมและไข่", "image_filename": "pork-fried-rice.jpg" },
+        { "name": "Tom Yum Fried Rice", "name_th": "ข้าวผัดต้มยำ", "price": 60, "description": "Fried rice tossed with spicy-sour tom yum paste and herbs.", "description_th": "ข้าวผัดคลุกพริกต้มยำและสมุนไพร", "image_filename": "tomyum-fried-rice.jpg" },
+        { "name": "Mixed Meat Fried Rice", "name_th": "ข้าวผัดรวม", "price": 60, "description": "Fried rice with a mix of pork, chicken, and beef.", "description_th": "ข้าวผัดใส่เนื้อสัตว์รวมหมู ไก่ และเนื้อ", "image_filename": "tomyum-fried-rice.jpg" }
       ]
     },
     {
       "name": "Basil Stir-fry (Pad Kra Pao)",
+      "name_th": "ผัดกะเพรา",
       "items": [
-        { "name": "Spicy Basil Pork", "price": 50, "description": "Stir-fried pork with holy basil, chilli, and garlic. Served with rice.", "image_filename": "basil-pork.jpg" },
-        { "name": "Spicy Basil Chicken", "price": 50, "description": "Stir-fried chicken with holy basil, chilli, and garlic. Served with rice.", "image_filename": "basil-pork.jpg" },
-        { "name": "Spicy Basil Beef", "price": 60, "description": "Stir-fried beef with holy basil, chilli, and garlic. Served with rice.", "image_filename": "basil-pork.jpg" },
-        { "name": "Spicy Basil Seafood", "price": 70, "description": "Stir-fried seafood with holy basil, chilli, and garlic. Served with rice.", "image_filename": "basil-seafood.jpg" }
+        { "name": "Spicy Basil Pork", "name_th": "ผัดกะเพราหมู", "price": 50, "description": "Stir-fried pork with holy basil, chilli, and garlic. Served with rice.", "description_th": "หมูผัดใบกะเพรา พริก และกระเทียม เสิร์ฟพร้อมข้าว", "image_filename": "basil-pork.jpg" },
+        { "name": "Spicy Basil Chicken", "name_th": "ผัดกะเพราไก่", "price": 50, "description": "Stir-fried chicken with holy basil, chilli, and garlic. Served with rice.", "description_th": "ไก่ผัดใบกะเพรา พริก และกระเทียม เสิร์ฟพร้อมข้าว", "image_filename": "basil-pork.jpg" },
+        { "name": "Spicy Basil Beef", "name_th": "ผัดกะเพราเนื้อ", "price": 60, "description": "Stir-fried beef with holy basil, chilli, and garlic. Served with rice.", "description_th": "เนื้อผัดใบกะเพรา พริก และกระเทียม เสิร์ฟพร้อมข้าว", "image_filename": "basil-pork.jpg" },
+        { "name": "Spicy Basil Seafood", "name_th": "ผัดกะเพราทะเล", "price": 70, "description": "Stir-fried seafood with holy basil, chilli, and garlic. Served with rice.", "description_th": "ทะเลผัดใบกะเพรา พริก และกระเทียม เสิร์ฟพร้อมข้าว", "image_filename": "basil-seafood.jpg" }
       ]
     },
     {
       "name": "Rice Plates & Specials",
+      "name_th": "ข้าวและเมนูพิเศษ",
       "items": [
-        { "name": "Crispy Chicken Rice", "price": 55, "description": "Golden crispy fried chicken served over rice with sauce.", "image_filename": "crispy-chicken-rice.jpg" },
-        { "name": "Crispy Chicken with Kale", "price": 65, "description": "Crispy chicken stir-fried with kale, served with rice.", "image_filename": "crispy-chicken-kale.jpg" },
-        { "name": "Fried Chicken Rice", "price": 55, "description": "Southern-style fried chicken served with rice and dip.", "image_filename": "fried-chicken-rice.jpg" },
-        { "name": "Stir-fried Chilli Beef Rice", "price": 65, "description": "Beef stir-fried with roasted chilli paste, served with rice.", "image_filename": "chilli-beef.jpg" },
-        { "name": "Fried Chilli Salt Chicken", "price": 60, "description": "Chicken fried with chilli and salt, served with rice.", "image_filename": "chilli-salt-chicken.jpg" },
-        { "name": "Garlic & Pepper Pork", "price": 60, "description": "Pork stir-fried with garlic and peppercorns, served with rice.", "image_filename": "garlic-pepper.jpg" },
-        { "name": "Green Curry Chicken with Rice", "price": 65, "description": "Thai green curry with chicken, served with rice.", "image_filename": "green-curry-chicken.jpg" },
-        { "name": "Omelette Rice", "price": 40, "description": "Thai-style omelette served over steamed rice.", "image_filename": "omelette-rice.jpg" }
+        { "name": "Crispy Chicken Rice", "name_th": "ข้าวไก่กรอบ", "price": 55, "description": "Golden crispy fried chicken served over rice with sauce.", "description_th": "ไก่ทอดกรอบราดซอส เสิร์ฟบนข้าว", "image_filename": "crispy-chicken-rice.jpg" },
+        { "name": "Crispy Chicken with Kale", "name_th": "ผัดคะน้าไก่กรอบ", "price": 65, "description": "Crispy chicken stir-fried with kale, served with rice.", "description_th": "ไก่กรอบผัดคะน้า เสิร์ฟพร้อมข้าว", "image_filename": "crispy-chicken-kale.jpg" },
+        { "name": "Fried Chicken Rice", "name_th": "ข้าวไก่ทอด", "price": 55, "description": "Southern-style fried chicken served with rice and dip.", "description_th": "ไก่ทอดสไตล์ใต้ เสิร์ฟพร้อมข้าวและน้ำจิ้ม", "image_filename": "fried-chicken-rice.jpg" },
+        { "name": "Stir-fried Chilli Beef Rice", "name_th": "ข้าวผัดพริกเผาเนื้อ", "price": 65, "description": "Beef stir-fried with roasted chilli paste, served with rice.", "description_th": "เนื้อผัดน้ำพริกเผา เสิร์ฟพร้อมข้าว", "image_filename": "chilli-beef.jpg" },
+        { "name": "Fried Chilli Salt Chicken", "name_th": "ผัดพริกเกลือไก่", "price": 60, "description": "Chicken fried with chilli and salt, served with rice.", "description_th": "ไก่ผัดพริกเกลือ เสิร์ฟพร้อมข้าว", "image_filename": "chilli-salt-chicken.jpg" },
+        { "name": "Garlic & Pepper Pork", "name_th": "ข้าวกระเทียมพริกไทยหมู", "price": 60, "description": "Pork stir-fried with garlic and peppercorns, served with rice.", "description_th": "หมูผัดกระเทียมพริกไทย เสิร์ฟพร้อมข้าว", "image_filename": "garlic-pepper.jpg" },
+        { "name": "Green Curry Chicken with Rice", "name_th": "ข้าวแกงเขียวหวานไก่", "price": 65, "description": "Thai green curry with chicken, served with rice.", "description_th": "แกงเขียวหวานไก่ เสิร์ฟพร้อมข้าว", "image_filename": "green-curry-chicken.jpg" },
+        { "name": "Omelette Rice", "name_th": "ข้าวไข่เจียว", "price": 40, "description": "Thai-style omelette served over steamed rice.", "description_th": "ไข่เจียวสไตล์ไทย เสิร์ฟบนข้าวสวย", "image_filename": "omelette-rice.jpg" }
       ]
     },
     {
       "name": "Vegetables & Sides",
+      "name_th": "ผักและเครื่องเคียง",
       "items": [
-        { "name": "Stir-fried Mixed Vegetables", "price": 45, "description": "Mixed vegetables sautéed in oyster sauce.", "image_filename": "mixed-veg-oyster.jpg" },
-        { "name": "Stir-fried Vegetables", "price": 40, "description": "Seasonal vegetables stir-fried with garlic.", "image_filename": "stir-fried-veg.jpg" },
-        { "name": "Fried Egg", "price": 15, "description": "A classic Thai crispy-edged fried egg.", "image_filename": "omelette-rice.jpg" }
+        { "name": "Stir-fried Mixed Vegetables", "name_th": "ผัดผักรวมมิตร", "price": 45, "description": "Mixed vegetables sautéed in oyster sauce.", "description_th": "ผักรวมผัดน้ำมันหอย", "image_filename": "mixed-veg-oyster.jpg" },
+        { "name": "Stir-fried Vegetables", "name_th": "ผัดผัก", "price": 40, "description": "Seasonal vegetables stir-fried with garlic.", "description_th": "ผักตามฤดูกาลผัดกระเทียม", "image_filename": "stir-fried-veg.jpg" },
+        { "name": "Fried Egg", "name_th": "ไข่ดาว", "price": 15, "description": "A classic Thai crispy-edged fried egg.", "description_th": "ไข่ดาวกรอบขอบสไตล์ไทย", "image_filename": "omelette-rice.jpg" }
       ]
     },
     {
       "name": "Suki",
+      "name_th": "สุกี้",
       "items": [
-        { "name": "Suki (Soup or Dry)", "price": 60, "description": "Thai sukiyaki with glass noodles, egg, and vegetables in the signature sauce.", "image_filename": "suki.jpg" },
-        { "name": "Suki Chicken", "price": 60, "description": "Thai sukiyaki with chicken, glass noodles, and vegetables.", "image_filename": "suki.jpg" },
-        { "name": "Suki Seafood", "price": 80, "description": "Thai sukiyaki with mixed seafood, glass noodles, and vegetables.", "image_filename": "suki.jpg" }
+        { "name": "Suki (Soup or Dry)", "name_th": "สุกี้ (น้ำ/แห้ง)", "price": 60, "description": "Thai sukiyaki with glass noodles, egg, and vegetables in the signature sauce.", "description_th": "สุกี้วุ้นเส้น ไข่ และผัก ราดซอสสุกี้", "image_filename": "suki.jpg" },
+        { "name": "Suki Chicken", "name_th": "สุกี้ไก่", "price": 60, "description": "Thai sukiyaki with chicken, glass noodles, and vegetables.", "description_th": "สุกี้ไก่ วุ้นเส้น และผัก", "image_filename": "suki.jpg" },
+        { "name": "Suki Seafood", "name_th": "สุกี้ทะเล", "price": 80, "description": "Thai sukiyaki with mixed seafood, glass noodles, and vegetables.", "description_th": "สุกี้ทะเลรวม วุ้นเส้น และผัก", "image_filename": "suki.jpg" }
       ]
     }
   ]
