@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Str;
 
 class Order extends Model
@@ -68,6 +69,46 @@ class Order extends Model
     public function items(): HasMany
     {
         return $this->hasMany(OrderItem::class);
+    }
+
+    /**
+     * Whether the customer may (re)upload a payment receipt: QR orders that are
+     * still awaiting a valid payment and haven't been completed or cancelled.
+     */
+    public function canUploadReceipt(): bool
+    {
+        return $this->payment_method === 'qr'
+            && in_array($this->payment_status, ['pending', 'failed'], true)
+            && ! $this->isDone();
+    }
+
+    /**
+     * Save a payment receipt image, named by the unguessable public token so it
+     * can't be found by guessing, replacing any earlier receipt. Centralised so
+     * checkout and the customer re-upload path behave identically.
+     */
+    public function storeReceipt(UploadedFile $file): void
+    {
+        $ext = strtolower($file->getClientOriginalExtension() ?: $file->extension());
+        $filename = $this->public_token . '.' . $ext;
+
+        $dir = public_path('uploads/payments');
+        if (! is_dir($dir)) {
+            mkdir($dir, 0775, true);
+        }
+
+        // Drop a previous receipt that had a different extension, so a
+        // re-upload never leaves a stale orphan image behind.
+        if ($this->payment_screenshot_path && $this->payment_screenshot_path !== 'uploads/payments/' . $filename) {
+            $old = public_path($this->payment_screenshot_path);
+            if (is_file($old)) {
+                @unlink($old);
+            }
+        }
+
+        $file->move($dir, $filename);
+
+        $this->update(['payment_screenshot_path' => 'uploads/payments/' . $filename]);
     }
 
     public function getSubtotalFormattedAttribute(): string

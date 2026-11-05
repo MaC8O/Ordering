@@ -39,6 +39,7 @@ Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.in
 Route::post('/checkout', [CheckoutController::class, 'store'])->name('checkout.store');
 
 Route::get('/order/{order:public_token}', [OrderController::class, 'show'])->name('order.show');
+Route::post('/order/{order:public_token}/receipt', [OrderController::class, 'uploadReceipt'])->name('order.receipt');
 
 Route::get('/my-order', [MyOrderController::class, 'index'])->name('my-order.index');
 Route::post('/my-order', [MyOrderController::class, 'lookup'])->name('my-order.lookup');

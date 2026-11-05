@@ -57,6 +57,49 @@
                     </div>
                 @endif
 
+                {{-- Payment receipt: show the current one and let the customer
+                     (re)upload while payment is still pending or was rejected. --}}
+                @if ($order->payment_method === 'qr')
+                    <div class="mt-4 rounded-xl border border-line p-4">
+                        <h2 class="text-sm font-bold uppercase tracking-wide text-ink-soft">{{ __('Payment receipt') }}</h2>
+
+                        @if ($order->payment_screenshot_path && file_exists(public_path($order->payment_screenshot_path)))
+                            <a href="{{ asset($order->payment_screenshot_path) }}" target="_blank" rel="noopener"
+                               class="mt-3 block h-40 w-40 overflow-hidden rounded-lg border border-line bg-white">
+                                <img src="{{ asset($order->payment_screenshot_path) }}" alt="{{ __('Payment receipt') }}" class="h-full w-full object-contain">
+                            </a>
+                        @endif
+
+                        @if ($order->payment_status === 'verified')
+                            <p class="mt-3 text-sm text-green-700">{{ __('Your payment has been verified. Thank you!') }}</p>
+                        @elseif ($order->canUploadReceipt())
+                            <p class="mt-3 text-sm text-ink-soft">
+                                @if ($order->payment_status === 'failed')
+                                    {{ __('Your previous receipt could not be verified. Please upload a clear photo of your transfer.') }}
+                                @elseif ($order->payment_screenshot_path)
+                                    {{ __('Wrong photo? You can replace your receipt below.') }}
+                                @else
+                                    {{ __('Upload a photo of your transfer so we can verify your payment.') }}
+                                @endif
+                            </p>
+
+                            <form method="POST" action="{{ route('order.receipt', $order->public_token) }}"
+                                  enctype="multipart/form-data" class="mt-3"
+                                  x-data="{ busy: false }" @submit="busy = true">
+                                @csrf
+                                <input type="file" name="payment_screenshot" accept="image/png,image/jpeg,image/webp" required
+                                       class="block w-full text-sm file:mr-3 file:rounded-lg file:border-0 file:bg-brand-600 file:px-4 file:py-2 file:font-semibold file:text-white">
+                                <p class="mt-1 text-xs text-ink-soft">{{ __('Image only, max 5 MB.') }}</p>
+                                @error('payment_screenshot') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
+                                <button type="submit" :disabled="busy" class="btn-primary mt-3 disabled:opacity-60">
+                                    <span x-show="!busy">{{ $order->payment_screenshot_path ? __('Replace receipt') : __('Upload receipt') }}</span>
+                                    <span x-show="busy">{{ __('Uploading…') }}</span>
+                                </button>
+                            </form>
+                        @endif
+                    </div>
+                @endif
+
                 {{-- Items --}}
                 <h2 class="mt-6 text-sm font-bold uppercase tracking-wide text-ink-soft">{{ __('Items') }}</h2>
                 <div class="mt-2 divide-y divide-line">
