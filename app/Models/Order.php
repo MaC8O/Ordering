@@ -89,7 +89,15 @@ class Order extends Model
      */
     public function storeReceipt(UploadedFile $file): void
     {
-        $ext = strtolower($file->getClientOriginalExtension() ?: $file->extension());
+        // Derive the extension from the DETECTED content type, never from the
+        // client-supplied filename: a valid image named "x.phtml" would other-
+        // wise be stored as an executable in a web-served directory (RCE). Any
+        // type that slipped past validation falls back to a harmless ".jpg".
+        $ext = match ($file->getMimeType()) {
+            'image/png' => 'png',
+            'image/webp' => 'webp',
+            default => 'jpg', // image/jpeg and anything unexpected
+        };
         $filename = $this->public_token . '.' . $ext;
 
         $dir = public_path('uploads/payments');
