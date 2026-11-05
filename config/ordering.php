@@ -7,6 +7,13 @@ return [
     */
     'currency' => env('ORDERING_CURRENCY', '฿'),
 
+    /*
+    | PromptPay ID used to build the dynamic QR at checkout (with the exact
+    | amount embedded). A Thai mobile number, National ID, or e-Wallet ID.
+    | Leave null to fall back to the static QR image uploaded in settings.
+    */
+    'promptpay_id' => env('ORDERING_PROMPTPAY_ID', '0628197477'),
+
     // Max payment screenshot upload size in kilobytes (5 MB).
     'screenshot_max_kb' => 5120,
 

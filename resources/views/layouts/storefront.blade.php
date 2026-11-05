@@ -11,6 +11,7 @@
     <script>
         window.CURRENCY = @json(config('ordering.currency'));
         window.STORE_OPEN = @json($storeStatus->isOpen());
+        window.PROMPTPAY_ID = @json(config('ordering.promptpay_id'));
     </script>
 </head>
 <body class="min-h-screen flex flex-col">

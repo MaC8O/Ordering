@@ -90,7 +90,12 @@
                     @error('payment_method') <p class="mt-2 text-sm text-red-600">{{ $message }}</p> @enderror
 
                     {{-- QR flow --}}
-                    @php $hasQr = $settings->qr_image_path && file_exists(public_path($settings->qr_image_path)); @endphp
+                    @php
+                        $hasQr = $settings->qr_image_path && file_exists(public_path($settings->qr_image_path));
+                        $promptpayId = config('ordering.promptpay_id');
+                        $staticQrUrl = $hasQr ? asset($settings->qr_image_path) : '';
+                        $showQr = $hasQr || filled($promptpayId);
+                    @endphp
                     <div x-show="f.payment === 'qr'" x-transition
                          class="mt-5 overflow-hidden rounded-2xl border border-brand-100 bg-white shadow-sm"
                          x-data="{ zoom: false }">
@@ -103,23 +108,25 @@
                             </div>
 
                             <div class="mt-4 flex flex-col items-center gap-5 sm:flex-row sm:items-start">
-                                @if ($hasQr)
+                                @if ($showQr)
                                     {{-- QR tile (scales down on small screens, fixed beside details on sm+) --}}
                                     <div class="w-full max-w-[14rem] shrink-0 sm:w-52">
                                         <button type="button" @click="zoom = true"
                                                 class="group relative block aspect-square w-full overflow-hidden rounded-2xl border border-line bg-white p-3 shadow-sm ring-1 ring-black/[0.03] transition hover:-translate-y-0.5 hover:shadow-md">
-                                            <img src="{{ asset($settings->qr_image_path) }}" alt="{{ __('Payment QR code') }}" class="h-full w-full object-contain">
+                                            <img :src="qrSrc" x-show="qrSrc" alt="{{ __('Payment QR code') }}" class="h-full w-full object-contain">
+                                            <div x-show="!qrSrc" class="grid h-full w-full place-items-center text-xs text-ink-soft">{{ __('Generating QR…') }}</div>
                                             <span class="pointer-events-none absolute bottom-2 right-2 grid h-7 w-7 place-items-center rounded-lg bg-black/55 text-white opacity-0 transition group-hover:opacity-100">
                                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 3.75v4.5m0-4.5h4.5m-4.5 0L9 9m11.25-5.25v4.5m0-4.5h-4.5m4.5 0L15 9M3.75 20.25v-4.5m0 4.5h4.5m-4.5 0L9 15m11.25 5.25v-4.5m0 4.5h-4.5m4.5 0L15 15"/></svg>
                                             </span>
                                         </button>
-                                        <div class="mt-3 grid grid-cols-2 gap-2">
+                                        <p x-show="qrIsDynamic" x-cloak class="mt-1.5 text-center text-xs font-medium text-brand-700">{{ __('Amount is already set in this QR.') }}</p>
+                                        <div class="mt-2 grid grid-cols-2 gap-2">
                                             <button type="button" @click="zoom = true"
                                                     class="inline-flex items-center justify-center gap-1.5 rounded-xl border border-line bg-white px-3 py-2 text-xs font-semibold text-ink transition hover:border-brand-300 hover:text-brand-700">
                                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 3.75v4.5m0-4.5h4.5m-4.5 0L9 9m11.25-5.25v4.5m0-4.5h-4.5m4.5 0L15 9M3.75 20.25v-4.5m0 4.5h4.5m-4.5 0L9 15m11.25 5.25v-4.5m0 4.5h-4.5m4.5 0L15 15"/></svg>
                                                 {{ __('Enlarge') }}
                                             </button>
-                                            <a href="{{ asset($settings->qr_image_path) }}" download="promptpay-qr.jpg"
+                                            <a :href="qrSrc" :download="qrIsDynamic ? 'promptpay-qr.png' : 'promptpay-qr.jpg'"
                                                class="inline-flex items-center justify-center gap-1.5 rounded-xl bg-brand-600 px-3 py-2 text-xs font-semibold text-white transition hover:bg-brand-700">
                                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3"/></svg>
                                                 {{ __('Save QR') }}
@@ -175,14 +182,14 @@
                         </div>
 
                         {{-- Fullscreen QR — easy to scan, or save on a single phone --}}
-                        @if ($hasQr)
+                        @if ($showQr)
                             <div x-show="zoom" x-transition.opacity x-cloak @click="zoom = false" @keydown.escape.window="zoom = false"
                                  class="fixed inset-0 z-50 flex flex-col items-center justify-center gap-5 bg-black/80 p-6 backdrop-blur-sm">
-                                <img @click.stop src="{{ asset($settings->qr_image_path) }}" alt="{{ __('Payment QR code') }}"
+                                <img @click.stop :src="qrSrc" x-show="qrSrc" alt="{{ __('Payment QR code') }}"
                                      class="max-h-[65vh] w-auto max-w-[88vw] rounded-2xl bg-white p-4 shadow-2xl">
                                 <p class="max-w-xs text-center text-sm text-white/90">{{ __('Open your bank app → Scan → choose this QR from your photos, or scan it from another phone.') }}</p>
                                 <div class="flex gap-3">
-                                    <a @click.stop href="{{ asset($settings->qr_image_path) }}" download="promptpay-qr.jpg"
+                                    <a @click.stop :href="qrSrc" :download="qrIsDynamic ? 'promptpay-qr.png' : 'promptpay-qr.jpg'"
                                        class="inline-flex items-center gap-1.5 rounded-xl bg-brand-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-brand-700">
                                         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3"/></svg>
                                         {{ __('Save QR') }}
@@ -264,17 +271,36 @@
                 fileChosen: false,
                 fileError: '',
 
+                // QR: a dynamic PromptPay QR (amount embedded) when an id is set,
+                // otherwise the restaurant's uploaded static image.
+                promptpayId: @js($promptpayId),
+                staticQr: @js($staticQrUrl),
+                qrDataUrl: '',
+
                 init() {
                     // Default the delivery date to today if not pre-filled.
                     if (!this.f.date) this.f.date = this.todayStr;
 
-                    // If the cart is empty on arrival, nudge back to the menu.
-                    if (this.$store.cart.items.length === 0) {
-                        // leave them on the page but summary shows empty + submit disabled
-                    }
+                    // Build the PromptPay QR now and whenever the total changes.
+                    this.renderQr();
+                    this.$watch('$store.cart.items', () => this.renderQr());
                 },
                 get grandTotal() {
                     return this.$store.cart.subtotal + this.deliveryFee;
+                },
+                get qrIsDynamic() {
+                    return !!this.qrDataUrl;
+                },
+                get qrSrc() {
+                    // Prefer the dynamic amount-embedded QR; fall back to the static image.
+                    return this.qrDataUrl || this.staticQr;
+                },
+                renderQr() {
+                    if (!this.promptpayId || typeof window.promptpayQrDataUrl !== 'function') return;
+                    const baht = this.grandTotal / 100;
+                    Promise.resolve(window.promptpayQrDataUrl(this.promptpayId, baht))
+                        .then((url) => { this.qrDataUrl = url || ''; })
+                        .catch(() => { this.qrDataUrl = ''; });
                 },
                 get phoneValid() {
                     return /^\+?[0-9]{7,15}$/.test(this.f.phone.trim());
