@@ -90,14 +90,34 @@
                     @error('payment_method') <p class="mt-2 text-sm text-red-600">{{ $message }}</p> @enderror
 
                     {{-- QR flow --}}
-                    <div x-show="f.payment === 'qr'" x-transition class="mt-5 rounded-xl border border-brand-100 bg-brand-50/60 p-4">
-                        <p class="text-sm font-semibold">{{ __('Scan and transfer, then upload the screenshot.') }}</p>
+                    <div x-show="f.payment === 'qr'" x-transition class="mt-5 rounded-xl border border-brand-100 bg-brand-50/60 p-4" x-data="{ zoom: false }">
+                        <p class="text-sm font-semibold">{{ __('Scan and transfer, then upload the receipt.') }}</p>
+                        <p class="mt-1 text-xs text-ink-soft">{{ __('Only one phone? Tap “Save QR”, then open your bank app → Scan → choose it from your photos.') }}</p>
                         <div class="mt-3 flex flex-col items-start gap-4 sm:flex-row">
-                            <div class="h-44 w-44 shrink-0 overflow-hidden rounded-xl border border-line bg-white p-2">
+                            <div class="shrink-0">
                                 @if ($settings->qr_image_path && file_exists(public_path($settings->qr_image_path)))
-                                    <img src="{{ asset($settings->qr_image_path) }}" alt="Payment QR code" class="h-full w-full object-contain">
+                                    <button type="button" @click="zoom = true"
+                                            class="block h-48 w-48 overflow-hidden rounded-xl border border-line bg-white p-2">
+                                        <img src="{{ asset($settings->qr_image_path) }}" alt="{{ __('Payment QR code') }}" class="h-full w-full object-contain">
+                                    </button>
+                                    <div class="mt-2 flex items-center gap-3 text-xs font-semibold">
+                                        <button type="button" @click="zoom = true" class="text-brand-700 underline">{{ __('Tap to enlarge') }}</button>
+                                        <a href="{{ asset($settings->qr_image_path) }}" download="promptpay-qr.jpg" class="text-brand-700 underline">{{ __('Save QR') }}</a>
+                                    </div>
+
+                                    {{-- Fullscreen QR so it's easy to scan (or save on a single phone). --}}
+                                    <div x-show="zoom" x-transition.opacity @click="zoom = false" @keydown.escape.window="zoom = false"
+                                         class="fixed inset-0 z-50 flex flex-col items-center justify-center gap-4 bg-black/80 p-6">
+                                        <img @click.stop src="{{ asset($settings->qr_image_path) }}" alt="{{ __('Payment QR code') }}"
+                                             class="max-h-[70vh] w-auto max-w-[90vw] rounded-2xl bg-white p-4">
+                                        <p class="max-w-xs text-center text-sm text-white/90">{{ __('Open your bank app → Scan → choose this QR from your photos, or scan it from another phone.') }}</p>
+                                        <div class="flex gap-3">
+                                            <a @click.stop href="{{ asset($settings->qr_image_path) }}" download="promptpay-qr.jpg" class="rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white">{{ __('Save QR') }}</a>
+                                            <button type="button" @click.stop="zoom = false" class="rounded-lg bg-white px-4 py-2 text-sm font-semibold">{{ __('Close') }}</button>
+                                        </div>
+                                    </div>
                                 @else
-                                    <div class="grid h-full w-full place-items-center text-center text-xs text-ink-soft">{{ __('QR image not set yet — ask the restaurant.') }}</div>
+                                    <div class="grid h-48 w-48 place-items-center rounded-xl border border-line bg-white p-2 text-center text-xs text-ink-soft">{{ __('QR image not set yet — ask the restaurant.') }}</div>
                                 @endif
                             </div>
                             <div class="text-sm">
