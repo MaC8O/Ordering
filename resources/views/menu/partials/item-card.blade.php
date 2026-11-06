@@ -20,15 +20,24 @@
             <p class="mt-1 line-clamp-2 text-sm text-ink-soft">{{ $item->localized_description }}</p>
         @endif
 
-        <button type="button"
-                x-data="{ bump: false }"
-                @click="if (window.STORE_OPEN) { $store.cart.add(item, 1); bump = true; setTimeout(() => bump = false, 250) }"
-                :disabled="!window.STORE_OPEN"
-                :class="bump ? 'scale-[0.97]' : ''"
-                :title="window.STORE_OPEN ? @js(__('Add')) : @js(__('Ordering is closed right now'))"
-                class="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-brand-50 px-3 py-2.5 text-sm font-bold text-brand-700 transition-all duration-200 hover:bg-gradient-to-r hover:from-brand-500 hover:to-brand-600 hover:text-white hover:shadow-lg hover:shadow-brand-500/30 active:scale-[0.97] disabled:cursor-not-allowed disabled:bg-surface-2 disabled:text-ink-soft disabled:shadow-none disabled:hover:bg-surface-2 disabled:hover:text-ink-soft">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="2.6" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
-            <span>{{ __('Add') }}</span>
-        </button>
+        @if ($item->hasOptions())
+            {{-- Has choices (protein / size / egg) — open the dish to pick them. --}}
+            <a href="{{ route('menu.show', $item) }}"
+               class="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-brand-50 px-3 py-2.5 text-sm font-bold text-brand-700 transition-all duration-200 hover:bg-gradient-to-r hover:from-brand-500 hover:to-brand-600 hover:text-white hover:shadow-lg hover:shadow-brand-500/30">
+                <span>{{ __('Choose') }}</span>
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="2.4" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5"/></svg>
+            </a>
+        @else
+            <button type="button"
+                    x-data="{ bump: false }"
+                    @click="if (window.CAN_ORDER) { $store.cart.add(item, 1); bump = true; setTimeout(() => bump = false, 250) }"
+                    :disabled="!window.CAN_ORDER"
+                    :class="bump ? 'scale-[0.97]' : ''"
+                    :title="window.CAN_ORDER ? @js(__('Add')) : @js(__('Ordering is closed right now'))"
+                    class="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-brand-50 px-3 py-2.5 text-sm font-bold text-brand-700 transition-all duration-200 hover:bg-gradient-to-r hover:from-brand-500 hover:to-brand-600 hover:text-white hover:shadow-lg hover:shadow-brand-500/30 active:scale-[0.97] disabled:cursor-not-allowed disabled:bg-surface-2 disabled:text-ink-soft disabled:shadow-none disabled:hover:bg-surface-2 disabled:hover:text-ink-soft">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="2.6" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
+                <span>{{ __('Add') }}</span>
+            </button>
+        @endif
     </div>
 </div>

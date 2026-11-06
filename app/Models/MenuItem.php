@@ -22,6 +22,7 @@ class MenuItem extends Model
         'large_price',
         'has_egg_addon',
         'has_spice_note',
+        'proteins',
         'image_path',
         'is_available',
         'is_drink',
@@ -33,6 +34,7 @@ class MenuItem extends Model
         'large_price' => 'integer',
         'has_egg_addon' => 'boolean',
         'has_spice_note' => 'boolean',
+        'proteins' => 'array',
         'is_available' => 'boolean',
         'is_drink' => 'boolean',
         'display_order' => 'integer',
@@ -41,6 +43,20 @@ class MenuItem extends Model
     public function hasSizes(): bool
     {
         return $this->large_price !== null && $this->large_price > $this->price;
+    }
+
+    public function hasProteins(): bool
+    {
+        return is_array($this->proteins) && count($this->proteins) > 0;
+    }
+
+    /**
+     * Whether the dish needs the customer to open its detail page to pick
+     * options (protein / size / egg) rather than being a one-tap add.
+     */
+    public function hasOptions(): bool
+    {
+        return $this->hasProteins() || $this->hasSizes() || $this->has_egg_addon;
     }
 
     public function getLargePriceFormattedAttribute(): ?string

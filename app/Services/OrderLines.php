@@ -53,10 +53,18 @@ class OrderLines
                 $unit += $eggFee;
             }
 
+            // Protein — only honour a value the item actually offers.
+            $protein = ($menuItem->hasProteins() && in_array($line['protein'], $menuItem->proteins, true))
+                ? $line['protein']
+                : null;
+
             $lineTotal = $unit * $qty;
             $subtotal += $lineTotal;
 
             $opts = [];
+            if ($protein !== null) {
+                $opts[] = $protein;
+            }
             if ($size === 'large') {
                 $opts[] = 'Large';
             }

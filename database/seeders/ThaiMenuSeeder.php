@@ -7,94 +7,83 @@ use App\Models\MenuItem;
 use Illuminate\Database\Seeder;
 
 /**
- * Seeds the real menu from document/Menu_data.md: 16 categories with their
- * items, Normal/Large sizes, egg add-on and spiciness-note flags. Replaces the
- * old placeholder food menu (deactivated + soft-deleted) but keeps Drinks.
+ * Seeds the menu from document/Menu_data.md, grouped into a few clean sections.
+ * Protein variants are collapsed into one dish with a "proteins" choice, so the
+ * menu shows one appetising card per dish instead of a card per protein.
+ * Keeps Drinks; retires any older placeholder categories.
  */
 class ThaiMenuSeeder extends Seeder
 {
     public function run(): void
     {
-        // slug, en, th, normal, large, egg, spice, [items...]
-        $categories = [
-            ['pad-kra-pao', 'Spicy Basil Stir-Fry (Pad Kra Pao)', 'ผัดกะเพรา', 30, 50, true, true, [
-                'Spicy Fried Pork with Basil Leaves', 'Spicy Fried Chicken with Basil Leaves',
-                'Spicy Fried Meat with Basil Leaves', 'Spicy Fried Seafood with Basil Leaves',
+        // section => [th, [ dish: [slug, name, normal, large, egg, spice, proteins[], desc] ] ]
+        $sections = [
+            'Stir-Fries' => ['ผัด', [
+                ['pad-kra-pao', 'Spicy Basil Stir-Fry (Pad Kra Pao)', 30, 50, true, true,
+                    ['Pork', 'Chicken', 'Beef', 'Seafood'], 'Holy-basil stir-fry over rice — a Thai classic.'],
+                ['garlic-pepper', 'Garlic & Pepper Stir-Fry', 30, 50, true, true,
+                    ['Pork', 'Crispy Calamari', 'Shrimp'], 'Savoury stir-fry with garlic and cracked peppercorns.'],
+                ['pad-prik', 'Stir-Fried Chilli (Pad Prik)', 30, 50, true, true,
+                    ['Beef', 'Chicken', 'Pork'], 'Stir-fried with fresh chillies and vegetables.'],
+                ['chilli-salt', 'Chilli Salt Stir-Fry (Pad Prik Gleua)', 30, 50, true, true,
+                    ['Chicken', 'Beef'], 'Crispy, salty-spicy chilli-salt stir-fry.'],
             ]],
-            ['omelet-rice', 'Omelet with Rice (Khao Kai Jeow)', 'ข้าวไข่เจียว', 30, 40, false, true, [
-                'Omelet Pork with Rice', 'Omelet Chicken with Rice',
-                'Omelet Vegetable with Rice', 'Omelet Shrimp with Rice',
+            'Rice Dishes' => ['ข้าว', [
+                ['omelet-rice', 'Omelet with Rice (Khao Kai Jeow)', 30, 40, false, true,
+                    ['Pork', 'Chicken', 'Vegetable', 'Shrimp'], 'Fluffy Thai omelet served over steamed rice.'],
+                ['crispy-rice-chicken', 'Crispy Rice Chicken (Khao Man Gai Thod)', 30, 50, true, true,
+                    [], 'Golden fried chicken over fragrant rice.'],
+                ['crispy-chicken-kale', 'Crispy Chicken with Kale (Gai Thod Kana)', 30, 50, true, true,
+                    [], 'Crispy chicken tossed with crunchy kale.'],
+                ['fried-rice', 'Fried Rice (Khao Pad)', 30, 50, true, true,
+                    ['Pork', 'Chicken', 'Seafood', 'Beef', 'Vegetables', 'Mixed Meat'], 'Wok-fried rice, your choice of protein.'],
+                ['tom-yum-fried-rice', 'Tom Yum Fried Rice (Khao Pad Tom Yum)', 30, 50, true, true,
+                    ['Seafood', 'Pork', 'Chicken', 'Beef'], 'Fried rice with zingy, spicy tom-yum flavour.'],
             ]],
-            ['crispy-rice-chicken', 'Crispy Rice Chicken (Khao Man Gai Thod)', 'ข้าวมันไก่ทอด', 30, 50, true, true, [
-                'Crispy Rice Chicken',
+            'Noodles' => ['เส้น', [
+                ['pad-kee-mao', 'Spicy Fried Noodles (Pad Kee Mao)', 30, 50, false, false,
+                    ['Plain', 'Seafood', 'Pork'], 'Bold "drunken" stir-fried noodles with herbs.'],
+                ['fried-noodles-senyai', 'Fried Noodles (Pad Mee / Sen Yai)', 30, 40, false, false,
+                    ['Pork', 'Beef', 'Chicken', 'Seafood'], 'Stir-fried noodles with egg and greens.'],
+                ['pad-thai', 'Thai Fried Noodles (Pad Thai)', 40, 50, false, false,
+                    ['Pork', 'Chicken', 'Beef', 'Seafood'], 'The iconic sweet-savoury Thai noodle stir-fry.'],
             ]],
-            ['crispy-chicken-kale', 'Crispy Chicken with Kale (Gai Thod Kana)', 'ไก่ทอดคะน้า', 30, 50, true, true, [
-                'Crispy Chicken with Kale',
-            ]],
-            ['garlic-pepper', 'Garlic & Pepper Stir-Fry', 'ผัดกระเทียมพริกไทย', 30, 50, true, true, [
-                'Stir-Fried Pork with Garlic and Peppercorns', 'Crispy Fried Calamari', 'Stir-Fried Shrimp with Garlic',
-            ]],
-            ['pad-kee-mao', 'Spicy Fried Noodles (Pad Kee Mao)', 'ผัดขี้เมา', 30, 50, false, false, [
-                'Spicy Fried Noodles', 'Spicy Fried Noodles with Seafood', 'Spicy Fried Noodles with Pork',
-            ]],
-            ['pad-prik', 'Stir-Fried Chilli (Pad Prik)', 'ผัดพริก', 30, 50, true, true, [
-                'Stir-Fried Chilli with Beef', 'Stir-Fried Chilli with Chicken', 'Stir-Fried Chilli with Pork',
-            ]],
-            ['tom-yum-fried-rice', 'Tom Yum Fried Rice (Khao Pad Tom Yum)', 'ข้าวผัดต้มยำ', 30, 50, true, true, [
-                'Tom Yum Fried Rice with Seafood', 'Tom Yum Fried Rice with Pork',
-                'Tom Yum Fried Rice with Chicken', 'Tom Yum Fried Rice with Beef',
-            ]],
-            ['suki', 'Suki (Thai Sukiyaki)', 'สุกี้', 30, 50, false, true, [
-                'Suki (plain / nam)', 'Suki with Seafood', 'Suki with Pork', 'Suki with Beef', 'Suki with Chicken',
-            ]],
-            ['chilli-salt', 'Chilli Salt Stir-Fry (Pad Prik Gleua)', 'ผัดพริกเกลือ', 30, 50, true, true, [
-                'Fried Chilli Salt Chicken', 'Fried Chilli Salt Beef',
-            ]],
-            ['fried-noodles-senyai', 'Fried Noodles (Pad Mee / Sen Yai)', 'ผัดเส้นใหญ่', 30, 40, false, false, [
-                'Fried Noodles with Pork', 'Fried Noodles with Meat',
-                'Fried Noodles with Chicken', 'Fried Noodles with Seafood',
-            ]],
-            ['pad-thai', 'Thai Fried Noodles (Pad Thai)', 'ผัดไทย', 40, 50, false, false, [
-                'Pad Thai with Pork', 'Pad Thai with Chicken', 'Pad Thai with Meat', 'Pad Thai with Seafood',
-            ]],
-            ['fried-rice', 'Fried Rice (Khao Pad)', 'ข้าวผัด', 30, 50, true, true, [
-                'Fried Rice with Pork', 'Fried Rice with Chicken', 'Fried Rice with Seafood',
-                'Fried Rice with Meat', 'Fried Rice with Vegetables', 'Fried Rice with Mixed Meat',
-            ]],
-            ['noodle-soup', 'Noodle Soup (Kuay Teow)', 'ก๋วยเตี๋ยว', 30, 40, false, true, [
-                'Pork Noodles', 'Meat Noodles',
-            ]],
-            ['tom-yum-noodle-soup', 'Tom Yum Noodle Soup', 'ก๋วยเตี๋ยวต้มยำ', 30, 40, false, true, [
-                'Tom Yum Pork / Meat Noodles', 'Pork / Meat Seafood Noodles',
-            ]],
-            ['mee-nam', 'Fried Noodles with Soup (Mee Nam)', 'หมี่น้ำ', 30, 40, false, true, [
-                'Fried Noodles with Pork and Soup', 'Fried Noodles with Meat and Soup',
-                'Fried Noodles with Chicken and Soup', 'Fried Noodles with Seafood and Soup',
+            'Soups & Suki' => ['ต้ม & สุกี้', [
+                ['noodle-soup', 'Noodle Soup (Kuay Teow)', 30, 40, false, true,
+                    ['Pork', 'Beef'], 'Comforting clear-broth noodle soup.'],
+                ['tom-yum-noodle-soup', 'Tom Yum Noodle Soup', 30, 40, false, true,
+                    ['Pork', 'Beef', 'Seafood'], 'Hot-and-sour tom-yum noodle soup.'],
+                ['mee-nam', 'Fried Noodles with Soup (Mee Nam)', 30, 40, false, true,
+                    ['Pork', 'Beef', 'Chicken', 'Seafood'], 'Fried noodles served in a rich soup.'],
+                ['suki', 'Suki (Thai Sukiyaki)', 30, 50, false, true,
+                    ['Plain', 'Seafood', 'Pork', 'Beef', 'Chicken'], 'Thai-style sukiyaki with glass noodles and veg.'],
             ]],
         ];
 
         $keptNames = ['Drinks'];
+        $order = 0;
 
-        foreach ($categories as $order => [$slug, $en, $th, $normal, $large, $egg, $spice, $items]) {
-            $keptNames[] = $en;
+        foreach ($sections as $sectionName => [$sectionTh, $dishes]) {
+            $keptNames[] = $sectionName;
 
             $category = Category::updateOrCreate(
-                ['name' => $en],
-                ['name_th' => $th, 'display_order' => $order, 'is_active' => true],
+                ['name' => $sectionName],
+                ['name_th' => $sectionTh, 'display_order' => $order++, 'is_active' => true],
             );
 
-            $image = 'uploads/menu/' . $slug . '.jpg';
-            $imagePath = is_file(public_path($image)) ? $image : null;
+            foreach ($dishes as $i => [$slug, $name, $normal, $large, $egg, $spice, $proteins, $desc]) {
+                $image = 'uploads/menu/' . $slug . '.jpg';
 
-            foreach ($items as $i => $itemName) {
                 MenuItem::updateOrCreate(
-                    ['name' => $itemName, 'category_id' => $category->id],
+                    ['name' => $name, 'category_id' => $category->id],
                     [
+                        'description' => $desc,
                         'price' => $normal * 100,
                         'large_price' => $large * 100,
                         'has_egg_addon' => $egg,
                         'has_spice_note' => $spice,
-                        'image_path' => $imagePath,
+                        'proteins' => $proteins ?: null,
+                        'image_path' => is_file(public_path($image)) ? $image : null,
                         'is_available' => true,
                         'is_drink' => false,
                         'display_order' => $i,
@@ -103,13 +92,11 @@ class ThaiMenuSeeder extends Seeder
             }
         }
 
-        // Push Drinks to the end of the menu.
+        // Drinks stays, at the end of the menu.
         Category::where('name', 'Drinks')->update(['display_order' => 99]);
 
-        // Retire the old placeholder food menu: deactivate those categories and
-        // soft-delete their items (order history keeps its own snapshots).
-        $oldCategories = Category::whereNotIn('name', $keptNames)->get();
-        foreach ($oldCategories as $old) {
+        // Retire every other (older) category and soft-delete its items.
+        foreach (Category::whereNotIn('name', $keptNames)->get() as $old) {
             $old->update(['is_active' => false]);
             MenuItem::where('category_id', $old->id)->delete();
         }

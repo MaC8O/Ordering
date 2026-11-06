@@ -12,7 +12,7 @@ namespace App\Services;
 class CartParser
 {
     /**
-     * @return array<int, array{id:int, qty:int, note:string, size:?string, egg:string}>
+     * @return array<int, array{id:int, qty:int, note:string, protein:?string, size:?string, egg:string}>
      */
     public static function parse(?string $json): array
     {
@@ -34,10 +34,13 @@ class CartParser
             }
 
             $note = isset($row['note']) ? trim((string) $row['note']) : '';
+            $protein = isset($row['protein']) && is_string($row['protein']) && $row['protein'] !== ''
+                ? mb_substr(trim($row['protein']), 0, 40)
+                : null;
             $size = ($row['size'] ?? null) === 'large' ? 'large' : null;
             $egg = in_array($row['egg'] ?? null, ['fried', 'half-boiled'], true) ? $row['egg'] : 'none';
 
-            $key = $id . '|' . ($size ?? 'n') . '|' . $egg;
+            $key = $id . '|' . ($protein ?? 'x') . '|' . ($size ?? 'n') . '|' . $egg;
 
             if (isset($lines[$key])) {
                 $lines[$key]['qty'] += $qty;
@@ -46,6 +49,7 @@ class CartParser
                     'id' => $id,
                     'qty' => $qty,
                     'note' => $note,
+                    'protein' => $protein,
                     'size' => $size,
                     'egg' => $egg,
                 ];

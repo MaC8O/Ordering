@@ -11,6 +11,9 @@
     <script>
         window.CURRENCY = @json(config('ordering.currency'));
         window.STORE_OPEN = @json($storeStatus->isOpen());
+        window.PREORDER_OPEN = @json($preorderStatus->isOpen());
+        // Items can be added whenever regular ordering OR the preorder window is open.
+        window.CAN_ORDER = window.STORE_OPEN || window.PREORDER_OPEN;
         window.PROMPTPAY_ID = @json(config('ordering.promptpay_id'));
     </script>
 </head>

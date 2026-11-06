@@ -5,14 +5,15 @@ const CART_KEY = 'ck_cart_v1';
 
 // A cart line is identified by item id + chosen size + egg, so the same dish
 // in different sizes stays on separate lines.
-function lineKey(id, size, egg) {
-    return [id, size || 'n', egg || 'none'].join('|');
+function lineKey(id, protein, size, egg) {
+    return [id, protein || 'x', size || 'n', egg || 'none'].join('|');
 }
 
 function normalizeLine(i) {
+    const protein = i.protein ?? null;
     const size = i.size ?? null;
     const egg = i.egg || 'none';
-    return { ...i, size, egg, key: i.key || lineKey(i.id, size, egg) };
+    return { ...i, protein, size, egg, key: i.key || lineKey(i.id, protein, size, egg) };
 }
 
 function loadCart() {
@@ -70,9 +71,10 @@ document.addEventListener('alpine:init', () => {
 
         add(item, qty = 1, note = '') {
             qty = Math.max(1, Math.min(20, parseInt(qty, 10) || 1));
+            const protein = item.protein ?? null;
             const size = item.size ?? null;
             const egg = item.egg || 'none';
-            const key = lineKey(item.id, size, egg);
+            const key = lineKey(item.id, protein, size, egg);
             const existing = this.find(key);
             if (existing) {
                 existing.qty = Math.min(20, existing.qty + qty);
@@ -85,6 +87,7 @@ document.addEventListener('alpine:init', () => {
                     price: item.price, // minor units — unit price incl. options
                     image: item.image || null,
                     isDrink: item.isDrink || false,
+                    protein,
                     size,
                     egg,
                     qty,
@@ -146,6 +149,7 @@ document.addEventListener('alpine:init', () => {
                     id: i.id,
                     qty: i.qty,
                     note: i.note || '',
+                    protein: i.protein || null,
                     size: i.size || null,
                     egg: i.egg || 'none',
                 }))

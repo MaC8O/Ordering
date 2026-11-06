@@ -270,8 +270,11 @@
                             <div class="flex items-start justify-between gap-3 text-sm">
                                 <span>
                                     <span class="font-semibold" x-text="line.qty + '×'"></span> <span x-text="line.name"></span>
-                                    <span x-show="(line.size && line.size !== 'normal') || (line.egg && line.egg !== 'none')" x-cloak class="block text-xs text-ink-soft">
-                                        <span x-show="line.size === 'large'">{{ __('Large') }}</span><span x-show="line.size === 'large' && line.egg && line.egg !== 'none'"> · </span><span x-show="line.egg === 'fried'">{{ __('Fried egg') }}</span><span x-show="line.egg === 'half-boiled'">{{ __('Half-boiled egg') }}</span>
+                                    <span x-show="line.protein || line.size === 'large' || (line.egg && line.egg !== 'none')" x-cloak class="mt-0.5 flex flex-wrap gap-1">
+                                        <template x-if="line.protein"><span class="rounded bg-brand-50 px-1.5 text-[11px] font-semibold text-brand-700" x-text="line.protein"></span></template>
+                                        <span x-show="line.size === 'large'" class="rounded bg-surface-2 px-1.5 text-[11px] text-ink-soft">{{ __('Large') }}</span>
+                                        <span x-show="line.egg === 'fried'" class="rounded bg-surface-2 px-1.5 text-[11px] text-ink-soft">{{ __('Fried egg') }}</span>
+                                        <span x-show="line.egg === 'half-boiled'" class="rounded bg-surface-2 px-1.5 text-[11px] text-ink-soft">{{ __('Half-boiled egg') }}</span>
                                     </span>
                                 </span>
                                 <span class="font-semibold whitespace-nowrap" x-text="window.CURRENCY + ' ' + window.money(line.price * line.qty)"></span>

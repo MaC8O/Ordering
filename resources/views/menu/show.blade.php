@@ -19,11 +19,14 @@
             note: '',
             size: 'normal',
             egg: 'none',
+            proteins: @js($item->proteins ?? []),
+            protein: @js(($item->proteins[0] ?? null)),
             base: {{ $item->price }},
             large: {{ $item->large_price ?? 'null' }},
             eggFee: {{ $eggFee }},
             hasSizes: {{ $item->hasSizes() ? 'true' : 'false' }},
             hasEgg: {{ $item->has_egg_addon ? 'true' : 'false' }},
+            hasProteins: {{ $item->hasProteins() ? 'true' : 'false' }},
             meta: { id: {{ $item->id }}, name: @js($item->localized_name), image: @js($item->image_path ? asset($item->image_path) : null), isDrink: {{ $item->is_drink ? 'true' : 'false' }} },
             get unitPrice() {
                 let p = (this.hasSizes && this.size === 'large' && this.large) ? this.large : this.base;
@@ -31,10 +34,11 @@
                 return p;
             },
             addToCart() {
-                if (!window.STORE_OPEN) return;
+                if (!window.CAN_ORDER) return;
                 $store.cart.add({
                     id: this.meta.id, name: this.meta.name, image: this.meta.image, isDrink: this.meta.isDrink,
                     price: this.unitPrice,
+                    protein: this.hasProteins ? this.protein : null,
                     size: this.hasSizes ? this.size : null,
                     egg: this.hasEgg ? this.egg : 'none',
                 }, this.qty, this.note);
@@ -53,6 +57,20 @@
 
             @if ($item->localized_description)
                 <p class="mt-4 text-ink-soft">{{ $item->localized_description }}</p>
+            @endif
+
+            {{-- Protein choice --}}
+            @if ($item->hasProteins())
+                <div class="mt-6">
+                    <label class="label">{{ __('Choose your protein') }}</label>
+                    <div class="flex flex-wrap gap-2">
+                        @foreach ($item->proteins as $p)
+                            <button type="button" @click="protein = @js($p)"
+                                    :class="protein === @js($p) ? 'border-brand-600 bg-brand-50 text-brand-700' : 'border-line text-ink'"
+                                    class="rounded-xl border px-4 py-2.5 text-sm font-semibold transition">{{ __($p) }}</button>
+                        @endforeach
+                    </div>
+                </div>
             @endif
 
             {{-- Size --}}
@@ -107,11 +125,11 @@
             </div>
 
             <div class="mt-6 flex flex-col gap-3 sm:flex-row">
-                <button type="button" @click="addToCart()" :disabled="!window.STORE_OPEN"
-                        :title="window.STORE_OPEN ? '' : @js(__('Ordering is closed right now'))"
+                <button type="button" @click="addToCart()" :disabled="!window.CAN_ORDER"
+                        :title="window.CAN_ORDER ? '' : @js(__('Ordering is closed right now'))"
                         class="btn-primary flex-1 disabled:bg-black/20 disabled:text-white/70">
-                    <span x-show="window.STORE_OPEN">{{ __('Add to cart') }} · <span x-text="window.CURRENCY + ' ' + window.money(unitPrice * qty)"></span></span>
-                    <span x-show="!window.STORE_OPEN">{{ __('Ordering closed') }}</span>
+                    <span x-show="window.CAN_ORDER">{{ __('Add to cart') }} · <span x-text="window.CURRENCY + ' ' + window.money(unitPrice * qty)"></span></span>
+                    <span x-show="!window.CAN_ORDER">{{ __('Ordering closed') }}</span>
                 </button>
                 <a href="{{ route('cart.index') }}" class="btn-secondary">{{ __('View cart') }}</a>
             </div>
