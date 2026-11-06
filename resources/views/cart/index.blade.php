@@ -64,6 +64,8 @@
                             <span class="font-semibold" x-text="window.CURRENCY + ' ' + window.money($store.cart.subtotal)"></span>
                         </div>
                         <p class="mt-1 text-xs text-ink-soft">{{ __('Delivery fee is calculated at checkout.') }}</p>
+                        <p x-show="$store.cart.items.some(i => i.isDrink) && !$store.cart.items.every(i => i.isDrink)" x-cloak class="mt-2 flex items-center gap-1.5 rounded-lg bg-green-50 px-2.5 py-1.5 text-xs font-medium text-green-700">🥤 {{ __('Your drinks are delivered free with your food order.') }}</p>
+                        <p x-show="$store.cart.items.length && $store.cart.items.every(i => i.isDrink)" x-cloak class="mt-2 flex items-center gap-1.5 rounded-lg bg-amber-50 px-2.5 py-1.5 text-xs font-medium text-amber-800">🥤 {{ __('A delivery fee applies to drinks-only orders.') }}</p>
 
                         @if ($preorderStatus->isOpen())
                             <a href="{{ route('preorder.create') }}" class="mt-5 flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-indigo-600 to-violet-700 px-4 py-3 font-bold text-white shadow-lg shadow-indigo-500/30 transition hover:-translate-y-0.5">

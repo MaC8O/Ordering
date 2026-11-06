@@ -68,6 +68,7 @@ document.addEventListener('alpine:init', () => {
                     name: item.name,
                     price: item.price, // minor units
                     image: item.image || null,
+                    isDrink: item.isDrink || false,
                     qty,
                     note: note || '',
                 });

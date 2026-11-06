@@ -21,12 +21,14 @@ class MenuItem extends Model
         'price',
         'image_path',
         'is_available',
+        'is_drink',
         'display_order',
     ];
 
     protected $casts = [
         'price' => 'integer',
         'is_available' => 'boolean',
+        'is_drink' => 'boolean',
         'display_order' => 'integer',
     ];
 

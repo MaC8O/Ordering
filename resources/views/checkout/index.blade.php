@@ -283,6 +283,8 @@
                             <span x-show="!freeDelivery" class="font-semibold" x-text="window.CURRENCY + ' ' + window.money(deliveryFee)"></span>
                             <span x-show="freeDelivery" x-cloak class="font-bold uppercase text-green-600">{{ __('Free') }}</span>
                         </div>
+                        <p x-show="hasDrink && !drinksOnly" x-cloak class="flex items-center gap-1.5 rounded-lg bg-green-50 px-2.5 py-1.5 text-xs font-medium text-green-700">🥤 {{ __('Your drinks are delivered free with your food order.') }}</p>
+                        <p x-show="drinksOnly" x-cloak class="flex items-center gap-1.5 rounded-lg bg-amber-50 px-2.5 py-1.5 text-xs font-medium text-amber-800">🥤 {{ __('A delivery fee applies to drinks-only orders.') }}</p>
                         <div class="flex justify-between text-base font-bold">
                             <span>{{ __('Total') }}</span>
                             <span x-text="window.CURRENCY + ' ' + window.money(grandTotal)"></span>
@@ -333,6 +335,13 @@
                 },
                 get grandTotal() {
                     return this.$store.cart.subtotal + this.deliveryFee;
+                },
+                get hasDrink() {
+                    return this.$store.cart.items.some((i) => i.isDrink);
+                },
+                get drinksOnly() {
+                    const items = this.$store.cart.items;
+                    return items.length > 0 && items.every((i) => i.isDrink);
                 },
                 get qrIsDynamic() {
                     return !!this.qrDataUrl;

@@ -12,7 +12,7 @@
          x-data="{
             qty: 1,
             note: '',
-            item: { id: {{ $item->id }}, name: @js($item->localized_name), price: {{ $item->price }}, image: @js($item->image_path ? asset($item->image_path) : null) },
+            item: { id: {{ $item->id }}, name: @js($item->localized_name), price: {{ $item->price }}, image: @js($item->image_path ? asset($item->image_path) : null), isDrink: {{ $item->is_drink ? 'true' : 'false' }} },
             addToCart() {
                 if (!window.STORE_OPEN) return;
                 $store.cart.add(this.item, this.qty, this.note);

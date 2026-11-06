@@ -215,6 +215,8 @@
     "Preordering is closed right now.": "ขณะนี้ปิดรับพรีออเดอร์",
     "Please upload a screenshot of your transfer.": "กรุณาอัปโหลดภาพสลิปการโอนของคุณ",
     "One or more items are no longer available. Please review your cart.": "มีบางรายการไม่พร้อมจำหน่ายแล้ว กรุณาตรวจสอบตะกร้าของคุณ",
+    "Your drinks are delivered free with your food order.": "เครื่องดื่มจัดส่งฟรีเมื่อสั่งพร้อมอาหาร",
+    "A delivery fee applies to drinks-only orders.": "ออเดอร์ที่มีแต่เครื่องดื่มจะมีค่าจัดส่ง",
     "In progress": "กำลังดำเนินการ",
     "Order history": "ประวัติออเดอร์",
     "No past orders yet.": "ยังไม่มีออเดอร์ที่ผ่านมา",

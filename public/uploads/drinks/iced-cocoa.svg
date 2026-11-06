@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="400" height="400" role="img">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#F2E8DD"/>
+      <stop offset="1" stop-color="#DBC3A9"/>
+    </linearGradient>
+    <linearGradient id="liq" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#6B4028"/>
+      <stop offset="1" stop-color="#4A2A18"/>
+    </linearGradient>
+    <clipPath id="g"><path d="M128 104 L272 104 L256 330 Q254 344 242 344 L158 344 Q146 344 144 330 Z"/></clipPath>
+  </defs>
+
+  <rect width="400" height="400" fill="url(#bg)"/>
+  <circle cx="312" cy="74" r="120" fill="#ffffff" opacity="0.10"/>
+  <circle cx="92" cy="330" r="90" fill="#ffffff" opacity="0.08"/>
+
+  <!-- coaster -->
+  <ellipse cx="200" cy="352" rx="92" ry="16" fill="#000000" opacity="0.07"/>
+
+  <!-- liquid + toppings, clipped to the glass -->
+  <g clip-path="url(#g)">
+    <rect x="120" y="150" width="160" height="200" fill="url(#liq)"/>
+    
+    <rect x='120' y='150' width='160' height='52' fill='#E7D2B8'/><ellipse cx='200' cy='150' rx='80' ry='12' fill='#F2E6D8'/>
+    <!-- ice cubes -->
+    <g fill="#ffffff" opacity="0.4">
+      <rect x="170" y="196" width="40" height="40" rx="9" transform="rotate(16 190 216)"/>
+      <rect x="205" y="232" width="36" height="36" rx="8" transform="rotate(-12 223 250)"/>
+      <rect x="160" y="250" width="34" height="34" rx="8" transform="rotate(22 177 267)"/>
+    </g>
+    <!-- glass sheen -->
+    <rect x="150" y="150" width="20" height="200" fill="#ffffff" opacity="0.22"/>
+  </g>
+
+  <!-- straw -->
+  <g transform="rotate(10 200 200)">
+    <rect x="214" y="70" width="15" height="250" rx="7" fill="#8A5A3A"/>
+    <rect x="214" y="70" width="7" height="250" rx="3" fill="#ffffff" opacity="0.25"/>
+  </g>
+
+  
+
+  <!-- glass outline + rim -->
+  <path d="M128 104 L272 104 L256 330 Q254 344 242 344 L158 344 Q146 344 144 330 Z" fill="none" stroke="#ffffff" stroke-width="7" opacity="0.85"/>
+  <path d="M128 104 L272 104 L256 330 Q254 344 242 344 L158 344 Q146 344 144 330 Z" fill="none" stroke="#000000" stroke-width="2" opacity="0.06"/>
+  <ellipse cx="200" cy="104" rx="72" ry="13" fill="none" stroke="#ffffff" stroke-width="7" opacity="0.9"/>
+
+  <!-- condensation -->
+  <g fill="#ffffff" opacity="0.5">
+    <circle cx="165" cy="300" r="3.5"/><circle cx="178" cy="322" r="2.5"/><circle cx="236" cy="296" r="3"/><circle cx="228" cy="320" r="2.3"/>
+  </g>
+</svg>
