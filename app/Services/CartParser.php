@@ -4,12 +4,15 @@ namespace App\Services;
 
 /**
  * Normalises the client cart JSON (sent from localStorage) into a clean,
- * server-trusted shape. Shared by the checkout and preorder flows.
+ * server-trusted list of lines. Shared by the checkout and preorder flows.
+ *
+ * Lines are identified by item id + size + egg, so the same dish in two sizes
+ * stays separate; exact duplicates are merged.
  */
 class CartParser
 {
     /**
-     * @return array<int, array{qty:int, note:string}> keyed by menu item id
+     * @return array<int, array{id:int, qty:int, note:string, size:?string, egg:string}>
      */
     public static function parse(?string $json): array
     {
@@ -19,7 +22,7 @@ class CartParser
             return [];
         }
 
-        $cart = [];
+        $lines = [];
         foreach ($decoded as $row) {
             if (! is_array($row) || ! isset($row['id'])) {
                 continue;
@@ -29,16 +32,26 @@ class CartParser
             if ($id <= 0 || $qty <= 0) {
                 continue;
             }
-            $note = isset($row['note']) ? trim((string) $row['note']) : '';
 
-            // Merge duplicate ids.
-            if (isset($cart[$id])) {
-                $cart[$id]['qty'] += $qty;
+            $note = isset($row['note']) ? trim((string) $row['note']) : '';
+            $size = ($row['size'] ?? null) === 'large' ? 'large' : null;
+            $egg = in_array($row['egg'] ?? null, ['fried', 'half-boiled'], true) ? $row['egg'] : 'none';
+
+            $key = $id . '|' . ($size ?? 'n') . '|' . $egg;
+
+            if (isset($lines[$key])) {
+                $lines[$key]['qty'] += $qty;
             } else {
-                $cart[$id] = ['qty' => $qty, 'note' => $note];
+                $lines[$key] = [
+                    'id' => $id,
+                    'qty' => $qty,
+                    'note' => $note,
+                    'size' => $size,
+                    'egg' => $egg,
+                ];
             }
         }
 
-        return $cart;
+        return array_values($lines);
     }
 }

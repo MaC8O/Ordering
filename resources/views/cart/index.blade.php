@@ -20,7 +20,7 @@
         <template x-if="$store.cart.items.length > 0">
             <div class="grid gap-6 lg:grid-cols-[1fr_20rem]">
                 <div class="space-y-3">
-                    <template x-for="line in $store.cart.items" :key="line.id">
+                    <template x-for="line in $store.cart.items" :key="line.key">
                         <div class="card flex gap-3 p-3">
                             <div class="h-20 w-20 shrink-0 overflow-hidden rounded-xl bg-brand-50">
                                 <template x-if="line.image">
@@ -33,8 +33,16 @@
 
                             <div class="flex flex-1 flex-col">
                                 <div class="flex items-start justify-between gap-2">
-                                    <p class="font-semibold leading-snug" x-text="line.name"></p>
-                                    <button type="button" @click="$store.cart.remove(line.id)" class="text-ink-soft hover:text-red-600" aria-label="Remove">
+                                    <div class="min-w-0">
+                                        <p class="font-semibold leading-snug" x-text="line.name"></p>
+                                        <p x-show="(line.size && line.size !== 'normal') || (line.egg && line.egg !== 'none')" x-cloak class="text-xs text-ink-soft">
+                                            <span x-show="line.size === 'large'">{{ __('Large') }}</span>
+                                            <span x-show="line.size === 'large' && line.egg && line.egg !== 'none'"> · </span>
+                                            <span x-show="line.egg === 'fried'">{{ __('Fried egg') }}</span>
+                                            <span x-show="line.egg === 'half-boiled'">{{ __('Half-boiled egg') }}</span>
+                                        </p>
+                                    </div>
+                                    <button type="button" @click="$store.cart.remove(line.key)" class="shrink-0 text-ink-soft hover:text-red-600" aria-label="Remove">
                                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0"/></svg>
                                     </button>
                                 </div>
@@ -42,9 +50,9 @@
 
                                 <div class="mt-auto flex items-center justify-between gap-2 pt-2">
                                     <div class="inline-flex items-center rounded-lg border border-line">
-                                        <button type="button" @click="$store.cart.decrement(line.id)" class="grid h-9 w-9 place-items-center font-bold text-ink-soft hover:text-brand-700">−</button>
+                                        <button type="button" @click="$store.cart.decrement(line.key)" class="grid h-9 w-9 place-items-center font-bold text-ink-soft hover:text-brand-700">−</button>
                                         <span class="w-8 text-center text-sm font-semibold" x-text="line.qty"></span>
-                                        <button type="button" @click="$store.cart.increment(line.id)" class="grid h-9 w-9 place-items-center font-bold text-ink-soft hover:text-brand-700">+</button>
+                                        <button type="button" @click="$store.cart.increment(line.key)" class="grid h-9 w-9 place-items-center font-bold text-ink-soft hover:text-brand-700">+</button>
                                     </div>
                                     <span class="font-bold" x-text="window.CURRENCY + ' ' + window.money(line.price * line.qty)"></span>
                                 </div>

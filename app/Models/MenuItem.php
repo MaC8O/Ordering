@@ -19,6 +19,9 @@ class MenuItem extends Model
         'description',
         'description_th',
         'price',
+        'large_price',
+        'has_egg_addon',
+        'has_spice_note',
         'image_path',
         'is_available',
         'is_drink',
@@ -27,10 +30,23 @@ class MenuItem extends Model
 
     protected $casts = [
         'price' => 'integer',
+        'large_price' => 'integer',
+        'has_egg_addon' => 'boolean',
+        'has_spice_note' => 'boolean',
         'is_available' => 'boolean',
         'is_drink' => 'boolean',
         'display_order' => 'integer',
     ];
+
+    public function hasSizes(): bool
+    {
+        return $this->large_price !== null && $this->large_price > $this->price;
+    }
+
+    public function getLargePriceFormattedAttribute(): ?string
+    {
+        return $this->large_price !== null ? number_format($this->large_price / 100, 2) : null;
+    }
 
     public function category(): BelongsTo
     {

@@ -68,37 +68,13 @@ class PreorderController extends Controller
             return redirect()->route('cart.index')->with('error', __('Your cart is empty.'));
         }
 
-        $items = MenuItem::query()
-            ->available()
-            ->whereIn('id', array_keys($cart))
-            ->get()
-            ->keyBy('id');
-
-        $missing = array_diff(array_keys($cart), $items->keys()->all());
-        if (! empty($missing)) {
+        $built = \App\Services\OrderLines::build($cart);
+        if ($built['missing']) {
             return redirect()->route('cart.index')
                 ->with('error', __('One or more items are no longer available. Please review your cart.'));
         }
-
-        $maxQty = (int) config('ordering.max_qty', 20);
-        $lines = [];
-        $subtotal = 0;
-
-        foreach ($cart as $id => $entry) {
-            $menuItem = $items[$id];
-            $qty = max(1, min($maxQty, (int) $entry['qty']));
-            $lineTotal = $menuItem->price * $qty;
-            $subtotal += $lineTotal;
-
-            $lines[] = [
-                'menu_item_id' => $menuItem->id,
-                'item_name_snapshot' => $menuItem->name,
-                'item_price_snapshot' => $menuItem->price,
-                'item_note' => $entry['note'] !== '' ? mb_substr($entry['note'], 0, 200) : null,
-                'quantity' => $qty,
-                'line_total' => $lineTotal,
-            ];
-        }
+        $lines = $built['lines'];
+        $subtotal = $built['subtotal'];
 
         $customer = Auth::guard('customer')->user();
         $freeDelivery = $customer?->hasFreeDelivery() ?? false;

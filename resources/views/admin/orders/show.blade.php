@@ -33,6 +33,7 @@
                         <div class="flex items-start justify-between gap-3 py-2 text-sm">
                             <span>
                                 <span class="font-semibold">{{ $line->quantity }}×</span> {{ $line->item_name_snapshot }}
+                                @if ($line->options_snapshot)<span class="block text-xs font-medium text-brand-700">{{ $line->options_snapshot }}</span>@endif
                                 <span class="block text-xs text-ink-soft">{{ config('ordering.currency') }} {{ $line->item_price_formatted }} each</span>
                                 @if ($line->item_note)<span class="block text-xs italic text-ink-soft">“{{ $line->item_note }}”</span>@endif
                             </span>

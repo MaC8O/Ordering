@@ -46,19 +46,16 @@ class CheckoutController extends Controller
                 ->with('error', 'Your cart is empty.');
         }
 
-        $items = MenuItem::query()
-            ->available()
-            ->whereIn('id', array_keys($cart))
-            ->get()
-            ->keyBy('id');
-
-        // Any requested item that is gone or unavailable rejects the whole order.
-        $missing = array_diff(array_keys($cart), $items->keys()->all());
-        if (! empty($missing)) {
+        // Build order lines with option-aware price snapshots, totalled
+        // server-side. Any item that is gone or unavailable rejects the order.
+        $built = \App\Services\OrderLines::build($cart);
+        if ($built['missing']) {
             return redirect()
                 ->route('cart.index')
                 ->with('error', 'One or more items are no longer available. Please review your cart.');
         }
+        $lines = $built['lines'];
+        $subtotal = $built['subtotal'];
 
         // 3. Validate preferred delivery time against the chosen date's hours.
         if ($request->filled('preferred_time')) {
@@ -73,27 +70,6 @@ class CheckoutController extends Controller
         }
 
         $settings = $status->settings();
-        $maxQty = (int) config('ordering.max_qty', 20);
-
-        // 4. Build order lines with price snapshots, totalled server-side.
-        $lines = [];
-        $subtotal = 0;
-
-        foreach ($cart as $id => $entry) {
-            $menuItem = $items[$id];
-            $qty = max(1, min($maxQty, (int) $entry['qty']));
-            $lineTotal = $menuItem->price * $qty;
-            $subtotal += $lineTotal;
-
-            $lines[] = [
-                'menu_item_id' => $menuItem->id,
-                'item_name_snapshot' => $menuItem->name,
-                'item_price_snapshot' => $menuItem->price,
-                'item_note' => $entry['note'] !== '' ? mb_substr($entry['note'], 0, 200) : null,
-                'quantity' => $qty,
-                'line_total' => $lineTotal,
-            ];
-        }
 
         // Loyalty reward: registered customers who have reached the delivered-
         // order threshold get free delivery forever. Decided server-side so the

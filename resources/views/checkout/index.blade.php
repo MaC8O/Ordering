@@ -266,9 +266,14 @@
                     </template>
 
                     <div x-show="$store.cart.items.length > 0" class="mt-4 space-y-3">
-                        <template x-for="line in $store.cart.items" :key="line.id">
+                        <template x-for="line in $store.cart.items" :key="line.key">
                             <div class="flex items-start justify-between gap-3 text-sm">
-                                <span><span class="font-semibold" x-text="line.qty + '×'"></span> <span x-text="line.name"></span></span>
+                                <span>
+                                    <span class="font-semibold" x-text="line.qty + '×'"></span> <span x-text="line.name"></span>
+                                    <span x-show="(line.size && line.size !== 'normal') || (line.egg && line.egg !== 'none')" x-cloak class="block text-xs text-ink-soft">
+                                        <span x-show="line.size === 'large'">{{ __('Large') }}</span><span x-show="line.size === 'large' && line.egg && line.egg !== 'none'"> · </span><span x-show="line.egg === 'fried'">{{ __('Fried egg') }}</span><span x-show="line.egg === 'half-boiled'">{{ __('Half-boiled egg') }}</span>
+                                    </span>
+                                </span>
                                 <span class="font-semibold whitespace-nowrap" x-text="window.CURRENCY + ' ' + window.money(line.price * line.qty)"></span>
                             </div>
                         </template>

@@ -37,7 +37,7 @@
         <hr>
         @foreach ($order->items as $line)
             <div class="row">
-                <span class="item-name">{{ $line->quantity }}× {{ $line->item_name_snapshot }}</span>
+                <span class="item-name">{{ $line->quantity }}× {{ $line->item_name_snapshot }}@if ($line->options_snapshot) ({{ $line->options_snapshot }})@endif</span>
                 <span>{{ config('ordering.currency') }} {{ $line->line_total_formatted }}</span>
             </div>
             @if ($line->item_note)<p class="note">↳ {{ $line->item_note }}</p>@endif
