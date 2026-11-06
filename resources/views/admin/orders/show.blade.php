@@ -45,7 +45,37 @@
             </div>
 
             <div class="card p-5">
-                <h2 class="text-sm font-bold uppercase tracking-wide text-ink-soft">Customer & delivery</h2>
+                <div class="flex flex-wrap items-center justify-between gap-2">
+                    <h2 class="text-sm font-bold uppercase tracking-wide text-ink-soft">Customer & delivery</h2>
+                    @if ($loyalty)
+                        @if ($loyalty['has_free_delivery'])
+                            <span class="badge bg-green-100 text-green-800">🎉 Free delivery · {{ $loyalty['delivered'] }} delivered</span>
+                        @else
+                            <span class="badge bg-brand-100 text-brand-700">★ Member · {{ $loyalty['delivered'] }}/{{ $loyalty['threshold'] }} to free</span>
+                        @endif
+                    @else
+                        <span class="badge bg-gray-100 text-gray-600">Guest</span>
+                    @endif
+                </div>
+
+                @if ($loyalty)
+                    <div class="mt-3 rounded-xl border p-3 text-sm {{ $loyalty['has_free_delivery'] ? 'border-green-200 bg-green-50' : 'border-brand-100 bg-brand-50/60' }}">
+                        @if ($loyalty['has_free_delivery'])
+                            <p class="font-semibold text-green-800">This customer qualifies for free delivery on every order.</p>
+                        @else
+                            <p class="font-semibold text-ink">{{ $loyalty['remaining'] }} more delivered {{ \Illuminate\Support\Str::plural('order', $loyalty['remaining']) }} until free delivery unlocks.</p>
+                            <div class="mt-2 h-2 w-full overflow-hidden rounded-full bg-white">
+                                <div class="h-full rounded-full bg-gradient-to-r from-brand-500 to-brand-700"
+                                     style="width: {{ $loyalty['threshold'] > 0 ? min(100, round($loyalty['delivered'] / $loyalty['threshold'] * 100)) : 0 }}%"></div>
+                            </div>
+                        @endif
+                        <p class="mt-2 text-xs text-ink-soft">
+                            {{ $loyalty['delivered'] }} delivered · {{ $loyalty['total_orders'] }} total {{ \Illuminate\Support\Str::plural('order', $loyalty['total_orders']) }}
+                            @unless ($loyalty['linked']) · <span class="italic">matched by phone number</span>@endunless
+                        </p>
+                    </div>
+                @endif
+
                 <dl class="mt-3 grid gap-3 text-sm sm:grid-cols-2">
                     <div><dt class="text-ink-soft">Name</dt><dd class="font-semibold">{{ $order->customer_name }}</dd></div>
                     <div><dt class="text-ink-soft">Phone</dt><dd class="font-semibold"><a href="tel:{{ $order->customer_phone }}" class="text-brand-700">{{ $order->customer_phone }}</a></dd></div>
