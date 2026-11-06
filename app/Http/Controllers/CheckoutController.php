@@ -9,6 +9,7 @@ use App\Services\OrderNumberGenerator;
 use App\Services\StoreStatus;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class CheckoutController extends Controller
@@ -16,11 +17,14 @@ class CheckoutController extends Controller
     public function index(StoreStatus $status)
     {
         $settings = $status->settings();
+        $customer = Auth::guard('customer')->user();
 
         return view('checkout.index', [
             'settings' => $settings,
             'dorms' => (array) ($settings->dorms ?? []),
             'storeStatus' => $status,
+            'customer' => $customer,
+            'freeDelivery' => $customer?->hasFreeDelivery() ?? false,
         ]);
     }
 
@@ -91,13 +95,20 @@ class CheckoutController extends Controller
             ];
         }
 
-        $deliveryFee = (int) $settings->default_delivery_fee;
+        // Loyalty reward: registered customers who have reached the delivered-
+        // order threshold get free delivery forever. Decided server-side so the
+        // client can never grant itself a free delivery.
+        $customer = Auth::guard('customer')->user();
+        $freeDelivery = $customer?->hasFreeDelivery() ?? false;
+
+        $deliveryFee = $freeDelivery ? 0 : (int) $settings->default_delivery_fee;
         $total = $subtotal + $deliveryFee;
 
         // 5. Persist order + items atomically, then store any screenshot.
-        $order = DB::transaction(function () use ($request, $numbers, $lines, $subtotal, $deliveryFee, $total) {
+        $order = DB::transaction(function () use ($request, $numbers, $lines, $subtotal, $deliveryFee, $total, $customer) {
             $order = Order::create([
                 'order_number' => $numbers->generate(),
+                'customer_id' => $customer?->id,
                 'customer_name' => $request->string('customer_name'),
                 'customer_phone' => $request->string('customer_phone'),
                 'delivery_dorm' => $request->string('delivery_dorm'),

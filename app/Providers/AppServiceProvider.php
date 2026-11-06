@@ -33,6 +33,9 @@ class AppServiceProvider extends ServiceProvider
             'order.show',
             'my-order.index',
             'about',
+            'account.index',
+            'account.login',
+            'account.register',
         ], function ($view) {
             $status = new StoreStatus();
             $view->with([

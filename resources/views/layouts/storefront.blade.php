@@ -33,6 +33,11 @@
                 <a href="{{ route('menu.index') }}" class="nav-link rounded-lg px-2 py-2 text-sm font-semibold hover:bg-hover sm:px-3 {{ request()->routeIs('menu.*') ? 'is-active text-brand-700' : 'text-ink-soft' }}">{{ __('Menu') }}</a>
                 <a href="{{ route('my-order.index') }}" class="nav-link rounded-lg px-2 py-2 text-sm font-semibold hover:bg-hover sm:px-3 {{ request()->routeIs('my-order.*') ? 'is-active text-brand-700' : 'text-ink-soft' }}">{{ __('My Order') }}</a>
                 <a href="{{ route('about') }}" class="nav-link rounded-lg px-2 py-2 text-sm font-semibold hover:bg-hover sm:px-3 {{ request()->routeIs('about') ? 'is-active text-brand-700' : 'text-ink-soft' }}">{{ __('About') }}</a>
+                @auth('customer')
+                    <a href="{{ route('account.index') }}" class="nav-link rounded-lg px-2 py-2 text-sm font-semibold hover:bg-hover sm:px-3 {{ request()->routeIs('account.*') ? 'is-active text-brand-700' : 'text-ink-soft' }}">{{ __('Account') }}</a>
+                @else
+                    <a href="{{ route('login') }}" class="nav-link rounded-lg px-2 py-2 text-sm font-semibold hover:bg-hover sm:px-3 {{ request()->routeIs('login') || request()->routeIs('register') ? 'is-active text-brand-700' : 'text-ink-soft' }}">{{ __('Log in') }}</a>
+                @endauth
                 <a href="{{ route('cart.index') }}" class="relative rounded-lg px-2 py-2 text-sm font-semibold text-ink hover:bg-hover sm:px-3" aria-label="{{ __('Cart') }}">
                     <span class="flex items-center gap-1.5">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 0 0-3 3h15.75m-12.75-3h11.218c1.121-.534 2.3-3.429 2.74-5.5H6.91m0 0L5.106 5.272M7.5 14.25 5.106 5.272" /><circle cx="9" cy="20" r="1" /><circle cx="18" cy="20" r="1" /></svg>

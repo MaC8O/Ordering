@@ -26,4 +26,12 @@ return [
 
     // Supported interface languages (English / Thai).
     'locales' => ['en', 'th'],
+
+    /*
+    | Loyalty reward: once a customer (registered account) has this many
+    | DELIVERED orders, every future order ships with free delivery forever.
+    */
+    'loyalty' => [
+        'free_delivery_after' => (int) env('ORDERING_FREE_DELIVERY_AFTER', 6),
+    ],
 ];

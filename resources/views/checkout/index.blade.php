@@ -5,6 +5,18 @@
 @section('content')
     <h1 class="mb-5 text-2xl font-bold">{{ __('Checkout') }}</h1>
 
+    @if ($freeDelivery)
+        <div class="mb-5 flex items-center gap-3 rounded-2xl bg-gradient-to-br from-green-600 to-emerald-600 p-4 text-white shadow">
+            <span class="text-2xl">🎉</span>
+            <p class="text-sm font-semibold">{{ __('Loyalty reward: delivery on this order is free!') }}</p>
+        </div>
+    @elseif (! $customer)
+        <div class="mb-5 flex flex-wrap items-center justify-between gap-2 rounded-2xl border border-brand-100 bg-brand-50/60 p-4 text-sm">
+            <p class="text-ink-soft">{{ __('Have an account? Log in to track orders and earn free delivery.') }}</p>
+            <a href="{{ route('login') }}" class="font-semibold text-brand-700 hover:underline">{{ __('Log in') }} →</a>
+        </div>
+    @endif
+
     <form method="POST" action="{{ route('checkout.store') }}" enctype="multipart/form-data"
           x-data="checkoutForm()" x-init="init()" @submit="prepare($event)">
         @csrf
@@ -237,7 +249,8 @@
                         </div>
                         <div class="flex justify-between text-sm">
                             <span class="text-ink-soft">{{ __('Delivery fee') }}</span>
-                            <span class="font-semibold" x-text="window.CURRENCY + ' ' + window.money(deliveryFee)"></span>
+                            <span x-show="!freeDelivery" class="font-semibold" x-text="window.CURRENCY + ' ' + window.money(deliveryFee)"></span>
+                            <span x-show="freeDelivery" x-cloak class="font-bold uppercase text-green-600">{{ __('Free') }}</span>
                         </div>
                         <div class="flex justify-between text-base font-bold">
                             <span>{{ __('Total') }}</span>
@@ -259,11 +272,12 @@
     <script>
         function checkoutForm() {
             return {
-                deliveryFee: {{ (int) $settings->default_delivery_fee }},
+                deliveryFee: {{ $freeDelivery ? 0 : (int) $settings->default_delivery_fee }},
+                freeDelivery: {{ $freeDelivery ? 'true' : 'false' }},
                 todayStr: new Date().toLocaleDateString('en-CA'),
                 f: {
-                    name: @js(old('customer_name', '')),
-                    phone: @js(old('customer_phone', '')),
+                    name: @js(old('customer_name', $customer?->name ?? '')),
+                    phone: @js(old('customer_phone', $customer?->phone ?? '')),
                     dorm: @js(old('delivery_dorm', '')),
                     date: @js(old('delivery_date', '')),
                     payment: @js(old('payment_method', 'qr')),

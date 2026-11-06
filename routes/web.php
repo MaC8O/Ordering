@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AboutController;
+use App\Http\Controllers\AccountController;
 use App\Http\Controllers\Admin\AdminLoginController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\DashboardController;
@@ -10,6 +11,7 @@ use App\Http\Controllers\Admin\OrderController as AdminOrderController;
 use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CheckoutController;
+use App\Http\Controllers\CustomerAuthController;
 use App\Http\Controllers\MenuController;
 use App\Http\Controllers\MyOrderController;
 use App\Http\Controllers\OrderController;
@@ -47,6 +49,26 @@ Route::get('/my-order', [MyOrderController::class, 'index'])->name('my-order.ind
 Route::post('/my-order', [MyOrderController::class, 'lookup'])->name('my-order.lookup');
 
 Route::get('/about', [AboutController::class, 'index'])->name('about');
+
+/*
+|--------------------------------------------------------------------------
+| Customer accounts (optional) — loyalty & order history
+|--------------------------------------------------------------------------
+*/
+
+Route::middleware('guest:customer')->group(function () {
+    Route::get('/register', [CustomerAuthController::class, 'showRegister'])->name('register');
+    Route::post('/register', [CustomerAuthController::class, 'register'])->name('register.attempt');
+    Route::get('/login', [CustomerAuthController::class, 'showLogin'])->name('login');
+    Route::post('/login', [CustomerAuthController::class, 'login'])
+        ->middleware('throttle:10,1')
+        ->name('login.attempt');
+});
+
+Route::middleware('auth:customer')->group(function () {
+    Route::get('/account', [AccountController::class, 'index'])->name('account.index');
+    Route::post('/logout', [CustomerAuthController::class, 'logout'])->name('logout');
+});
 
 /*
 |--------------------------------------------------------------------------
