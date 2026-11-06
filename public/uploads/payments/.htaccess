@@ -1,0 +1,7 @@
+# Payment receipts are static images only. Never execute code from this
+# directory, whatever a file happens to be named.
+php_flag engine off
+
+<FilesMatch "\.(php|phtml|php3|php4|php5|php7|phps|pht|phar|cgi|pl|py|asp|aspx|sh|htaccess)$">
+    Require all denied
+</FilesMatch>

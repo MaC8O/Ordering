@@ -30,7 +30,8 @@
         <div class="row"><span>Payment</span><span>{{ strtoupper($order->payment_method) }} · {{ $order->payment_status_label }}</span></div>
         <hr>
         <div class="row"><span>{{ $order->customer_name }}</span><span>{{ $order->customer_phone }}</span></div>
-        <div class="row"><span>{{ $order->delivery_dorm }}</span><span>Room {{ $order->delivery_room }}</span></div>
+        <div class="row"><span>{{ $order->delivery_dorm }}</span></div>
+        @if ($order->delivery_date)<div class="row"><span>Date</span><span>{{ $order->delivery_date->format('D, d M Y') }}</span></div>@endif
         @if ($order->preferred_time)<div class="row"><span>Preferred</span><span>{{ \Illuminate\Support\Str::of($order->preferred_time)->substr(0,5) }}</span></div>@endif
         @if ($order->delivery_notes)<p class="note">Delivery: {{ $order->delivery_notes }}</p>@endif
         <hr>

@@ -5,8 +5,8 @@
 @source '../views';
 
 @theme {
-    --font-sans: 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji',
-        'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+    --font-sans: 'Plus Jakarta Sans', 'Noto Sans Thai', ui-sans-serif, system-ui, sans-serif,
+        'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
 
     /* Primary — warm, appetizing orange */
     --color-brand-50: #fff7ed;
@@ -253,6 +253,55 @@
     transform: translateX(-100%);
     background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.6), transparent);
     animation: shimmer 1.4s infinite;
+}
+
+/* ---------- Header & footer flourishes ---------- */
+@keyframes logo-bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-2.5px); } }
+@keyframes logo-wiggle { 0%, 100% { transform: rotate(0); } 25% { transform: rotate(-9deg); } 75% { transform: rotate(9deg); } }
+@keyframes heart-beat { 0%, 100% { transform: scale(1); } 15% { transform: scale(1.25); } 30% { transform: scale(1); } 45% { transform: scale(1.12); } }
+@keyframes rise-in { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+/* Food logo gently bobs, and does a playful wiggle on hover */
+.logo-mark { animation: logo-bob 3.2s ease-in-out infinite; will-change: transform; }
+.logo-link:hover .logo-mark { animation: logo-wiggle 0.55s ease-in-out; }
+
+/* Nav links grow an animated underline on hover / when active */
+.nav-link { position: relative; }
+.nav-link::after {
+    content: '';
+    position: absolute;
+    left: 0.5rem; right: 0.5rem; bottom: 0.3rem;
+    height: 2px; border-radius: 2px;
+    background-image: linear-gradient(90deg, var(--color-brand-400), var(--color-brand-600));
+    transform: scaleX(0);
+    transform-origin: center;
+    transition: transform 0.25s ease;
+}
+.nav-link:hover::after,
+.nav-link.is-active::after { transform: scaleX(1); }
+
+.heart-beat { display: inline-block; animation: heart-beat 1.8s ease-in-out infinite; }
+
+/* Gentle reveal for menu category sections */
+.reveal { animation: rise-in 0.5s ease-out both; }
+
+/* Floating decorative food on the hero */
+@keyframes hero-float {
+    0%, 100% { transform: translateY(0) rotate(-3deg); }
+    50% { transform: translateY(-14px) rotate(3deg); }
+}
+.hero-float {
+    animation: hero-float 5.5s ease-in-out infinite;
+    filter: drop-shadow(0 10px 14px rgba(0, 0, 0, 0.25));
+    will-change: transform;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .logo-mark,
+    .logo-link:hover .logo-mark,
+    .heart-beat,
+    .reveal,
+    .hero-float { animation: none !important; }
 }
 
 [x-cloak] { display: none !important; }

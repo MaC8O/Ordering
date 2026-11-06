@@ -13,9 +13,11 @@ class MenuItemController extends Controller
     {
         return [
             'name' => ['required', 'string', 'max:120'],
+            'name_th' => ['nullable', 'string', 'max:120'],
             'category_id' => ['required', 'exists:categories,id'],
             'price' => ['required', 'numeric', 'min:0', 'max:100000'],
             'description' => ['nullable', 'string', 'max:500'],
+            'description_th' => ['nullable', 'string', 'max:500'],
             'is_available' => ['nullable', 'boolean'],
             'image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:' . config('ordering.menu_image_max_kb')],
         ];
@@ -27,9 +29,11 @@ class MenuItemController extends Controller
 
         $item = MenuItem::create([
             'name' => $data['name'],
+            'name_th' => $data['name_th'] ?? null,
             'category_id' => $data['category_id'],
             'price' => (int) round($data['price'] * 100),
             'description' => $data['description'] ?? null,
+            'description_th' => $data['description_th'] ?? null,
             'is_available' => $request->boolean('is_available', true),
             'display_order' => (int) (MenuItem::where('category_id', $data['category_id'])->max('display_order') ?? 0) + 1,
         ]);
@@ -47,9 +51,11 @@ class MenuItemController extends Controller
 
         $menuItem->update([
             'name' => $data['name'],
+            'name_th' => $data['name_th'] ?? null,
             'category_id' => $data['category_id'],
             'price' => (int) round($data['price'] * 100),
             'description' => $data['description'] ?? null,
+            'description_th' => $data['description_th'] ?? null,
             'is_available' => $request->boolean('is_available', true),
         ]);
 

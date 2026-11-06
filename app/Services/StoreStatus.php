@@ -164,6 +164,32 @@ class StoreStatus
         return $next->format('l') . " at {$time}";
     }
 
+    /**
+     * Localized next-opening label, e.g. "tomorrow at 10:00" / "พรุ่งนี้ เวลา 10:00".
+     */
+    public function nextOpeningLabelLocalized(): ?string
+    {
+        $next = $this->nextOpening();
+
+        if (! $next) {
+            return null;
+        }
+
+        $now = $this->now();
+        $time = $next->format('H:i');
+
+        if ($next->isSameDay($now)) {
+            return __('today at') . " {$time}";
+        }
+        if ($next->isSameDay($now->copy()->addDay())) {
+            return __('tomorrow at') . " {$time}";
+        }
+
+        $day = $next->locale(app()->getLocale())->isoFormat('dddd');
+
+        return "{$day} " . __('at') . " {$time}";
+    }
+
     public function restaurantName(): string
     {
         return $this->settings->restaurant_name ?: 'Campus Kitchen';

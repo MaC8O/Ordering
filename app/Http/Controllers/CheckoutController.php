@@ -9,6 +9,7 @@ use App\Services\OrderNumberGenerator;
 use App\Services\StoreStatus;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class CheckoutController extends Controller
@@ -16,11 +17,14 @@ class CheckoutController extends Controller
     public function index(StoreStatus $status)
     {
         $settings = $status->settings();
+        $customer = Auth::guard('customer')->user();
 
         return view('checkout.index', [
             'settings' => $settings,
             'dorms' => (array) ($settings->dorms ?? []),
             'storeStatus' => $status,
+            'customer' => $customer,
+            'freeDelivery' => $customer?->hasFreeDelivery() ?? false,
         ]);
     }
 
@@ -56,9 +60,13 @@ class CheckoutController extends Controller
                 ->with('error', 'One or more items are no longer available. Please review your cart.');
         }
 
-        // 3. Validate preferred delivery time against today's hours.
+        // 3. Validate preferred delivery time against the chosen date's hours.
         if ($request->filled('preferred_time')) {
-            $error = $this->validatePreferredTime($request->input('preferred_time'), $status);
+            $error = $this->validatePreferredTime(
+                $request->input('preferred_time'),
+                $request->input('delivery_date'),
+                $status
+            );
             if ($error) {
                 return back()->withInput()->withErrors(['preferred_time' => $error]);
             }
@@ -87,17 +95,25 @@ class CheckoutController extends Controller
             ];
         }
 
-        $deliveryFee = (int) $settings->default_delivery_fee;
+        // Loyalty reward: registered customers who have reached the delivered-
+        // order threshold get free delivery forever. Decided server-side so the
+        // client can never grant itself a free delivery.
+        $customer = Auth::guard('customer')->user();
+        $freeDelivery = $customer?->hasFreeDelivery() ?? false;
+
+        $deliveryFee = $freeDelivery ? 0 : (int) $settings->default_delivery_fee;
         $total = $subtotal + $deliveryFee;
 
         // 5. Persist order + items atomically, then store any screenshot.
-        $order = DB::transaction(function () use ($request, $numbers, $lines, $subtotal, $deliveryFee, $total) {
+        $order = DB::transaction(function () use ($request, $numbers, $lines, $subtotal, $deliveryFee, $total, $customer) {
             $order = Order::create([
                 'order_number' => $numbers->generate(),
+                'customer_id' => $customer?->id,
                 'customer_name' => $request->string('customer_name'),
                 'customer_phone' => $request->string('customer_phone'),
                 'delivery_dorm' => $request->string('delivery_dorm'),
-                'delivery_room' => $request->string('delivery_room'),
+                'delivery_room' => null,
+                'delivery_date' => $request->input('delivery_date'),
                 'delivery_notes' => $request->input('delivery_notes'),
                 'preferred_time' => $request->input('preferred_time'),
                 'payment_method' => $request->string('payment_method'),
@@ -114,22 +130,13 @@ class CheckoutController extends Controller
             return $order;
         });
 
-        // 6. QR screenshot upload (saved as /uploads/payments/{order_number}.{ext}).
+        // 6. QR receipt upload. Stored by Order::storeReceipt(), which names the
+        //    file by the unguessable token so receipts can't be found by guessing.
         if ($request->input('payment_method') === 'qr' && $request->hasFile('payment_screenshot')) {
-            $file = $request->file('payment_screenshot');
-            $ext = strtolower($file->getClientOriginalExtension() ?: $file->extension());
-            $filename = $order->order_number . '.' . $ext;
-
-            $dir = public_path('uploads/payments');
-            if (! is_dir($dir)) {
-                mkdir($dir, 0775, true);
-            }
-            $file->move($dir, $filename);
-
-            $order->update(['payment_screenshot_path' => 'uploads/payments/' . $filename]);
+            $order->storeReceipt($request->file('payment_screenshot'));
         }
 
-        return redirect()->route('order.show', $order->order_number);
+        return redirect()->route('order.show', $order->public_token);
     }
 
     /**
@@ -168,7 +175,7 @@ class CheckoutController extends Controller
         return $cart;
     }
 
-    protected function validatePreferredTime(string $time, StoreStatus $status): ?string
+    protected function validatePreferredTime(string $time, ?string $date, StoreStatus $status): ?string
     {
         try {
             $preferred = Carbon::createFromFormat('H:i', $time);
@@ -177,20 +184,29 @@ class CheckoutController extends Controller
         }
 
         $now = Carbon::now();
-        $preferredToday = $now->copy()->setTime($preferred->hour, $preferred->minute, 0);
 
-        if ($preferredToday->lessThan($now)) {
+        // Anchor the preferred time to the chosen delivery date (fall back to today).
+        try {
+            $day = $date ? Carbon::createFromFormat('Y-m-d', $date)->startOfDay() : $now->copy()->startOfDay();
+        } catch (\Throwable) {
+            $day = $now->copy()->startOfDay();
+        }
+
+        $preferredAt = $day->copy()->setTime($preferred->hour, $preferred->minute, 0);
+
+        // Only guard against the past when the delivery is for today.
+        if ($preferredAt->lessThan($now)) {
             return 'Preferred time cannot be in the past.';
         }
 
-        $settings = $status->settings();
-        $row = \App\Models\Schedule::where('weekday', (int) $now->dayOfWeek)->first();
+        // Check against the opening hours for that weekday.
+        $row = \App\Models\Schedule::where('weekday', (int) $day->dayOfWeek)->first();
 
         if ($row && $row->is_open) {
             [$ch, $cm] = array_pad(explode(':', $row->close_time), 2, '0');
-            $close = $now->copy()->setTime((int) $ch, (int) $cm, 0);
-            if ($preferredToday->greaterThan($close)) {
-                return 'Preferred time must be before we close today (' . substr($row->close_time, 0, 5) . ').';
+            $close = $day->copy()->setTime((int) $ch, (int) $cm, 0);
+            if ($preferredAt->greaterThan($close)) {
+                return 'Preferred time must be before we close that day (' . substr($row->close_time, 0, 5) . ').';
             }
         }
 

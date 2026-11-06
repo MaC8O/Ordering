@@ -7,6 +7,13 @@ return [
     */
     'currency' => env('ORDERING_CURRENCY', '฿'),
 
+    /*
+    | PromptPay ID used to build the dynamic QR at checkout (with the exact
+    | amount embedded). A Thai mobile number, National ID, or e-Wallet ID.
+    | Leave null to fall back to the static QR image uploaded in settings.
+    */
+    'promptpay_id' => env('ORDERING_PROMPTPAY_ID', '0628197477'),
+
     // Max payment screenshot upload size in kilobytes (5 MB).
     'screenshot_max_kb' => 5120,
 
@@ -16,4 +23,15 @@ return [
     // Quantity bounds for a single line item.
     'min_qty' => 1,
     'max_qty' => 20,
+
+    // Supported interface languages (English / Thai).
+    'locales' => ['en', 'th'],
+
+    /*
+    | Loyalty reward: once a customer (registered account) has this many
+    | DELIVERED orders, every future order ships with free delivery forever.
+    */
+    'loyalty' => [
+        'free_delivery_after' => (int) env('ORDERING_FREE_DELIVERY_AFTER', 6),
+    ],
 ];

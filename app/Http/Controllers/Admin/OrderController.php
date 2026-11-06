@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Customer;
 use App\Models\Order;
 use App\Models\Setting;
 use App\Services\SmsService;
@@ -57,11 +58,32 @@ class OrderController extends Controller
 
     public function show(Order $order)
     {
-        $order->load('items');
+        $order->load('items', 'customer');
+
+        // Resolve the customer behind this order: the registered account it was
+        // placed under, or (for a guest order) an account that shares the phone.
+        $customer = $order->customer
+            ?: Customer::where('phone', $order->customer_phone)->first();
+
+        $loyalty = null;
+        if ($customer) {
+            $delivered = $customer->deliveredOrdersCount();
+            $threshold = Customer::freeDeliveryThreshold();
+            $loyalty = [
+                'registered' => true,
+                'linked' => (bool) $order->customer_id,
+                'total_orders' => $customer->orderHistoryQuery()->count(),
+                'delivered' => $delivered,
+                'threshold' => $threshold,
+                'remaining' => max(0, $threshold - $delivered),
+                'has_free_delivery' => $delivered >= $threshold,
+            ];
+        }
 
         return view('admin.orders.show', [
             'order' => $order,
             'statuses' => Order::ORDER_STATUSES,
+            'loyalty' => $loyalty,
         ]);
     }
 
@@ -108,7 +130,7 @@ class OrderController extends Controller
     {
         $settings = Setting::current();
         $eta = $order->etaLabel();
-        $url = route('order.show', $order->order_number);
+        $url = route('order.show', $order->public_token);
 
         $body = "Hi {$order->customer_name}, your {$settings->restaurant_name} order "
             . "{$order->order_number} is on the way!"

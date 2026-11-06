@@ -12,6 +12,9 @@ export default defineConfig({
                 bunny('Plus Jakarta Sans', {
                     weights: [400, 500, 600, 700],
                 }),
+                bunny('Noto Sans Thai', {
+                    weights: [400, 500, 600, 700],
+                }),
             ],
         }),
         tailwindcss(),
