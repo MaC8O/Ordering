@@ -59,26 +59,43 @@
                         </div>
                     @else
                         {{-- Progress tracker --}}
-                        <ol class="mt-5 space-y-3">
-                            @foreach ($steps as $i => $step)
-                                <li class="flex items-center gap-3">
-                                    <span class="grid h-7 w-7 shrink-0 place-items-center rounded-full text-xs font-bold
-                                        {{ $i <= $currentIndex ? 'bg-brand-600 text-white' : 'bg-surface-2 text-ink-soft' }}
-                                        {{ $i === $currentIndex && ! $order->isDone() ? 'ring-4 ring-brand-200' : '' }}">
-                                        {{ $i < $currentIndex ? '✓' : $i + 1 }}
-                                    </span>
-                                    <span class="text-sm {{ $i <= $currentIndex ? 'font-semibold text-ink' : 'text-ink-soft' }}">
-                                        {{ __(\App\Models\Order::ORDER_STATUSES[$step]) }}
-                                        @if ($step === 'out_for_delivery' && $i === $currentIndex && $order->etaLabel())
-                                            <span class="font-normal text-teal-700">· {{ $order->etaLabel() }}</span>
-                                        @endif
-                                    </span>
-                                </li>
-                            @endforeach
-                        </ol>
+                        @php
+                            $stepIcons = ['pending' => '🧾', 'confirmed' => '👍', 'preparing' => '🍳', 'out_for_delivery' => '🛵', 'completed' => '🎉'];
+                            $pct = count($steps) > 1 ? max(0, $currentIndex) / (count($steps) - 1) * 100 : 0;
+                        @endphp
+                        <div class="relative mt-7">
+                            {{-- connecting track --}}
+                            <div class="absolute left-[10%] right-[10%] top-6 h-1.5 rounded-full bg-surface-2"></div>
+                            <div class="absolute left-[10%] top-6 h-1.5 rounded-full bg-gradient-to-r from-brand-500 to-brand-600 transition-all duration-500"
+                                 style="width: calc(80% * {{ $pct / 100 }})"></div>
+
+                            <ol class="relative flex justify-between">
+                                @foreach ($steps as $i => $step)
+                                    @php $state = $i < $currentIndex ? 'done' : ($i === $currentIndex ? 'current' : 'todo'); @endphp
+                                    <li class="flex w-1/5 flex-col items-center text-center">
+                                        <span class="grid h-12 w-12 place-items-center rounded-full border-2 bg-surface text-xl transition
+                                            @class([
+                                                'border-brand-600 bg-brand-600' => $state === 'done',
+                                                'border-brand-600 text-brand-700 ring-4 ring-brand-100' => $state === 'current',
+                                                'border-line text-ink-soft grayscale' => $state === 'todo',
+                                            ])
+                                            {{ $state === 'current' && ! $order->isDone() ? 'motion-safe:animate-pulse' : '' }}">
+                                            @if ($state === 'done')<span class="text-white">✓</span>@else {{ $stepIcons[$step] }} @endif
+                                        </span>
+                                        <span class="mt-2 text-[11px] leading-tight sm:text-xs {{ $i <= $currentIndex ? 'font-semibold text-ink' : 'text-ink-soft' }}">
+                                            {{ __(\App\Models\Order::ORDER_STATUSES[$step]) }}
+                                        </span>
+                                    </li>
+                                @endforeach
+                            </ol>
+                        </div>
+
+                        @if ($order->isOutForDelivery() && $order->etaLabel())
+                            <p class="mt-5 rounded-xl bg-teal-50 px-4 py-2.5 text-center text-sm font-semibold text-teal-700">🛵 {{ __('Arriving :eta.', ['eta' => $order->etaLabel()]) }}</p>
+                        @endif
 
                         @unless ($order->isDone())
-                            <p class="mt-4 flex items-center gap-2 text-xs text-ink-soft">
+                            <p class="mt-4 flex items-center justify-center gap-2 text-xs text-ink-soft">
                                 <span class="h-2 w-2 animate-pulse rounded-full bg-teal-500"></span>
                                 {{ __('This page updates automatically.') }}
                             </p>
@@ -89,7 +106,11 @@
                     <div class="mt-2 divide-y divide-line">
                         @foreach ($order->items as $line)
                             <div class="flex justify-between gap-3 py-2 text-sm">
-                                <span><span class="font-semibold">{{ $line->quantity }}×</span> {{ $line->item_name_snapshot }}</span>
+                                <span>
+                                    <span class="font-semibold">{{ $line->quantity }}×</span> {{ $line->item_name_snapshot }}
+                                    @if ($line->options_snapshot)<span class="block text-xs font-medium text-brand-700">{{ $line->options_snapshot }}</span>@endif
+                                    @if ($line->item_note)<span class="block text-xs text-ink-soft">{{ $line->item_note }}</span>@endif
+                                </span>
                                 <span class="font-semibold">{{ config('ordering.currency') }} {{ $line->line_total_formatted }}</span>
                             </div>
                         @endforeach
