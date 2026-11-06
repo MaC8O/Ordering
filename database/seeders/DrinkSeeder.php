@@ -39,7 +39,7 @@ class DrinkSeeder extends Seeder
                     'description' => $desc,
                     'description_th' => $descTh,
                     'price' => $baht * 100,
-                    'image_path' => 'uploads/drinks/' . $slug . '.svg',
+                    'image_path' => 'uploads/drinks/' . $slug . '.jpg',
                     'is_available' => true,
                     'is_drink' => true,
                     'display_order' => $i,
