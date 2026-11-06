@@ -94,6 +94,74 @@
                     <button class="btn-primary mt-2">Save schedule</button>
                 </form>
             </div>
+
+            {{-- Preorder batch --}}
+            <div class="card p-5">
+                <h2 class="text-lg font-bold">Preorder batch</h2>
+                <p class="mt-1 text-sm text-ink-soft">Collect orders in a window, then cook &amp; deliver them all in one run.</p>
+                <form method="POST" action="{{ route('admin.settings.preorder') }}" class="mt-4 space-y-4">
+                    @csrf @method('PATCH')
+
+                    <label class="flex items-center gap-2 text-sm font-semibold">
+                        <input type="hidden" name="preorder_enabled" value="0">
+                        <input type="checkbox" name="preorder_enabled" value="1" @checked(old('preorder_enabled', $settings->preorder_enabled)) class="h-4 w-4 accent-brand-600">
+                        Enable weekly preorders
+                    </label>
+
+                    <div class="grid gap-4 sm:grid-cols-2">
+                        <div>
+                            <label class="label">Opens — day</label>
+                            <select name="preorder_open_day" class="input">
+                                @foreach ($weekdays as $num => $name)
+                                    <option value="{{ $num }}" @selected((int) old('preorder_open_day', $settings->preorder_open_day) === $num)>{{ $name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div>
+                            <label class="label">Opens — time</label>
+                            <input type="time" name="preorder_open_time" value="{{ \Illuminate\Support\Str::of(old('preorder_open_time', $settings->preorder_open_time))->substr(0,5) }}" class="input" required>
+                        </div>
+                        <div>
+                            <label class="label">Cutoff — day</label>
+                            <select name="preorder_cutoff_day" class="input">
+                                @foreach ($weekdays as $num => $name)
+                                    <option value="{{ $num }}" @selected((int) old('preorder_cutoff_day', $settings->preorder_cutoff_day) === $num)>{{ $name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div>
+                            <label class="label">Cutoff — time</label>
+                            <input type="time" name="preorder_cutoff_time" value="{{ \Illuminate\Support\Str::of(old('preorder_cutoff_time', $settings->preorder_cutoff_time))->substr(0,5) }}" class="input" required>
+                        </div>
+                    </div>
+
+                    <div class="grid gap-4 sm:grid-cols-3">
+                        <div>
+                            <label class="label">Delivery day</label>
+                            <select name="preorder_fulfillment_day" class="input">
+                                @foreach ($weekdays as $num => $name)
+                                    <option value="{{ $num }}" @selected((int) old('preorder_fulfillment_day', $settings->preorder_fulfillment_day) === $num)>{{ $name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div>
+                            <label class="label">Window from</label>
+                            <input type="time" name="preorder_window_start" value="{{ \Illuminate\Support\Str::of(old('preorder_window_start', $settings->preorder_window_start))->substr(0,5) }}" class="input" required>
+                        </div>
+                        <div>
+                            <label class="label">Window to</label>
+                            <input type="time" name="preorder_window_end" value="{{ \Illuminate\Support\Str::of(old('preorder_window_end', $settings->preorder_window_end))->substr(0,5) }}" class="input" required>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="label">Batch delivery fee ({{ config('ordering.currency') }}) <span class="font-normal text-ink-soft">— flat, shared; 0 = free</span></label>
+                        <input name="preorder_delivery_fee" type="number" step="0.01" min="0" value="{{ old('preorder_delivery_fee', number_format($settings->preorder_delivery_fee / 100, 2, '.', '')) }}" class="input" required>
+                    </div>
+
+                    <button class="btn-primary">Save preorder settings</button>
+                </form>
+            </div>
         </div>
     </div>
 @endsection

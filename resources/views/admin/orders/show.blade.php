@@ -14,6 +14,9 @@
             <p class="text-sm text-ink-soft">Placed {{ $order->created_at->format('d M Y, H:i') }}</p>
         </div>
         <div class="flex items-center gap-2">
+            @if ($order->is_preorder)
+                <span class="badge bg-indigo-100 text-indigo-800">🗓️ Preorder</span>
+            @endif
             @include('admin.partials.payment-badge', ['order' => $order])
             @include('admin.partials.status-badge', ['order' => $order])
             <a href="{{ route('admin.orders.ticket', $order) }}" target="_blank" class="btn-secondary !py-2 text-sm">Print ticket</a>

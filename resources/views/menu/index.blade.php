@@ -121,6 +121,18 @@
         </div>
     </section>
 
+    {{-- Preorder window open --}}
+    @if ($preorderStatus->isOpen())
+        <a href="{{ route('cart.index') }}" class="group mb-6 flex items-center gap-4 overflow-hidden rounded-2xl bg-gradient-to-r from-indigo-600 to-violet-700 p-4 text-white shadow-lg shadow-indigo-500/20 transition hover:-translate-y-0.5 sm:p-5">
+            <span class="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-white/15 text-2xl backdrop-blur">🗓️</span>
+            <div class="min-w-0 flex-1">
+                <p class="font-bold">{{ __('Preorder is open!') }}</p>
+                <p class="truncate text-sm text-indigo-50/90">{{ __('Reserve your meal for :window.', ['window' => $preorderStatus->windowLabel()]) }}</p>
+            </div>
+            <span class="hidden shrink-0 items-center gap-1 rounded-full bg-white px-4 py-2 text-sm font-bold text-indigo-700 sm:inline-flex">{{ __('Preorder now') }} →</span>
+        </a>
+    @endif
+
     {{-- Search --}}
     <form method="GET" action="{{ route('menu.index') }}" class="mb-5">
         <div class="relative">

@@ -22,6 +22,7 @@
                     $navItems = [
                         'admin.dashboard' => 'Dashboard',
                         'admin.orders.index' => 'Orders',
+                        'admin.preorders.index' => 'Preorders',
                         'admin.menu.index' => 'Menu',
                         'admin.settings.edit' => 'Settings',
                     ];

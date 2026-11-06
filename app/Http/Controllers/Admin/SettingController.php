@@ -53,6 +53,39 @@ class SettingController extends Controller
         return back()->with('success', 'Settings saved.');
     }
 
+    public function updatePreorder(Request $request)
+    {
+        $data = $request->validate([
+            'preorder_enabled' => ['nullable', 'boolean'],
+            'preorder_open_day' => ['required', 'integer', 'between:0,6'],
+            'preorder_open_time' => ['required', 'date_format:H:i'],
+            'preorder_cutoff_day' => ['required', 'integer', 'between:0,6'],
+            'preorder_cutoff_time' => ['required', 'date_format:H:i'],
+            'preorder_fulfillment_day' => ['required', 'integer', 'between:0,6'],
+            'preorder_window_start' => ['required', 'date_format:H:i'],
+            'preorder_window_end' => ['required', 'date_format:H:i'],
+            'preorder_delivery_fee' => ['required', 'numeric', 'min:0', 'max:1000'],
+        ]);
+
+        if ($data['preorder_window_end'] <= $data['preorder_window_start']) {
+            return back()->with('error', 'Preorder: the delivery window end time must be after the start time.');
+        }
+
+        Setting::current()->update([
+            'preorder_enabled' => (bool) ($data['preorder_enabled'] ?? false),
+            'preorder_open_day' => (int) $data['preorder_open_day'],
+            'preorder_open_time' => $data['preorder_open_time'],
+            'preorder_cutoff_day' => (int) $data['preorder_cutoff_day'],
+            'preorder_cutoff_time' => $data['preorder_cutoff_time'],
+            'preorder_fulfillment_day' => (int) $data['preorder_fulfillment_day'],
+            'preorder_window_start' => $data['preorder_window_start'],
+            'preorder_window_end' => $data['preorder_window_end'],
+            'preorder_delivery_fee' => (int) round($data['preorder_delivery_fee'] * 100),
+        ]);
+
+        return back()->with('success', 'Preorder settings saved.');
+    }
+
     public function uploadQr(Request $request)
     {
         $request->validate([

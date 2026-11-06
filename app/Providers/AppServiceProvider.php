@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Services\PreorderStatus;
 use App\Services\StoreStatus;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
@@ -41,6 +42,7 @@ class AppServiceProvider extends ServiceProvider
             $view->with([
                 'storeStatus' => $status,
                 'storeSettings' => $status->settings(),
+                'preorderStatus' => new PreorderStatus($status->settings()),
             ]);
         });
     }

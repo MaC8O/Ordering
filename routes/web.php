@@ -15,6 +15,7 @@ use App\Http\Controllers\CustomerAuthController;
 use App\Http\Controllers\MenuController;
 use App\Http\Controllers\MyOrderController;
 use App\Http\Controllers\OrderController;
+use App\Http\Controllers\PreorderController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -39,6 +40,12 @@ Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
 
 Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
 Route::post('/checkout', [CheckoutController::class, 'store'])->name('checkout.store');
+
+// Weekly preorder batch (open only during the configured collection window).
+Route::get('/preorder', [PreorderController::class, 'create'])->name('preorder.create');
+Route::post('/preorder', [PreorderController::class, 'store'])
+    ->middleware('throttle:10,1')
+    ->name('preorder.store');
 
 Route::get('/order/{order:public_token}', [OrderController::class, 'show'])->name('order.show');
 Route::post('/order/{order:public_token}/receipt', [OrderController::class, 'uploadReceipt'])
@@ -90,6 +97,9 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
         Route::post('/accepting', [DashboardController::class, 'toggleAccepting'])->name('accepting.toggle');
 
+        // Preorder batch (kitchen prep)
+        Route::get('/preorders', [\App\Http\Controllers\Admin\PreorderController::class, 'index'])->name('preorders.index');
+
         // Orders
         Route::get('/orders', [AdminOrderController::class, 'index'])->name('orders.index');
         Route::get('/orders/{order}', [AdminOrderController::class, 'show'])->name('orders.show');
@@ -117,5 +127,6 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::patch('/settings', [SettingController::class, 'update'])->name('settings.update');
         Route::post('/settings/qr', [SettingController::class, 'uploadQr'])->name('settings.qr');
         Route::patch('/settings/schedule', [SettingController::class, 'updateSchedule'])->name('settings.schedule');
+        Route::patch('/settings/preorder', [SettingController::class, 'updatePreorder'])->name('settings.preorder');
     });
 });

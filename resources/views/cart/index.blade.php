@@ -65,9 +65,16 @@
                         </div>
                         <p class="mt-1 text-xs text-ink-soft">{{ __('Delivery fee is calculated at checkout.') }}</p>
 
+                        @if ($preorderStatus->isOpen())
+                            <a href="{{ route('preorder.create') }}" class="mt-5 flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-indigo-600 to-violet-700 px-4 py-3 font-bold text-white shadow-lg shadow-indigo-500/30 transition hover:-translate-y-0.5">
+                                🗓️ {{ __('Preorder for :day', ['day' => $preorderStatus->fulfillmentAt()->locale(app()->getLocale())->isoFormat('dddd')]) }}
+                            </a>
+                            <p class="mt-2 text-center text-xs text-ink-soft">{{ __('Delivered :window.', ['window' => $preorderStatus->windowLabel()]) }}</p>
+                        @endif
+
                         @if ($storeStatus->isOpen())
-                            <a href="{{ route('checkout.index') }}" class="btn-primary mt-5 w-full">{{ __('Checkout') }}</a>
-                        @else
+                            <a href="{{ route('checkout.index') }}" class="btn-primary mt-3 w-full">{{ __('Checkout') }}</a>
+                        @elseif (! $preorderStatus->isOpen())
                             <button type="button" disabled class="btn-primary mt-5 w-full bg-black/20 text-white/70" title="{{ __('Ordering is closed right now') }}">{{ __('Ordering closed') }}</button>
                             <p class="mt-2 text-center text-xs text-ink-soft">
                                 @if ($storeStatus->nextOpeningLabelLocalized())

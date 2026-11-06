@@ -38,7 +38,7 @@ class CheckoutController extends Controller
         }
 
         // 2. Parse & validate the cart payload (sent from localStorage).
-        $cart = $this->parseCart($request->input('cart'));
+        $cart = \App\Services\CartParser::parse($request->input('cart'));
 
         if (empty($cart)) {
             return redirect()

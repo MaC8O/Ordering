@@ -16,6 +16,15 @@ class Setting extends Model
         'default_delivery_fee',
         'accepting_orders',
         'dorms',
+        'preorder_enabled',
+        'preorder_open_day',
+        'preorder_open_time',
+        'preorder_cutoff_day',
+        'preorder_cutoff_time',
+        'preorder_fulfillment_day',
+        'preorder_window_start',
+        'preorder_window_end',
+        'preorder_delivery_fee',
     ];
 
     protected $casts = [
@@ -23,7 +32,17 @@ class Setting extends Model
         'default_delivery_fee' => 'integer',
         'accepting_orders' => 'boolean',
         'dorms' => 'array',
+        'preorder_enabled' => 'boolean',
+        'preorder_open_day' => 'integer',
+        'preorder_cutoff_day' => 'integer',
+        'preorder_fulfillment_day' => 'integer',
+        'preorder_delivery_fee' => 'integer',
     ];
+
+    public function getPreorderDeliveryFeeFormattedAttribute(): string
+    {
+        return number_format($this->preorder_delivery_fee / 100, 2);
+    }
 
     /**
      * There is only ever one settings row (singleton).
