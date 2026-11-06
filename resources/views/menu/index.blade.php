@@ -3,6 +3,13 @@
 @section('title', $storeStatus->restaurantName() . ' — ' . __('Menu'))
 
 @section('content')
+    <style>
+        @keyframes fd-shine {
+            0% { transform: translateX(-120%) skewX(-12deg); }
+            55%, 100% { transform: translateX(120%) skewX(-12deg); }
+        }
+    </style>
+
     {{-- Hero --}}
     <section class="relative mb-8 overflow-hidden rounded-3xl px-6 py-12 text-white shadow-xl shadow-brand-900/10 sm:px-10 sm:py-16"
              style="background-image: linear-gradient(135deg, #fb923c 0%, #ea580c 42%, #9a3412 100%);">
@@ -40,6 +47,33 @@
             </h1>
 
             <p class="mt-4 max-w-md text-base leading-relaxed text-white/90">{{ __('Noodles, fried rice, and spicy basil favourites — built fresh and brought to your door. Pay by QR transfer or cash on delivery.') }}</p>
+
+            {{-- Free-delivery loyalty callout — adapts to the visitor --}}
+            @php
+                $fdCustomer = auth('customer')->user();
+                $fdThreshold = \App\Models\Customer::freeDeliveryThreshold();
+            @endphp
+            <div class="group relative mt-6 inline-flex max-w-md items-center gap-3 overflow-hidden rounded-2xl bg-gradient-to-r from-amber-300 via-yellow-200 to-amber-300 px-4 py-3 text-brand-900 shadow-lg shadow-black/15 ring-1 ring-white/50">
+                {{-- shine sweep --}}
+                <span class="pointer-events-none absolute inset-0 -skew-x-12 bg-gradient-to-r from-transparent via-white/80 to-transparent motion-safe:animate-[fd-shine_4s_ease-in-out_infinite]"></span>
+                <span class="relative grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-white/70 text-2xl shadow-inner motion-safe:animate-bounce">🛵</span>
+                <div class="relative leading-tight">
+                    @if ($fdCustomer && $fdCustomer->hasFreeDelivery())
+                        <p class="text-sm font-extrabold uppercase tracking-wide">🎉 {{ __('Free delivery unlocked!') }}</p>
+                        <p class="text-xs font-semibold text-brand-800/80">{{ __('Enjoy free delivery on every order.') }}</p>
+                    @elseif ($fdCustomer)
+                        @php $fdLeft = max(0, $fdThreshold - $fdCustomer->deliveredOrdersCount()); @endphp
+                        <p class="text-sm font-extrabold uppercase tracking-wide">🎁 {{ __('Free delivery, forever') }}</p>
+                        <p class="text-xs font-semibold text-brand-800/80">{{ trans_choice('{1} Just :count more delivered order and your delivery is free, forever.|[2,*] :count more delivered orders and your delivery is free, forever.', $fdLeft, ['count' => $fdLeft]) }}</p>
+                    @else
+                        <p class="text-sm font-extrabold uppercase tracking-wide">🎁 {{ __('Free delivery, forever') }}</p>
+                        <p class="text-xs font-semibold text-brand-800/80">
+                            {{ __('Order :count times and your delivery is free, forever.', ['count' => $fdThreshold]) }}
+                            <a href="{{ route('register') }}" class="font-bold underline underline-offset-2 hover:text-brand-950">{{ __('Sign up free') }}</a>
+                        </p>
+                    @endif
+                </div>
+            </div>
 
             <div class="mt-7 flex flex-wrap items-center gap-3">
                 <a href="#menu-start" class="inline-flex items-center gap-2 rounded-full bg-white px-6 py-3 font-bold text-brand-700 shadow-lg shadow-brand-900/20 transition-transform duration-200 hover:-translate-y-0.5 hover:bg-amber-50">
