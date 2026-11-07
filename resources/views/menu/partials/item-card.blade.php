@@ -1,4 +1,6 @@
 <div class="card card-lift group flex flex-col overflow-hidden ring-1 ring-transparent transition-all duration-300 hover:ring-brand-100"
+     data-search="{{ \Illuminate\Support\Str::lower(trim($item->localized_name.' '.$item->name.' '.($item->name_th ?? '').' '.$item->localized_description)) }}"
+     x-show="typeof itemVisible === 'undefined' ? true : itemVisible($el)" x-cloak
      x-data="{ item: { id: {{ $item->id }}, name: @js($item->localized_name), price: {{ $item->price }}, image: @js($item->image_path ? asset($item->image_path) : null), isDrink: {{ $item->is_drink ? 'true' : 'false' }} } }">
     <a href="{{ route('menu.show', $item) }}" class="relative block overflow-hidden">
         <x-food-image :item="$item" imgClass="transition duration-500 ease-out group-hover:scale-110" />

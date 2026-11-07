@@ -30,23 +30,43 @@
         </div>
     @endunless
 
-    {{-- Stat tiles --}}
-    <div class="mb-8 grid grid-cols-2 gap-4 lg:grid-cols-4">
-        <div class="card p-5">
-            <p class="text-sm text-ink-soft">Today's orders</p>
-            <p class="mt-1 text-3xl font-bold">{{ $stats['orders_today'] }}</p>
+    {{-- Today snapshot tiles --}}
+    <div class="mb-8 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
+        <div class="card flex items-center gap-3 p-4 sm:p-5">
+            <span class="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-brand-50 text-brand-600">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 10.5V6a3.75 3.75 0 1 0-7.5 0v4.5m11.356-1.993 1.263 12A1.125 1.125 0 0 1 19.743 21H4.257a1.125 1.125 0 0 1-1.12-1.243l1.264-12A1.125 1.125 0 0 1 5.513 7.5h12.974c.576 0 1.059.435 1.119 1.007Z"/></svg>
+            </span>
+            <div class="min-w-0">
+                <p class="text-xs font-medium text-ink-soft sm:text-sm">Today's orders</p>
+                <p class="text-2xl font-bold sm:text-3xl">{{ $stats['orders_today'] }}</p>
+            </div>
         </div>
-        <div class="card p-5">
-            <p class="text-sm text-ink-soft">Today's revenue</p>
-            <p class="mt-1 text-3xl font-bold">{{ config('ordering.currency') }} {{ number_format($stats['revenue_today'] / 100, 2) }}</p>
+        <div class="card flex items-center gap-3 p-4 sm:p-5">
+            <span class="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-green-50 text-green-600">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m-3-2.818.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/></svg>
+            </span>
+            <div class="min-w-0">
+                <p class="text-xs font-medium text-ink-soft sm:text-sm">Today's revenue</p>
+                <p class="text-2xl font-bold sm:text-3xl">{{ config('ordering.currency') }} {{ number_format($stats['revenue_today'] / 100, 2) }}</p>
+            </div>
         </div>
-        <div class="card p-5">
-            <p class="text-sm text-ink-soft">Pending payment</p>
-            <p class="mt-1 text-3xl font-bold text-amber-600">{{ $stats['pending_payment'] }}</p>
+        <div class="card flex items-center gap-3 p-4 sm:p-5">
+            <span class="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-amber-50 text-amber-600">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/></svg>
+            </span>
+            <div class="min-w-0">
+                <p class="text-xs font-medium text-ink-soft sm:text-sm">Pending payment</p>
+                <p class="text-2xl font-bold text-amber-600 sm:text-3xl">{{ $stats['pending_payment'] }}</p>
+            </div>
         </div>
-        <div class="card p-5">
-            <p class="text-sm text-ink-soft">Preparing</p>
-            <p class="mt-1 text-3xl font-bold text-brand-600">{{ $stats['preparing'] }}</p>
+        <div class="card flex items-center gap-3 p-4 sm:p-5">
+            <span class="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-indigo-50 text-indigo-600">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 0 0 6 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 0 1 6 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 0 1 6-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0 0 18 18a8.967 8.967 0 0 0-6 2.292m0-14.25v14.25"/></svg>
+            </span>
+            <div class="min-w-0">
+                <p class="text-xs font-medium text-ink-soft sm:text-sm">Preparing</p>
+                <p class="text-2xl font-bold text-indigo-600 sm:text-3xl">{{ $stats['preparing'] }}</p>
+            </div>
         </div>
     </div>
 
