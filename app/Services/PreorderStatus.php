@@ -22,6 +22,11 @@ class PreorderStatus
         $this->settings = $settings ?? Setting::current();
     }
 
+    public function settings(): Setting
+    {
+        return $this->settings;
+    }
+
     public function enabled(): bool
     {
         return (bool) $this->settings->preorder_enabled;

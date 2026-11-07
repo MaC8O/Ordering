@@ -39,7 +39,9 @@ Route::get('/item/{menuItem}', [MenuController::class, 'show'])->name('menu.show
 Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
 
 Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
-Route::post('/checkout', [CheckoutController::class, 'store'])->name('checkout.store');
+Route::post('/checkout', [CheckoutController::class, 'store'])
+    ->middleware('throttle:15,1')
+    ->name('checkout.store');
 
 // Weekly preorder batch (open only during the configured collection window).
 Route::get('/preorder', [PreorderController::class, 'create'])->name('preorder.create');
@@ -53,7 +55,9 @@ Route::post('/order/{order:public_token}/receipt', [OrderController::class, 'upl
     ->name('order.receipt');
 
 Route::get('/my-order', [MyOrderController::class, 'index'])->name('my-order.index');
-Route::post('/my-order', [MyOrderController::class, 'lookup'])->name('my-order.lookup');
+Route::post('/my-order', [MyOrderController::class, 'lookup'])
+    ->middleware('throttle:15,1')
+    ->name('my-order.lookup');
 
 Route::get('/about', [AboutController::class, 'index'])->name('about');
 
@@ -65,7 +69,9 @@ Route::get('/about', [AboutController::class, 'index'])->name('about');
 
 Route::middleware('guest:customer')->group(function () {
     Route::get('/register', [CustomerAuthController::class, 'showRegister'])->name('register');
-    Route::post('/register', [CustomerAuthController::class, 'register'])->name('register.attempt');
+    Route::post('/register', [CustomerAuthController::class, 'register'])
+        ->middleware('throttle:5,1')
+        ->name('register.attempt');
     Route::get('/login', [CustomerAuthController::class, 'showLogin'])->name('login');
     Route::post('/login', [CustomerAuthController::class, 'login'])
         ->middleware('throttle:10,1')
@@ -87,7 +93,9 @@ Route::prefix('admin')->name('admin.')->group(function () {
     // Guest (login) routes
     Route::middleware('guest:admin')->group(function () {
         Route::get('/login', [AdminLoginController::class, 'show'])->name('login');
-        Route::post('/login', [AdminLoginController::class, 'login'])->name('login.attempt');
+        Route::post('/login', [AdminLoginController::class, 'login'])
+            ->middleware('throttle:5,1')
+            ->name('login.attempt');
     });
 
     // Authenticated admin routes
