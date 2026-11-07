@@ -27,7 +27,7 @@
             hasSizes: {{ $item->hasSizes() ? 'true' : 'false' }},
             hasEgg: {{ $item->has_egg_addon ? 'true' : 'false' }},
             hasProteins: {{ $item->hasProteins() ? 'true' : 'false' }},
-            meta: { id: {{ $item->id }}, name: @js($item->localized_name), image: @js($item->image_path ? asset($item->image_path) : null), isDrink: {{ $item->is_drink ? 'true' : 'false' }} },
+            meta: { id: {{ $item->id }}, name: @js($item->localized_name), image: @js($item->image_url), isDrink: {{ $item->is_drink ? 'true' : 'false' }} },
             get unitPrice() {
                 let p = (this.hasSizes && this.size === 'large' && this.large) ? this.large : this.base;
                 if (this.hasEgg && this.egg !== 'none') p += this.eggFee;

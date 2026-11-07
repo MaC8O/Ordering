@@ -51,6 +51,26 @@ class MenuItem extends Model
     }
 
     /**
+     * Public URL for the dish photo, cache-busted with the file's modified
+     * time so a replaced image (same filename) is never served stale from a
+     * browser or CDN cache. Null when no image file is present.
+     */
+    public function getImageUrlAttribute(): ?string
+    {
+        if (! $this->image_path) {
+            return null;
+        }
+
+        $path = public_path($this->image_path);
+
+        if (! is_file($path)) {
+            return null;
+        }
+
+        return asset($this->image_path).'?v='.filemtime($path);
+    }
+
+    /**
      * Whether the dish needs the customer to open its detail page to pick
      * options (protein / size / egg) rather than being a one-tap add.
      */

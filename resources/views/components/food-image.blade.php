@@ -5,12 +5,12 @@
 ])
 
 @php
-    $hasImage = $item->image_path && file_exists(public_path($item->image_path));
+    $imageUrl = $item->image_url;
 @endphp
 
 <div class="relative aspect-square w-full overflow-hidden {{ $rounded }} bg-brand-50">
-    @if ($hasImage)
-        <img src="{{ asset($item->image_path) }}" alt="{{ $item->localized_name }}" loading="lazy"
+    @if ($imageUrl)
+        <img src="{{ $imageUrl }}" alt="{{ $item->localized_name }}" loading="lazy"
              class="h-full w-full object-cover {{ $imgClass }}"
              onload="this.style.opacity=1" style="opacity:0;transition:opacity .3s">
     @else

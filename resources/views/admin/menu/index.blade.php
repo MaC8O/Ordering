@@ -47,8 +47,8 @@
                                 <td class="px-4 py-3">
                                     <div class="flex items-center gap-3">
                                         <div class="h-12 w-12 shrink-0 overflow-hidden rounded-lg bg-brand-50">
-                                            @if ($item->image_path && file_exists(public_path($item->image_path)))
-                                                <img src="{{ asset($item->image_path) }}" alt="{{ $item->name }}" class="h-full w-full object-cover">
+                                            @if ($item->image_url)
+                                                <img src="{{ $item->image_url }}" alt="{{ $item->name }}" class="h-full w-full object-cover">
                                             @else
                                                 <div class="grid h-full w-full place-items-center text-lg">🍴</div>
                                             @endif
