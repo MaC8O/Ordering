@@ -32,8 +32,15 @@
                 </div>
                 <div class="grid gap-4 sm:grid-cols-2">
                     <div>
-                        <label class="label">Delivery fee ({{ config('ordering.currency') }})</label>
+                        <label class="label">Delivery fee per item ({{ config('ordering.currency') }})</label>
                         <input name="default_delivery_fee" type="number" step="0.01" min="0" value="{{ old('default_delivery_fee', number_format($settings->default_delivery_fee / 100, 2, '.', '')) }}" class="input" required>
+                        <p class="mt-1 text-xs text-ink-soft">Charged per food item. Drinks ride free with a food order; a drinks-only order pays this once.</p>
+                    </div>
+                    <div>
+                        <label class="label">Delivery fee cap ({{ config('ordering.currency') }})</label>
+                        <input name="delivery_fee_cap" type="number" step="0.01" min="0" value="{{ old('delivery_fee_cap', number_format($settings->delivery_fee_cap / 100, 2, '.', '')) }}" class="input" required>
+                        @error('delivery_fee_cap') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
+                        <p class="mt-1 text-xs text-ink-soft">Maximum total delivery fee, however many items. Set to 0 for no cap.</p>
                     </div>
                     <div>
                         <label class="label">Last-order cutoff (minutes before close)</label>

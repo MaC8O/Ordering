@@ -30,8 +30,17 @@ class SettingController extends Controller
             'account_name' => ['nullable', 'string', 'max:120'],
             'cutoff_minutes_before_close' => ['required', 'integer', 'min:0', 'max:240'],
             'default_delivery_fee' => ['required', 'numeric', 'min:0', 'max:1000'],
+            'delivery_fee_cap' => ['required', 'numeric', 'min:0', 'max:1000'],
             'dorms' => ['nullable', 'string'],
         ]);
+
+        // A cap below the per-item fee would make every order pay the cap. Allow
+        // 0 (cap disabled); otherwise require the cap to be at least one item's fee.
+        if ($data['delivery_fee_cap'] > 0 && $data['delivery_fee_cap'] < $data['default_delivery_fee']) {
+            return back()->withInput()->withErrors([
+                'delivery_fee_cap' => 'The delivery fee cap must be at least the per-item fee, or 0 to disable it.',
+            ]);
+        }
 
         $dorms = collect(preg_split('/\r\n|\r|\n/', (string) ($data['dorms'] ?? '')))
             ->map(fn ($d) => trim($d))
@@ -47,6 +56,7 @@ class SettingController extends Controller
             'account_name' => $data['account_name'] ?? null,
             'cutoff_minutes_before_close' => (int) $data['cutoff_minutes_before_close'],
             'default_delivery_fee' => (int) round($data['default_delivery_fee'] * 100),
+            'delivery_fee_cap' => (int) round($data['delivery_fee_cap'] * 100),
             'dorms' => $dorms,
         ]);
 

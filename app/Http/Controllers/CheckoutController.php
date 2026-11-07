@@ -77,7 +77,17 @@ class CheckoutController extends Controller
         $customer = Auth::guard('customer')->user();
         $freeDelivery = $customer?->hasFreeDelivery() ?? false;
 
-        $deliveryFee = $freeDelivery ? 0 : (int) $settings->default_delivery_fee;
+        // Per-item delivery: base rate × food units, drinks free alongside food,
+        // flat base for a drinks-only order. Computed server-side so the client
+        // can never understate it.
+        $deliveryFee = $freeDelivery
+            ? 0
+            : \App\Services\DeliveryFee::compute(
+                (int) $settings->default_delivery_fee,
+                (int) $built['food_qty'],
+                (int) $built['drink_qty'],
+                (int) $settings->delivery_fee_cap,
+            );
         $total = $subtotal + $deliveryFee;
 
         // 5. Persist order + items atomically, then store any screenshot.

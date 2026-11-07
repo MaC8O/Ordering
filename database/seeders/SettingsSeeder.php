@@ -17,7 +17,8 @@ class SettingsSeeder extends Seeder
                 'address' => 'AIU Campus, Jalan Tun Razak, 05200 Alor Setar, Kedah',
                 'account_name' => 'Campus Kitchen Enterprise',
                 'cutoff_minutes_before_close' => 30,
-                'default_delivery_fee' => 1000, // ฿10.00
+                'default_delivery_fee' => 1000, // ฿10.00 per food item
+                'delivery_fee_cap' => 5000, // ฿50.00 ceiling (0 = no cap)
                 'accepting_orders' => true,
                 'dorms' => [
                     'Residential College A',

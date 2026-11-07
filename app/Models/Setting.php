@@ -14,6 +14,7 @@ class Setting extends Model
         'qr_image_path',
         'cutoff_minutes_before_close',
         'default_delivery_fee',
+        'delivery_fee_cap',
         'accepting_orders',
         'dorms',
         'preorder_enabled',
@@ -30,6 +31,7 @@ class Setting extends Model
     protected $casts = [
         'cutoff_minutes_before_close' => 'integer',
         'default_delivery_fee' => 'integer',
+        'delivery_fee_cap' => 'integer',
         'accepting_orders' => 'boolean',
         'dorms' => 'array',
         'preorder_enabled' => 'boolean',
@@ -55,5 +57,10 @@ class Setting extends Model
     public function getDeliveryFeeFormattedAttribute(): string
     {
         return number_format($this->default_delivery_fee / 100, 2);
+    }
+
+    public function getDeliveryFeeCapFormattedAttribute(): string
+    {
+        return number_format($this->delivery_fee_cap / 100, 2);
     }
 }

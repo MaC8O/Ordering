@@ -13,7 +13,7 @@ class OrderLines
 {
     /**
      * @param  array<int, array{id:int, qty:int, note:string, size:?string, egg:string}>  $cart
-     * @return array{missing:bool, lines?:array<int,array<string,mixed>>, subtotal?:int}
+     * @return array{missing:bool, lines?:array<int,array<string,mixed>>, subtotal?:int, food_qty?:int, drink_qty?:int}
      */
     public static function build(array $cart): array
     {
@@ -35,6 +35,8 @@ class OrderLines
 
         $lines = [];
         $subtotal = 0;
+        $foodQty = 0;
+        $drinkQty = 0;
 
         foreach ($cart as $line) {
             /** @var MenuItem $menuItem */
@@ -61,6 +63,14 @@ class OrderLines
             $lineTotal = $unit * $qty;
             $subtotal += $lineTotal;
 
+            // Track food vs. drink units so delivery can be billed per food item,
+            // with drinks riding free alongside a food order.
+            if ($menuItem->is_drink) {
+                $drinkQty += $qty;
+            } else {
+                $foodQty += $qty;
+            }
+
             $opts = [];
             if ($protein !== null) {
                 $opts[] = $protein;
@@ -85,6 +95,6 @@ class OrderLines
             ];
         }
 
-        return ['missing' => false, 'lines' => $lines, 'subtotal' => $subtotal];
+        return ['missing' => false, 'lines' => $lines, 'subtotal' => $subtotal, 'food_qty' => $foodQty, 'drink_qty' => $drinkQty];
     }
 }

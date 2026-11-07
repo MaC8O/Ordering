@@ -313,7 +313,9 @@
     <script>
         function checkoutForm() {
             return {
-                deliveryFee: {{ $deliveryFeeMinor ?? ($freeDelivery ? 0 : (int) $settings->default_delivery_fee) }},
+                deliveryFeeBase: {{ $deliveryFeeMinor ?? (int) $settings->default_delivery_fee }},
+                deliveryFeeCap: {{ (int) $settings->delivery_fee_cap }},
+                perItemDelivery: {{ ($isPreorder ?? false) ? 'false' : 'true' }},
                 freeDelivery: {{ $freeDelivery ? 'true' : 'false' }},
                 isPreorder: {{ ($isPreorder ?? false) ? 'true' : 'false' }},
                 todayStr: new Date().toLocaleDateString('en-CA'),
@@ -340,6 +342,21 @@
                     // Build the PromptPay QR now and whenever the total changes.
                     this.renderQr();
                     this.$watch('$store.cart.items', () => this.renderQr());
+                },
+                // Mirrors App\Services\DeliveryFee on the server: base × food units,
+                // drinks free with food, flat base for a drinks-only order. Preorders
+                // stay on their own flat fee.
+                get deliveryFee() {
+                    if (this.freeDelivery) return 0;
+                    if (!this.perItemDelivery) return this.deliveryFeeBase;
+                    const items = this.$store.cart.items;
+                    const foodQty = items.reduce((s, i) => s + (i.isDrink ? 0 : i.qty), 0);
+                    const drinkQty = items.reduce((s, i) => s + (i.isDrink ? i.qty : 0), 0);
+                    let fee;
+                    if (foodQty > 0) fee = this.deliveryFeeBase * foodQty;
+                    else if (drinkQty > 0) fee = this.deliveryFeeBase;
+                    else return 0;
+                    return this.deliveryFeeCap > 0 ? Math.min(fee, this.deliveryFeeCap) : fee;
                 },
                 get grandTotal() {
                     return this.$store.cart.subtotal + this.deliveryFee;
