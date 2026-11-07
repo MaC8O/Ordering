@@ -12,7 +12,7 @@ class SettingsSeeder extends Seeder
         Setting::updateOrCreate(
             ['id' => 1],
             [
-                'restaurant_name' => 'Campus Kitchen',
+                'restaurant_name' => 'Front Gate Restaurant',
                 'phone' => '+60123456789',
                 'address' => 'AIU Campus, Jalan Tun Razak, 05200 Alor Setar, Kedah',
                 'account_name' => 'Campus Kitchen Enterprise',

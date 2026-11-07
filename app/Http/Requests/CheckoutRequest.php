@@ -14,10 +14,16 @@ class CheckoutRequest extends FormRequest
 
     public function rules(): array
     {
+        // The dorm must be one the restaurant actually delivers to — enforced
+        // server-side so a crafted POST can't bypass the checkout dropdown. If
+        // no dorms are configured yet, fall back to a plain string.
+        $dorms = array_values((array) (\App\Models\Setting::current()->dorms ?? []));
+        $dormRule = $dorms ? [\Illuminate\Validation\Rule::in($dorms)] : [];
+
         return [
             'customer_name' => ['required', 'string', 'min:2', 'max:120'],
             'customer_phone' => ['required', 'string', 'regex:/^\+?[0-9]{7,15}$/'],
-            'delivery_dorm' => ['required', 'string', 'min:2', 'max:120'],
+            'delivery_dorm' => ['required', 'string', 'min:2', 'max:120', ...$dormRule],
             'delivery_date' => ['required', 'date_format:Y-m-d', 'after_or_equal:today'],
             'delivery_notes' => ['nullable', 'string', 'max:500'],
             'preferred_time' => ['nullable', 'date_format:H:i'],

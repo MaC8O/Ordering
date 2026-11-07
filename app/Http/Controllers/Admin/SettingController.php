@@ -103,13 +103,26 @@ class SettingController extends Controller
         ]);
 
         $file = $request->file('qr_image');
-        $ext = strtolower($file->getClientOriginalExtension() ?: $file->extension());
+
+        // Derive the extension from the DETECTED content type, never the client
+        // filename, so nothing executable can be written to a web-served folder.
+        $ext = match ($file->getMimeType()) {
+            'image/png' => 'png',
+            default => 'jpg', // image/jpeg and anything unexpected
+        };
         $filename = 'qr.' . $ext;
 
         $dir = public_path('uploads');
         if (! is_dir($dir)) {
             mkdir($dir, 0775, true);
         }
+
+        // Drop a prior QR saved under a different extension so no stale copy lingers.
+        $current = Setting::current()->qr_image_path;
+        if ($current && $current !== 'uploads/' . $filename && is_file(public_path($current))) {
+            @unlink(public_path($current));
+        }
+
         $file->move($dir, $filename);
 
         Setting::current()->update(['qr_image_path' => 'uploads/' . $filename]);

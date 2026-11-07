@@ -49,10 +49,14 @@ class PreorderController extends Controller
                 ->with('error', __('Preordering is closed right now.'));
         }
 
+        // Dorm must be one the restaurant delivers to (server-side, like checkout).
+        $dorms = array_values((array) ($preorder->settings()->dorms ?? []));
+        $dormRule = $dorms ? [\Illuminate\Validation\Rule::in($dorms)] : [];
+
         $request->validate([
             'customer_name' => ['required', 'string', 'min:2', 'max:120'],
             'customer_phone' => ['required', 'string', 'regex:/^\+?[0-9]{7,15}$/'],
-            'delivery_dorm' => ['required', 'string', 'min:2', 'max:120'],
+            'delivery_dorm' => ['required', 'string', 'min:2', 'max:120', ...$dormRule],
             'delivery_notes' => ['nullable', 'string', 'max:500'],
             'notes' => ['nullable', 'string', 'max:500'],
             // Preorders are paid upfront by QR transfer to lock in the batch.
