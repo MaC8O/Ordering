@@ -14,7 +14,9 @@
 /.zed
 /auth.json
 /node_modules
-/public/build
+# /public/build is tracked on purpose: shared hosting (Hostinger) has no Node
+# to run `npm run build`, so the compiled Vite assets ship with the repo.
+# Rebuild with `npm run build` and commit the result before deploying.
 /public/fonts-manifest.dev.json
 /public/hot
 /public/storage
