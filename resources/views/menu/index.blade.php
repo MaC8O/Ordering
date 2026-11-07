@@ -99,7 +99,7 @@
                     @else
                         <p class="text-sm font-extrabold uppercase tracking-wide">🎁 {{ __('Free delivery reward') }}</p>
                         <p class="text-xs font-semibold text-brand-800/80">
-                            {{ __('Order :count times and your next delivery is free — then it resets.', ['count' => $fdThreshold]) }}
+                            {{ __('Order :count times and your next delivery is free.', ['count' => $fdThreshold]) }}
                             <a href="{{ route('register') }}" class="font-bold underline underline-offset-2 hover:text-brand-950">{{ __('Sign up free') }}</a>
                         </p>
                     @endif

@@ -6,7 +6,7 @@
     <div class="mx-auto max-w-sm">
         <div class="mb-6 text-center">
             <h1 class="text-2xl font-bold">{{ __('Create your account') }}</h1>
-            <p class="mt-1 text-sm text-ink-soft">{{ __('Order :count times and your next delivery is free — then it resets.', ['count' => \App\Models\Customer::freeDeliveryThreshold()]) }}</p>
+            <p class="mt-1 text-sm text-ink-soft">{{ __('Order :count times and your next delivery is free.', ['count' => \App\Models\Customer::freeDeliveryThreshold()]) }}</p>
         </div>
 
         <form method="POST" action="{{ route('register.attempt') }}" class="card space-y-4 p-6">

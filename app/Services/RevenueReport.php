@@ -85,6 +85,8 @@ class RevenueReport
             ->limit(8)
             ->get();
 
+        $daily = $this->dailySeries($period);
+
         return [
             'period' => $period,
             'periodLabel' => self::PERIODS[$period],
@@ -93,6 +95,49 @@ class RevenueReport
             'itemsSold' => $itemsSold,
             'byCategory' => $byCategory,
             'topItems' => $topItems,
+            'daily' => $daily,
+            'dailyMax' => max(1, (int) collect($daily)->max('revenue')),
+            'dailyTotal' => (int) collect($daily)->sum('revenue'),
         ];
+    }
+
+    /**
+     * Revenue per day for the chart. Returns an ordered list of
+     * ['label' => 'Mon 3', 'date' => 'Y-m-d', 'revenue' => int] covering a
+     * sensible span for the period (7, 14 or 30 days; 7 for "today").
+     *
+     * @return array<int, array{label:string, date:string, revenue:int}>
+     */
+    protected function dailySeries(string $period): array
+    {
+        $days = match ($period) {
+            '30d' => 30,
+            '7d' => 7,
+            'all' => 14,
+            default => 7, // today -> show the last 7 days for context
+        };
+
+        $start = Carbon::today()->subDays($days - 1);
+
+        $rows = DB::table('orders')
+            ->where('order_status', '!=', 'cancelled')
+            ->where('created_at', '>=', $start)
+            ->selectRaw('DATE(created_at) as d')
+            ->selectRaw('COALESCE(SUM(total), 0) as revenue')
+            ->groupBy('d')
+            ->pluck('revenue', 'd');
+
+        $series = [];
+        for ($i = 0; $i < $days; $i++) {
+            $date = $start->copy()->addDays($i);
+            $key = $date->toDateString();
+            $series[] = [
+                'label' => $date->isoFormat('dd D'),
+                'date' => $key,
+                'revenue' => (int) ($rows[$key] ?? 0),
+            ];
+        }
+
+        return $series;
     }
 }

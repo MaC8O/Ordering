@@ -108,6 +108,38 @@
             </div>
         </div>
 
+        {{-- Daily revenue chart --}}
+        <div class="mt-4 overflow-hidden rounded-2xl border border-line bg-surface">
+            <div class="flex items-center justify-between border-b border-line bg-surface-2 px-4 py-3">
+                <span class="text-xs font-semibold uppercase tracking-wide text-ink-soft">Daily revenue · last {{ count($report['daily']) }} days</span>
+                <span class="text-xs text-ink-soft">{{ $cur }} {{ number_format($report['dailyTotal'] / 100, 2) }} total</span>
+            </div>
+            <div class="px-3 py-4 sm:px-5">
+                <div class="flex h-44 items-end gap-1 sm:gap-1.5">
+                    @foreach ($report['daily'] as $d)
+                        @php($h = $d['revenue'] > 0 ? max(4, round($d['revenue'] / $report['dailyMax'] * 100)) : 0)
+                        <div class="group relative flex h-full flex-1 flex-col items-center justify-end">
+                            {{-- tooltip --}}
+                            <span class="pointer-events-none absolute -top-1 z-10 -translate-y-full whitespace-nowrap rounded-lg bg-ink px-2 py-1 text-[11px] font-semibold text-white opacity-0 shadow transition group-hover:opacity-100">
+                                {{ $cur }} {{ number_format($d['revenue'] / 100, 2) }}
+                            </span>
+                            @if ($h > 0)
+                                <div class="w-full rounded-t-md bg-gradient-to-t from-brand-600 to-brand-400 transition-all duration-300 group-hover:from-brand-700 group-hover:to-brand-500" style="height: {{ $h }}%"></div>
+                            @else
+                                <div class="h-1 w-full rounded-full bg-surface-2"></div>
+                            @endif
+                        </div>
+                    @endforeach
+                </div>
+                {{-- x-axis labels (thinned on small screens) --}}
+                <div class="mt-2 flex gap-1 sm:gap-1.5">
+                    @foreach ($report['daily'] as $i => $d)
+                        <div class="flex-1 text-center text-[10px] leading-tight text-ink-soft {{ (count($report['daily']) > 10 && $i % 2 !== 0) ? 'hidden sm:block' : '' }}">{{ $d['label'] }}</div>
+                    @endforeach
+                </div>
+            </div>
+        </div>
+
         <div class="mt-4 grid gap-4 lg:grid-cols-2">
             {{-- Revenue by category --}}
             <div class="overflow-hidden rounded-2xl border border-line bg-surface">

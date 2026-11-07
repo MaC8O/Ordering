@@ -15,6 +15,15 @@
                         'verified' => 'bg-green-100 text-green-800',
                         'failed' => 'bg-red-100 text-red-800',
                     ][$order->payment_status] ?? 'bg-gray-100 text-gray-800';
+                    $statusBadge = [
+                        'pending' => 'bg-gray-100 text-gray-700',
+                        'confirmed' => 'bg-brand-100 text-brand-700',
+                        'preparing' => 'bg-indigo-100 text-indigo-700',
+                        'out_for_delivery' => 'bg-teal-100 text-teal-800',
+                        'completed' => 'bg-green-100 text-green-800',
+                        'cancelled' => 'bg-red-100 text-red-800',
+                    ][$order->order_status] ?? 'bg-gray-100 text-gray-700';
+                    $cur = config('ordering.currency');
                 @endphp
 
                 <div class="mb-5 flex items-center justify-between">
@@ -43,13 +52,18 @@
                     </div>
                 @endif
 
+                {{-- Status card --}}
                 <div class="card p-6">
-                    <div class="flex flex-wrap items-center justify-between gap-2">
+                    <div class="flex flex-wrap items-start justify-between gap-3">
                         <div>
-                            <p class="text-sm text-ink-soft">{{ __('Order') }}</p>
-                            <p class="text-lg font-bold">{{ $order->order_number }}</p>
+                            <p class="text-xs uppercase tracking-wide text-ink-soft">{{ __('Order') }}</p>
+                            <p class="text-xl font-bold">{{ $order->order_number }}</p>
+                            <p class="mt-0.5 text-xs text-ink-soft">{{ __('Placed') }} {{ $order->created_at->format('D, d M Y · H:i') }}</p>
                         </div>
-                        <span class="badge {{ $paymentBadge }}">{{ __('Payment') }}: {{ __($order->payment_status_label) }}</span>
+                        <div class="flex flex-col items-end gap-1.5">
+                            <span class="badge {{ $statusBadge }}">{{ __($order->order_status_label) }}</span>
+                            <span class="badge {{ $paymentBadge }}">{{ __('Payment') }}: {{ __($order->payment_status_label) }}</span>
+                        </div>
                     </div>
 
                     @if ($cancelled)
@@ -102,24 +116,46 @@
                         @endunless
                     @endif
 
-                    <h2 class="mt-6 text-sm font-bold uppercase tracking-wide text-ink-soft">{{ __('Items') }}</h2>
+                </div>
+
+                {{-- Summary card --}}
+                <div class="card mt-5 p-6">
+                    <h2 class="text-sm font-bold uppercase tracking-wide text-ink-soft">{{ __('Items') }}</h2>
                     <div class="mt-2 divide-y divide-line">
                         @foreach ($order->items as $line)
-                            <div class="flex justify-between gap-3 py-2 text-sm">
+                            <div class="flex justify-between gap-3 py-2.5 text-sm">
                                 <span>
                                     <span class="font-semibold">{{ $line->quantity }}×</span> {{ $line->item_name_snapshot }}
                                     @if ($line->options_snapshot)<span class="block text-xs font-medium text-brand-700">{{ $line->options_snapshot }}</span>@endif
                                     @if ($line->item_note)<span class="block text-xs text-ink-soft">{{ $line->item_note }}</span>@endif
                                 </span>
-                                <span class="font-semibold">{{ config('ordering.currency') }} {{ $line->line_total_formatted }}</span>
+                                <span class="shrink-0 font-semibold">{{ $cur }} {{ $line->line_total_formatted }}</span>
                             </div>
                         @endforeach
                     </div>
-                    <div class="mt-2 flex justify-between border-t border-line pt-2 text-base font-bold">
-                        <span>{{ __('Total') }}</span><span>{{ config('ordering.currency') }} {{ $order->total_formatted }}</span>
+
+                    {{-- Billing breakdown --}}
+                    <div class="mt-3 space-y-1.5 border-t border-line pt-3 text-sm">
+                        <div class="flex justify-between text-ink-soft"><span>{{ __('Subtotal') }}</span><span>{{ $cur }} {{ $order->subtotal_formatted }}</span></div>
+                        <div class="flex justify-between text-ink-soft">
+                            <span>{{ __('Delivery') }}</span>
+                            @if ($order->delivery_fee > 0)
+                                <span>{{ $cur }} {{ $order->delivery_fee_formatted }}</span>
+                            @else
+                                <span class="font-semibold uppercase text-green-600">{{ __('Free') }}</span>
+                            @endif
+                        </div>
+                        <div class="flex justify-between border-t border-line pt-1.5 text-base font-bold"><span>{{ __('Total') }}</span><span>{{ $cur }} {{ $order->total_formatted }}</span></div>
                     </div>
 
-                    <p class="mt-4 text-sm text-ink-soft">{{ __('Delivery to') }} {{ $order->delivery_dorm }}@if ($order->delivery_date) · {{ $order->delivery_date->format('D, d M Y') }}@endif.</p>
+                    {{-- Delivery details --}}
+                    <div class="mt-4 space-y-1.5 rounded-xl bg-surface-2 p-4 text-sm">
+                        <div class="flex justify-between gap-3"><span class="text-ink-soft">{{ __('Deliver to') }}</span><span class="text-right font-semibold">{{ $order->delivery_dorm }}</span></div>
+                        @if ($order->delivery_date)
+                            <div class="flex justify-between gap-3"><span class="text-ink-soft">{{ __('Date') }}</span><span class="text-right font-semibold">{{ $order->delivery_date->format('D, d M Y') }}</span></div>
+                        @endif
+                        <div class="flex justify-between gap-3"><span class="text-ink-soft">{{ __('Payment method') }}</span><span class="text-right font-semibold">{{ $order->payment_method === 'qr' ? __('QR transfer') : __('Cash on delivery') }}</span></div>
+                    </div>
                 </div>
 
                 {{-- Auto-refresh while the order is still in progress --}}
