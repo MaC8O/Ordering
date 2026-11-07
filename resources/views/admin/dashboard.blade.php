@@ -50,6 +50,107 @@
         </div>
     </div>
 
+    {{-- Sales breakdown --}}
+    @php($cur = config('ordering.currency'))
+    <div class="mb-8">
+        <div class="mb-3 flex flex-wrap items-center justify-between gap-3">
+            <h2 class="text-lg font-bold">Sales breakdown</h2>
+            {{-- Period selector --}}
+            <div class="inline-flex rounded-xl border border-line bg-surface p-1 text-sm">
+                @foreach ($report['periods'] as $key => $label)
+                    <a href="{{ route('admin.dashboard', ['period' => $key]) }}"
+                       class="rounded-lg px-3 py-1.5 font-semibold transition {{ $report['period'] === $key ? 'bg-brand-600 text-white shadow' : 'text-ink-soft hover:bg-hover' }}">{{ $label }}</a>
+                @endforeach
+            </div>
+        </div>
+
+        {{-- Headline totals for the selected period --}}
+        <div class="grid grid-cols-2 gap-4 lg:grid-cols-4">
+            <div class="card p-5">
+                <p class="text-sm text-ink-soft">Total revenue</p>
+                <p class="mt-1 text-3xl font-bold">{{ $cur }} {{ number_format($report['totals']->total / 100, 2) }}</p>
+                <p class="mt-1 text-xs text-ink-soft">{{ $report['periodLabel'] }} · excludes cancelled</p>
+            </div>
+            <div class="card p-5">
+                <p class="text-sm text-ink-soft">Orders</p>
+                <p class="mt-1 text-3xl font-bold">{{ number_format($report['totals']->orders) }}</p>
+                <p class="mt-1 text-xs text-ink-soft">{{ number_format($report['itemsSold']) }} items sold</p>
+            </div>
+            <div class="card p-5">
+                <p class="text-sm text-ink-soft">Food vs delivery</p>
+                <p class="mt-1 text-xl font-bold">{{ $cur }} {{ number_format($report['totals']->food / 100, 2) }}</p>
+                <p class="mt-1 text-xs text-ink-soft">+ {{ $cur }} {{ number_format($report['totals']->delivery / 100, 2) }} delivery</p>
+            </div>
+            <div class="card p-5">
+                <p class="text-sm text-ink-soft">Paid vs unpaid</p>
+                <p class="mt-1 text-xl font-bold text-green-600">{{ $cur }} {{ number_format($report['totals']->paid / 100, 2) }}</p>
+                <p class="mt-1 text-xs text-amber-600">{{ $cur }} {{ number_format($report['totals']->unpaid / 100, 2) }} awaiting payment</p>
+            </div>
+        </div>
+
+        <div class="mt-4 grid gap-4 lg:grid-cols-2">
+            {{-- Revenue by category --}}
+            <div class="overflow-hidden rounded-2xl border border-line bg-surface">
+                <div class="border-b border-line bg-surface-2 px-4 py-3 text-xs font-semibold uppercase tracking-wide text-ink-soft">Revenue by category</div>
+                @if ($report['byCategory']->isEmpty())
+                    <div class="p-6 text-center text-sm text-ink-soft">No sales in this period.</div>
+                @else
+                    @php($catMax = max(1, $report['byCategory']->max('revenue')))
+                    <table class="w-full text-left text-sm">
+                        <thead class="text-xs uppercase tracking-wide text-ink-soft">
+                            <tr>
+                                <th class="px-4 py-2">Category</th>
+                                <th class="px-4 py-2 text-right">Sold</th>
+                                <th class="px-4 py-2 text-right">Revenue</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-line">
+                            @foreach ($report['byCategory'] as $row)
+                                <tr>
+                                    <td class="px-4 py-2.5">
+                                        <div class="font-semibold">{{ $row->category }}</div>
+                                        <div class="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-surface-2">
+                                            <div class="h-full rounded-full bg-brand-500" style="width: {{ round($row->revenue / $catMax * 100) }}%"></div>
+                                        </div>
+                                    </td>
+                                    <td class="px-4 py-2.5 text-right text-ink-soft">{{ number_format($row->qty) }}</td>
+                                    <td class="px-4 py-2.5 text-right font-semibold">{{ $cur }} {{ number_format($row->revenue / 100, 2) }}</td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                @endif
+            </div>
+
+            {{-- Top items --}}
+            <div class="overflow-hidden rounded-2xl border border-line bg-surface">
+                <div class="border-b border-line bg-surface-2 px-4 py-3 text-xs font-semibold uppercase tracking-wide text-ink-soft">Top-selling items</div>
+                @if ($report['topItems']->isEmpty())
+                    <div class="p-6 text-center text-sm text-ink-soft">No sales in this period.</div>
+                @else
+                    <table class="w-full text-left text-sm">
+                        <thead class="text-xs uppercase tracking-wide text-ink-soft">
+                            <tr>
+                                <th class="px-4 py-2">Item</th>
+                                <th class="px-4 py-2 text-right">Sold</th>
+                                <th class="px-4 py-2 text-right">Revenue</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-line">
+                            @foreach ($report['topItems'] as $row)
+                                <tr>
+                                    <td class="px-4 py-2.5 font-semibold">{{ $row->name }}</td>
+                                    <td class="px-4 py-2.5 text-right text-ink-soft">{{ number_format($row->qty) }}</td>
+                                    <td class="px-4 py-2.5 text-right font-semibold">{{ $cur }} {{ number_format($row->revenue / 100, 2) }}</td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                @endif
+            </div>
+        </div>
+    </div>
+
     {{-- Today's orders --}}
     <div class="flex items-center justify-between">
         <h2 class="text-lg font-bold">Today's orders</h2>

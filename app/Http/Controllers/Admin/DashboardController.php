@@ -5,13 +5,14 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Order;
 use App\Models\Setting;
+use App\Services\RevenueReport;
 use App\Services\StoreStatus;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 class DashboardController extends Controller
 {
-    public function index(StoreStatus $status)
+    public function index(Request $request, StoreStatus $status, RevenueReport $revenue)
     {
         $today = Carbon::today();
 
@@ -34,11 +35,14 @@ class DashboardController extends Controller
             ->latest()
             ->get();
 
+        $report = $revenue->build((string) $request->query('period', 'today'));
+
         return view('admin.dashboard', [
             'stats' => $stats,
             'orders' => $orders,
             'storeStatus' => $status,
             'settings' => $status->settings(),
+            'report' => $report,
         ]);
     }
 
