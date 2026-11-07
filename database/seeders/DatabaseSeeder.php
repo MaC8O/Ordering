@@ -18,7 +18,7 @@ class DatabaseSeeder extends Seeder
             AdminSeeder::class,
             SettingsSeeder::class,
             ScheduleSeeder::class,
-            MenuSeeder::class,
+            ThaiMenuSeeder::class,
             DrinkSeeder::class,
         ]);
     }

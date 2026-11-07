@@ -88,9 +88,12 @@ Stored under `public/uploads/`:
 
 ## Seed data
 
-- Menu is seeded from `data/menu.json` (edit this file and re-run the seeder to change the menu).
-  If a photo named in `image_filename` exists under `public/uploads/menu/`, it is linked; otherwise
-  a styled placeholder is shown. Replace photos and re-seed, or upload via Admin → Menu.
+- Menu is seeded by `ThaiMenuSeeder` (dishes defined in the seeder, sourced from
+  `document/Menu_data.md`). Each dish collapses its protein variants into one card with a
+  chooser, plus optional large-size pricing. Re-running the seeder is idempotent
+  (`updateOrCreate`) and retires any older categories. Drinks come from `DrinkSeeder`.
+  A photo at `public/uploads/menu/{slug}.jpg` is linked automatically; otherwise a styled
+  placeholder is shown. Replace photos and re-seed, or upload via Admin → Menu.
 - A QR image is **not** bundled — upload one in Admin → Settings to enable the QR payment flow.
 
 ## Project layout
@@ -108,8 +111,8 @@ resources/views/
   admin/                   dashboard, orders, menu, settings, auth
 database/
   migrations/              seven domain tables
-  seeders/                 Admin, Settings, Schedule, Menu
-data/menu.json             editable menu source
+  seeders/                 Admin, Settings, Schedule, ThaiMenu, Drink
+document/Menu_data.md      menu reference the seeder is built from
 ```
 
 ## Acceptance tests

@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Models\Category;
 use App\Models\MenuItem;
+use App\Models\OrderItem;
 use Illuminate\Database\Seeder;
 
 /**
@@ -95,10 +96,31 @@ class ThaiMenuSeeder extends Seeder
         // Drinks stays, at the end of the menu.
         Category::where('name', 'Drinks')->update(['display_order' => 99]);
 
-        // Retire every other (older) category and soft-delete its items.
+        // Retire every other (older) category. Items that were never ordered
+        // are removed outright; items that appear in real order history are
+        // soft-deleted so the order keeps its link (the name is also snapshotted
+        // on the order line, so history always renders correctly). A category
+        // with nothing left referencing it is dropped entirely.
         foreach (Category::whereNotIn('name', $keptNames)->get() as $old) {
-            $old->update(['is_active' => false]);
-            MenuItem::where('category_id', $old->id)->delete();
+            $itemIds = MenuItem::withTrashed()->where('category_id', $old->id)->pluck('id');
+
+            $orderedIds = OrderItem::whereIn('menu_item_id', $itemIds)
+                ->pluck('menu_item_id')->unique();
+
+            MenuItem::withTrashed()
+                ->where('category_id', $old->id)
+                ->whereNotIn('id', $orderedIds)
+                ->forceDelete();
+
+            MenuItem::where('category_id', $old->id)
+                ->whereIn('id', $orderedIds)
+                ->delete();
+
+            if (MenuItem::withTrashed()->where('category_id', $old->id)->doesntExist()) {
+                $old->delete();
+            } else {
+                $old->update(['is_active' => false]);
+            }
         }
     }
 }
