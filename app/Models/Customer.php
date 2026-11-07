@@ -66,19 +66,64 @@ class Customer extends Authenticatable implements AuthenticatableContract
     }
 
     /**
-     * The number of delivered orders needed to unlock free delivery.
+     * How many delivered orders earn ONE free delivery. The reward is a
+     * recurring punch-card: every N delivered orders unlocks a single free
+     * delivery, which then resets — it is not free-forever.
      */
     public static function freeDeliveryThreshold(): int
     {
-        return (int) config('ordering.loyalty.free_delivery_after', 6);
+        return (int) config('ordering.loyalty.free_delivery_after', 7);
     }
 
     /**
-     * Once a customer has reached the threshold of delivered orders, every
-     * future order ships free — permanently.
+     * Total free-delivery rewards this customer has earned over their lifetime
+     * (one per N delivered orders).
+     */
+    public function freeDeliveriesEarned(): int
+    {
+        return intdiv($this->deliveredOrdersCount(), self::freeDeliveryThreshold());
+    }
+
+    /**
+     * Rewards already redeemed — orders flagged as a free-delivery reward.
+     * Cancelled orders don't consume the reward.
+     */
+    public function freeDeliveriesUsed(): int
+    {
+        return $this->orderHistoryQuery()
+            ->where('is_free_delivery_reward', true)
+            ->where('order_status', '!=', 'cancelled')
+            ->count();
+    }
+
+    /**
+     * Unredeemed rewards available to spend right now.
+     */
+    public function freeDeliveriesAvailable(): int
+    {
+        return max(0, $this->freeDeliveriesEarned() - $this->freeDeliveriesUsed());
+    }
+
+    /**
+     * Whether a free delivery is available to redeem on the next order.
      */
     public function hasFreeDelivery(): bool
     {
-        return $this->deliveredOrdersCount() >= self::freeDeliveryThreshold();
+        return $this->freeDeliveriesAvailable() > 0;
+    }
+
+    /**
+     * Delivered orders still needed before the next free delivery unlocks
+     * (0 when one is already available to redeem).
+     */
+    public function ordersUntilNextReward(): int
+    {
+        if ($this->hasFreeDelivery()) {
+            return 0;
+        }
+
+        $threshold = self::freeDeliveryThreshold();
+
+        return $threshold - ($this->deliveredOrdersCount() % $threshold);
     }
 }

@@ -33,26 +33,33 @@
                 <div class="flex items-center gap-4">
                     <span class="text-4xl">🎉</span>
                     <div>
-                        <p class="text-lg font-bold">{{ __('Free delivery unlocked!') }}</p>
-                        <p class="text-sm text-green-50/90">{{ __('You have :count delivered orders. Every future order ships free.', ['count' => $delivered]) }}</p>
+                        <p class="text-lg font-bold">{{ __('Free delivery ready!') }}</p>
+                        <p class="text-sm text-green-50/90">
+                            @if (($available ?? 1) > 1)
+                                {{ __('You have :count free deliveries to use — one is applied to each next order.', ['count' => $available]) }}
+                            @else
+                                {{ __('Your next order ships free. The counter then resets for your next reward.') }}
+                            @endif
+                        </p>
                     </div>
                 </div>
             </div>
         @else
+            @php $cycleDone = max(0, $threshold - $remaining); @endphp
             <div class="mb-7 rounded-2xl border border-brand-100 bg-brand-50/60 p-6">
                 <div class="flex items-start justify-between gap-3">
                     <div>
                         <p class="font-bold">🚚 {{ __('Free delivery reward') }}</p>
                         <p class="mt-1 text-sm text-ink-soft">
-                            {{ trans_choice('{1} Just :count more delivered order and your delivery is free, forever.|[2,*] :count more delivered orders and your delivery is free, forever.', $remaining, ['count' => $remaining]) }}
+                            {{ trans_choice('{1} Just :count more delivered order until a free delivery.|[2,*] Just :count more delivered orders until a free delivery.', $remaining, ['count' => $remaining]) }}
                         </p>
                     </div>
-                    <span class="shrink-0 text-sm font-bold text-brand-700">{{ $delivered }}/{{ $threshold }}</span>
+                    <span class="shrink-0 text-sm font-bold text-brand-700">{{ $cycleDone }}/{{ $threshold }}</span>
                 </div>
-                {{-- Progress --}}
+                {{-- Progress toward the next reward --}}
                 <div class="mt-4 h-2.5 w-full overflow-hidden rounded-full bg-white">
                     <div class="h-full rounded-full bg-gradient-to-r from-brand-500 to-brand-700 transition-all"
-                         style="width: {{ $threshold > 0 ? min(100, round($delivered / $threshold * 100)) : 0 }}%"></div>
+                         style="width: {{ $threshold > 0 ? min(100, round($cycleDone / $threshold * 100)) : 0 }}%"></div>
                 </div>
             </div>
         @endif

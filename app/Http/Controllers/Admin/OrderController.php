@@ -75,8 +75,9 @@ class OrderController extends Controller
                 'total_orders' => $customer->orderHistoryQuery()->count(),
                 'delivered' => $delivered,
                 'threshold' => $threshold,
-                'remaining' => max(0, $threshold - $delivered),
-                'has_free_delivery' => $delivered >= $threshold,
+                'remaining' => $customer->ordersUntilNextReward(),
+                'available' => $customer->freeDeliveriesAvailable(),
+                'has_free_delivery' => $customer->hasFreeDelivery(),
             ];
         }
 

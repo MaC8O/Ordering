@@ -86,7 +86,7 @@ class PreorderController extends Controller
         $total = $subtotal + $deliveryFee;
         $fulfillmentDate = $preorder->fulfillmentDate();
 
-        $order = DB::transaction(function () use ($request, $numbers, $lines, $subtotal, $deliveryFee, $total, $customer, $fulfillmentDate) {
+        $order = DB::transaction(function () use ($request, $numbers, $lines, $subtotal, $deliveryFee, $total, $customer, $fulfillmentDate, $freeDelivery) {
             $order = Order::create([
                 'order_number' => $numbers->generate(),
                 'customer_id' => $customer?->id,
@@ -104,6 +104,7 @@ class PreorderController extends Controller
                 'subtotal' => $subtotal,
                 'delivery_fee' => $deliveryFee,
                 'total' => $total,
+                'is_free_delivery_reward' => $freeDelivery,
                 'notes' => $request->input('notes'),
             ]);
 

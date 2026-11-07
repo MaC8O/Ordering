@@ -52,10 +52,11 @@
                 <div class="flex flex-wrap items-center justify-between gap-2">
                     <h2 class="text-sm font-bold uppercase tracking-wide text-ink-soft">Customer & delivery</h2>
                     @if ($loyalty)
+                        @php $loyaltyCycleDone = max(0, $loyalty['threshold'] - $loyalty['remaining']); @endphp
                         @if ($loyalty['has_free_delivery'])
-                            <span class="badge bg-green-100 text-green-800">🎉 Free delivery · {{ $loyalty['delivered'] }} delivered</span>
+                            <span class="badge bg-green-100 text-green-800">🎉 Free delivery ready{{ ($loyalty['available'] ?? 1) > 1 ? ' ×'.$loyalty['available'] : '' }}</span>
                         @else
-                            <span class="badge bg-brand-100 text-brand-700">★ Member · {{ $loyalty['delivered'] }}/{{ $loyalty['threshold'] }} to free</span>
+                            <span class="badge bg-brand-100 text-brand-700">★ Member · {{ $loyaltyCycleDone }}/{{ $loyalty['threshold'] }} to free</span>
                         @endif
                     @else
                         <span class="badge bg-gray-100 text-gray-600">Guest</span>
@@ -65,12 +66,12 @@
                 @if ($loyalty)
                     <div class="mt-3 rounded-xl border p-3 text-sm {{ $loyalty['has_free_delivery'] ? 'border-green-200 bg-green-50' : 'border-brand-100 bg-brand-50/60' }}">
                         @if ($loyalty['has_free_delivery'])
-                            <p class="font-semibold text-green-800">This customer qualifies for free delivery on every order.</p>
+                            <p class="font-semibold text-green-800">This customer has a free delivery to redeem — it's applied to their next order, then the counter resets.</p>
                         @else
-                            <p class="font-semibold text-ink">{{ $loyalty['remaining'] }} more delivered {{ \Illuminate\Support\Str::plural('order', $loyalty['remaining']) }} until free delivery unlocks.</p>
+                            <p class="font-semibold text-ink">{{ $loyalty['remaining'] }} more delivered {{ \Illuminate\Support\Str::plural('order', $loyalty['remaining']) }} until the next free delivery.</p>
                             <div class="mt-2 h-2 w-full overflow-hidden rounded-full bg-white">
                                 <div class="h-full rounded-full bg-gradient-to-r from-brand-500 to-brand-700"
-                                     style="width: {{ $loyalty['threshold'] > 0 ? min(100, round($loyalty['delivered'] / $loyalty['threshold'] * 100)) : 0 }}%"></div>
+                                     style="width: {{ $loyalty['threshold'] > 0 ? min(100, round($loyaltyCycleDone / $loyalty['threshold'] * 100)) : 0 }}%"></div>
                             </div>
                         @endif
                         <p class="mt-2 text-xs text-ink-soft">

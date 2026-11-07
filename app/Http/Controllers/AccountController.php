@@ -19,7 +19,7 @@ class AccountController extends Controller
         $active = $orders->reject(fn ($o) => $o->isDone())->values();
         $history = $orders->filter(fn ($o) => $o->isDone())->values();
 
-        $delivered = $orders->where('order_status', 'completed')->count();
+        $delivered = $customer->deliveredOrdersCount();
         $threshold = Customer::freeDeliveryThreshold();
 
         return view('account.index', [
@@ -28,8 +28,9 @@ class AccountController extends Controller
             'history' => $history,
             'delivered' => $delivered,
             'threshold' => $threshold,
-            'remaining' => max(0, $threshold - $delivered),
-            'hasFreeDelivery' => $delivered >= $threshold,
+            'remaining' => $customer->ordersUntilNextReward(),
+            'available' => $customer->freeDeliveriesAvailable(),
+            'hasFreeDelivery' => $customer->hasFreeDelivery(),
             'storeStatus' => $storeStatus,
         ]);
     }

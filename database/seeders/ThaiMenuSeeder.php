@@ -26,8 +26,6 @@ class ThaiMenuSeeder extends Seeder
                     ['Pork', 'Crispy Calamari', 'Shrimp'], 'Savoury stir-fry with garlic and cracked peppercorns.'],
                 ['pad-prik', 'Stir-Fried Chilli (Pad Prik)', 30, 50, true, true,
                     ['Beef', 'Chicken', 'Pork'], 'Stir-fried with fresh chillies and vegetables.'],
-                ['chilli-salt', 'Chilli Salt Stir-Fry (Pad Prik Gleua)', 30, 50, true, true,
-                    ['Chicken', 'Beef'], 'Crispy, salty-spicy chilli-salt stir-fry.'],
             ]],
             'Rice Dishes' => ['ข้าว', [
                 ['omelet-rice', 'Omelet with Rice (Khao Kai Jeow)', 30, 40, false, true,
@@ -63,6 +61,8 @@ class ThaiMenuSeeder extends Seeder
 
         $keptNames = ['Drinks'];
         $order = 0;
+        $sectionCategoryIds = [];
+        $keptItemIds = [];
 
         foreach ($sections as $sectionName => [$sectionTh, $dishes]) {
             $keptNames[] = $sectionName;
@@ -71,11 +71,12 @@ class ThaiMenuSeeder extends Seeder
                 ['name' => $sectionName],
                 ['name_th' => $sectionTh, 'display_order' => $order++, 'is_active' => true],
             );
+            $sectionCategoryIds[] = $category->id;
 
             foreach ($dishes as $i => [$slug, $name, $normal, $large, $egg, $spice, $proteins, $desc]) {
                 $image = 'uploads/menu/' . $slug . '.jpg';
 
-                MenuItem::updateOrCreate(
+                $item = MenuItem::updateOrCreate(
                     ['name' => $name, 'category_id' => $category->id],
                     [
                         'description' => $desc,
@@ -90,8 +91,16 @@ class ThaiMenuSeeder extends Seeder
                         'display_order' => $i,
                     ],
                 );
+                $keptItemIds[] = $item->id;
             }
         }
+
+        // Dishes removed from the list above are retired from the menu (soft-deleted
+        // so any order history keeps its link and snapshotted name). Drinks are
+        // seeded separately, so they are never touched here.
+        MenuItem::whereIn('category_id', $sectionCategoryIds)
+            ->whereNotIn('id', $keptItemIds)
+            ->delete();
 
         // Drinks stays, at the end of the menu.
         Category::where('name', 'Drinks')->update(['display_order' => 99]);

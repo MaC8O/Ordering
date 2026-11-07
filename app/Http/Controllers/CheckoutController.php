@@ -71,9 +71,9 @@ class CheckoutController extends Controller
 
         $settings = $status->settings();
 
-        // Loyalty reward: registered customers who have reached the delivered-
-        // order threshold get free delivery forever. Decided server-side so the
-        // client can never grant itself a free delivery.
+        // Loyalty reward: a registered customer earns one free delivery per N
+        // delivered orders; it's redeemed on this order and resets. Decided
+        // server-side so the client can never grant itself a free delivery.
         $customer = Auth::guard('customer')->user();
         $freeDelivery = $customer?->hasFreeDelivery() ?? false;
 
@@ -91,7 +91,7 @@ class CheckoutController extends Controller
         $total = $subtotal + $deliveryFee;
 
         // 5. Persist order + items atomically, then store any screenshot.
-        $order = DB::transaction(function () use ($request, $numbers, $lines, $subtotal, $deliveryFee, $total, $customer) {
+        $order = DB::transaction(function () use ($request, $numbers, $lines, $subtotal, $deliveryFee, $total, $customer, $freeDelivery) {
             $order = Order::create([
                 'order_number' => $numbers->generate(),
                 'customer_id' => $customer?->id,
@@ -108,6 +108,7 @@ class CheckoutController extends Controller
                 'subtotal' => $subtotal,
                 'delivery_fee' => $deliveryFee,
                 'total' => $total,
+                'is_free_delivery_reward' => $freeDelivery,
                 'notes' => $request->input('notes'),
             ]);
 

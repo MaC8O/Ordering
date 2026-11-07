@@ -90,16 +90,16 @@
                 <span class="relative grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-white/70 text-2xl shadow-inner motion-safe:animate-bounce">🛵</span>
                 <div class="relative leading-tight">
                     @if ($fdCustomer && $fdCustomer->hasFreeDelivery())
-                        <p class="text-sm font-extrabold uppercase tracking-wide">🎉 {{ __('Free delivery unlocked!') }}</p>
-                        <p class="text-xs font-semibold text-brand-800/80">{{ __('Enjoy free delivery on every order.') }}</p>
+                        <p class="text-sm font-extrabold uppercase tracking-wide">🎉 {{ __('Free delivery ready!') }}</p>
+                        <p class="text-xs font-semibold text-brand-800/80">{{ __('Your next order ships free.') }}</p>
                     @elseif ($fdCustomer)
-                        @php $fdLeft = max(0, $fdThreshold - $fdCustomer->deliveredOrdersCount()); @endphp
-                        <p class="text-sm font-extrabold uppercase tracking-wide">🎁 {{ __('Free delivery, forever') }}</p>
-                        <p class="text-xs font-semibold text-brand-800/80">{{ trans_choice('{1} Just :count more delivered order and your delivery is free, forever.|[2,*] :count more delivered orders and your delivery is free, forever.', $fdLeft, ['count' => $fdLeft]) }}</p>
+                        @php $fdLeft = $fdCustomer->ordersUntilNextReward(); @endphp
+                        <p class="text-sm font-extrabold uppercase tracking-wide">🎁 {{ __('Free delivery reward') }}</p>
+                        <p class="text-xs font-semibold text-brand-800/80">{{ trans_choice('{1} Just :count more delivered order until a free delivery.|[2,*] Just :count more delivered orders until a free delivery.', $fdLeft, ['count' => $fdLeft]) }}</p>
                     @else
-                        <p class="text-sm font-extrabold uppercase tracking-wide">🎁 {{ __('Free delivery, forever') }}</p>
+                        <p class="text-sm font-extrabold uppercase tracking-wide">🎁 {{ __('Free delivery reward') }}</p>
                         <p class="text-xs font-semibold text-brand-800/80">
-                            {{ __('Order :count times and your delivery is free, forever.', ['count' => $fdThreshold]) }}
+                            {{ __('Order :count times and your next delivery is free — then it resets.', ['count' => $fdThreshold]) }}
                             <a href="{{ route('register') }}" class="font-bold underline underline-offset-2 hover:text-brand-950">{{ __('Sign up free') }}</a>
                         </p>
                     @endif

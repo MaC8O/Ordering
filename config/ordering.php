@@ -31,10 +31,11 @@ return [
     'locales' => ['en', 'th'],
 
     /*
-    | Loyalty reward: once a customer (registered account) has this many
-    | DELIVERED orders, every future order ships with free delivery forever.
+    | Loyalty reward (registered accounts only): every this-many DELIVERED
+    | orders earns ONE free delivery, which is then redeemed and the count
+    | resets — a recurring punch-card, not free-forever.
     */
     'loyalty' => [
-        'free_delivery_after' => (int) env('ORDERING_FREE_DELIVERY_AFTER', 6),
+        'free_delivery_after' => (int) env('ORDERING_FREE_DELIVERY_AFTER', 7),
     ],
 ];
