@@ -192,6 +192,6 @@ class StoreStatus
 
     public function restaurantName(): string
     {
-        return $this->settings->restaurant_name ?: 'Campus Kitchen';
+        return $this->settings->restaurant_name ?: 'Front Gate Restaurant';
     }
 }

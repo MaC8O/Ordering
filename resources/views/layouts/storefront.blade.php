@@ -81,6 +81,9 @@
                         {{ $storeStatus->restaurantName() }}
                     </a>
                     <p class="mt-2 text-xs leading-relaxed text-ink-soft/80">{{ __('On-campus delivery only · Pay by QR transfer or cash on delivery.') }}</p>
+                    <p class="mt-3 inline-flex items-center gap-1.5 rounded-full bg-brand-50 px-3 py-1 text-xs font-semibold text-brand-700 ring-1 ring-brand-100">
+                        🛵 {{ __('Delivered by') }} <span class="font-extrabold tracking-tight">GateGo</span>
+                    </p>
                 </div>
 
                 <div class="flex flex-col gap-2 sm:items-end">
