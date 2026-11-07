@@ -1,9 +1,23 @@
 @extends('layouts.storefront')
 
-@section('title', __('Checkout') . ' — ' . $storeStatus->restaurantName())
+@php $isPreorder = $preorderMode ?? false; @endphp
+
+@section('title', ($isPreorder ? __('Preorder') : __('Checkout')) . ' — ' . $storeStatus->restaurantName())
 
 @section('content')
-    <h1 class="mb-5 text-2xl font-bold">{{ __('Checkout') }}</h1>
+    <h1 class="mb-5 text-2xl font-bold">{{ $isPreorder ? __('Preorder for :day', ['day' => $preorder->fulfillmentAt()->locale(app()->getLocale())->isoFormat('dddd')]) : __('Checkout') }}</h1>
+
+    @if ($isPreorder)
+        <div class="mb-5 overflow-hidden rounded-2xl bg-gradient-to-br from-indigo-600 to-violet-700 p-5 text-white shadow-lg">
+            <div class="flex items-start gap-3">
+                <span class="text-2xl">🗓️</span>
+                <div>
+                    <p class="font-bold">{{ __('Preorder — cooked & delivered in one batch') }}</p>
+                    <p class="mt-1 text-sm text-indigo-50/90">{{ __('Arrives :window. Pay now by QR transfer to reserve your meal.', ['window' => $preorder->windowLabel()]) }}</p>
+                </div>
+            </div>
+        </div>
+    @endif
 
     @if ($freeDelivery)
         <div class="mb-5 flex items-center gap-3 rounded-2xl bg-gradient-to-br from-green-600 to-emerald-600 p-4 text-white shadow">
@@ -17,7 +31,7 @@
         </div>
     @endif
 
-    <form method="POST" action="{{ route('checkout.store') }}" enctype="multipart/form-data"
+    <form method="POST" action="{{ $isPreorder ? route('preorder.store') : route('checkout.store') }}" enctype="multipart/form-data"
           x-data="checkoutForm()" x-init="init()" @submit="prepare($event)">
         @csrf
         <input type="hidden" name="cart" x-ref="cartField">
@@ -58,18 +72,29 @@
                             @error('delivery_dorm') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
                         </div>
 
-                        <div>
-                            <label for="delivery_date" class="label">{{ __('Delivery date') }}</label>
-                            <input id="delivery_date" name="delivery_date" type="date" x-model="f.date"
-                                   value="{{ old('delivery_date') }}" :min="todayStr" class="input" required>
-                            @error('delivery_date') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
-                        </div>
+                        @if ($isPreorder)
+                            <div class="sm:col-span-2">
+                                <label class="label">{{ __('Delivery') }}</label>
+                                <div class="flex items-center gap-3 rounded-xl border border-indigo-100 bg-indigo-50/60 px-4 py-3 text-sm">
+                                    <span class="text-lg">🛵</span>
+                                    <p class="font-semibold text-ink">{{ $preorder->windowLabel() }}</p>
+                                </div>
+                                <p class="mt-1 text-xs text-ink-soft">{{ __('All preorders are delivered together in this one window.') }}</p>
+                            </div>
+                        @else
+                            <div>
+                                <label for="delivery_date" class="label">{{ __('Delivery date') }}</label>
+                                <input id="delivery_date" name="delivery_date" type="date" x-model="f.date"
+                                       value="{{ old('delivery_date') }}" :min="todayStr" class="input" required>
+                                @error('delivery_date') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
+                            </div>
 
-                        <div>
-                            <label for="preferred_time" class="label">{{ __('Preferred time') }} <span class="font-normal text-ink-soft">{{ __('(optional)') }}</span></label>
-                            <input id="preferred_time" name="preferred_time" type="time" value="{{ old('preferred_time') }}" class="input">
-                            @error('preferred_time') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
-                        </div>
+                            <div>
+                                <label for="preferred_time" class="label">{{ __('Preferred time') }} <span class="font-normal text-ink-soft">{{ __('(optional)') }}</span></label>
+                                <input id="preferred_time" name="preferred_time" type="time" value="{{ old('preferred_time') }}" class="input">
+                                @error('preferred_time') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
+                            </div>
+                        @endif
 
                         <div class="sm:col-span-2">
                             <label for="delivery_notes" class="label">{{ __('Delivery notes') }} <span class="font-normal text-ink-soft">{{ __('(optional)') }}</span></label>
@@ -81,6 +106,11 @@
                 {{-- Payment --}}
                 <section class="card p-5">
                     <h2 class="text-lg font-bold">{{ __('Payment') }}</h2>
+                    @if ($isPreorder)
+                        {{-- Preorders are paid upfront by QR to reserve the batch. --}}
+                        <input type="hidden" name="payment_method" value="qr">
+                        <p class="mt-2 text-sm text-ink-soft">{{ __('Preorders are paid upfront by QR transfer to reserve your meal.') }}</p>
+                    @else
                     <div class="mt-4 grid gap-3 sm:grid-cols-2">
                         <label class="flex cursor-pointer items-center gap-3 rounded-xl border p-4 transition"
                                :class="f.payment === 'qr' ? 'border-brand-600 bg-brand-50' : 'border-line'">
@@ -99,6 +129,7 @@
                             </span>
                         </label>
                     </div>
+                    @endif
                     @error('payment_method') <p class="mt-2 text-sm text-red-600">{{ $message }}</p> @enderror
 
                     {{-- QR flow --}}
@@ -235,9 +266,17 @@
                     </template>
 
                     <div x-show="$store.cart.items.length > 0" class="mt-4 space-y-3">
-                        <template x-for="line in $store.cart.items" :key="line.id">
+                        <template x-for="line in $store.cart.items" :key="line.key">
                             <div class="flex items-start justify-between gap-3 text-sm">
-                                <span><span class="font-semibold" x-text="line.qty + '×'"></span> <span x-text="line.name"></span></span>
+                                <span>
+                                    <span class="font-semibold" x-text="line.qty + '×'"></span> <span x-text="line.name"></span>
+                                    <span x-show="line.protein || line.size === 'large' || (line.egg && line.egg !== 'none')" x-cloak class="mt-0.5 flex flex-wrap gap-1">
+                                        <template x-if="line.protein"><span class="rounded bg-brand-50 px-1.5 text-[11px] font-semibold text-brand-700" x-text="line.protein"></span></template>
+                                        <span x-show="line.size === 'large'" class="rounded bg-surface-2 px-1.5 text-[11px] text-ink-soft">{{ __('Large') }}</span>
+                                        <span x-show="line.egg === 'fried'" class="rounded bg-surface-2 px-1.5 text-[11px] text-ink-soft">{{ __('Fried egg') }}</span>
+                                        <span x-show="line.egg === 'half-boiled'" class="rounded bg-surface-2 px-1.5 text-[11px] text-ink-soft">{{ __('Half-boiled egg') }}</span>
+                                    </span>
+                                </span>
                                 <span class="font-semibold whitespace-nowrap" x-text="window.CURRENCY + ' ' + window.money(line.price * line.qty)"></span>
                             </div>
                         </template>
@@ -252,6 +291,8 @@
                             <span x-show="!freeDelivery" class="font-semibold" x-text="window.CURRENCY + ' ' + window.money(deliveryFee)"></span>
                             <span x-show="freeDelivery" x-cloak class="font-bold uppercase text-green-600">{{ __('Free') }}</span>
                         </div>
+                        <p x-show="hasDrink && !drinksOnly" x-cloak class="flex items-center gap-1.5 rounded-lg bg-green-50 px-2.5 py-1.5 text-xs font-medium text-green-700">🥤 {{ __('Your drinks are delivered free with your food order.') }}</p>
+                        <p x-show="drinksOnly" x-cloak class="flex items-center gap-1.5 rounded-lg bg-amber-50 px-2.5 py-1.5 text-xs font-medium text-amber-800">🥤 {{ __('A delivery fee applies to drinks-only orders.') }}</p>
                         <div class="flex justify-between text-base font-bold">
                             <span>{{ __('Total') }}</span>
                             <span x-text="window.CURRENCY + ' ' + window.money(grandTotal)"></span>
@@ -260,7 +301,7 @@
 
                     <button type="submit" :disabled="!canSubmit"
                             class="btn-primary mt-5 w-full disabled:bg-black/20 disabled:text-white/70">
-                        {{ __('Place order') }}
+                        {{ $isPreorder ? __('Place preorder') : __('Place order') }}
                     </button>
                     <p x-show="!canSubmit && $store.cart.items.length > 0" class="mt-2 text-center text-xs text-ink-soft">{{ __('Fill in all required fields to continue.') }}</p>
                     <a href="{{ route('cart.index') }}" class="btn-ghost mt-2 w-full">{{ __('Back to cart') }}</a>
@@ -272,15 +313,18 @@
     <script>
         function checkoutForm() {
             return {
-                deliveryFee: {{ $freeDelivery ? 0 : (int) $settings->default_delivery_fee }},
+                deliveryFeeBase: {{ $deliveryFeeMinor ?? (int) $settings->default_delivery_fee }},
+                deliveryFeeCap: {{ (int) $settings->delivery_fee_cap }},
+                perItemDelivery: {{ ($isPreorder ?? false) ? 'false' : 'true' }},
                 freeDelivery: {{ $freeDelivery ? 'true' : 'false' }},
+                isPreorder: {{ ($isPreorder ?? false) ? 'true' : 'false' }},
                 todayStr: new Date().toLocaleDateString('en-CA'),
                 f: {
                     name: @js(old('customer_name', $customer?->name ?? '')),
                     phone: @js(old('customer_phone', $customer?->phone ?? '')),
                     dorm: @js(old('delivery_dorm', '')),
-                    date: @js(old('delivery_date', '')),
-                    payment: @js(old('payment_method', 'qr')),
+                    date: @js(($isPreorder ?? false) ? $preorder->fulfillmentDate() : old('delivery_date', '')),
+                    payment: @js(($isPreorder ?? false) ? 'qr' : old('payment_method', 'qr')),
                 },
                 fileChosen: false,
                 fileError: '',
@@ -299,8 +343,30 @@
                     this.renderQr();
                     this.$watch('$store.cart.items', () => this.renderQr());
                 },
+                // Mirrors App\Services\DeliveryFee on the server: base × food units,
+                // drinks free with food, flat base for a drinks-only order. Preorders
+                // stay on their own flat fee.
+                get deliveryFee() {
+                    if (this.freeDelivery) return 0;
+                    if (!this.perItemDelivery) return this.deliveryFeeBase;
+                    const items = this.$store.cart.items;
+                    const foodQty = items.reduce((s, i) => s + (i.isDrink ? 0 : i.qty), 0);
+                    const drinkQty = items.reduce((s, i) => s + (i.isDrink ? i.qty : 0), 0);
+                    let fee;
+                    if (foodQty > 0) fee = this.deliveryFeeBase * foodQty;
+                    else if (drinkQty > 0) fee = this.deliveryFeeBase;
+                    else return 0;
+                    return this.deliveryFeeCap > 0 ? Math.min(fee, this.deliveryFeeCap) : fee;
+                },
                 get grandTotal() {
                     return this.$store.cart.subtotal + this.deliveryFee;
+                },
+                get hasDrink() {
+                    return this.$store.cart.items.some((i) => i.isDrink);
+                },
+                get drinksOnly() {
+                    const items = this.$store.cart.items;
+                    return items.length > 0 && items.every((i) => i.isDrink);
                 },
                 get qrIsDynamic() {
                     return !!this.qrDataUrl;

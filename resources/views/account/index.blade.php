@@ -97,21 +97,35 @@
                         @foreach ($history as $order)
                             <li>
                                 <a href="{{ route('order.show', $order->public_token) }}"
-                                   class="flex items-center justify-between gap-3 px-4 py-4 transition hover:bg-surface-2">
-                                    <div class="min-w-0">
-                                        <div class="flex items-center gap-2">
-                                            <span class="font-semibold">{{ $order->order_number }}</span>
-                                            <span class="badge {{ $statusBadges[$order->order_status] ?? 'bg-gray-100 text-gray-700' }}">{{ __($order->order_status_label) }}</span>
+                                   class="block px-4 py-4 transition hover:bg-surface-2">
+                                    <div class="flex items-start justify-between gap-3">
+                                        <div class="min-w-0">
+                                            <div class="flex items-center gap-2">
+                                                <span class="font-semibold">{{ $order->order_number }}</span>
+                                                <span class="badge {{ $statusBadges[$order->order_status] ?? 'bg-gray-100 text-gray-700' }}">{{ __($order->order_status_label) }}</span>
+                                                @if ($order->is_preorder)<span class="badge bg-indigo-100 text-indigo-800">🗓️</span>@endif
+                                            </div>
+                                            <p class="mt-0.5 text-sm text-ink-soft">
+                                                {{ optional($order->delivery_date)->format('D, d M Y') ?? $order->created_at->format('D, d M Y') }}
+                                                · {{ trans_choice('{1} :count item|[2,*] :count items', $order->items->sum('quantity'), ['count' => $order->items->sum('quantity')]) }}
+                                            </p>
                                         </div>
-                                        <p class="mt-0.5 truncate text-sm text-ink-soft">
-                                            {{ optional($order->delivery_date)->format('D, d M Y') ?? $order->created_at->format('D, d M Y') }}
-                                            · {{ trans_choice('{1} :count item|[2,*] :count items', $order->items->sum('quantity'), ['count' => $order->items->sum('quantity')]) }}
-                                        </p>
+                                        <div class="shrink-0 text-right">
+                                            <p class="font-bold">{{ config('ordering.currency') }} {{ $order->total_formatted }}</p>
+                                            <span class="text-xs text-brand-700">{{ __('View') }} →</span>
+                                        </div>
                                     </div>
-                                    <div class="shrink-0 text-right">
-                                        <p class="font-bold">{{ config('ordering.currency') }} {{ $order->total_formatted }}</p>
-                                        <span class="text-xs text-brand-700">{{ __('View') }} →</span>
-                                    </div>
+
+                                    {{-- The meals in this order --}}
+                                    <ul class="mt-3 flex flex-wrap gap-1.5">
+                                        @foreach ($order->items as $line)
+                                            <li class="inline-flex items-center gap-1 rounded-lg bg-surface-2 px-2 py-1 text-xs text-ink">
+                                                <span class="font-semibold text-brand-700">{{ $line->quantity }}×</span>
+                                                <span>{{ $line->item_name_snapshot }}</span>
+                                                @if ($line->options_snapshot)<span class="text-ink-soft">· {{ $line->options_snapshot }}</span>@endif
+                                            </li>
+                                        @endforeach
+                                    </ul>
                                 </a>
                             </li>
                         @endforeach

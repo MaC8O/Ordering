@@ -14,6 +14,9 @@
             <p class="text-sm text-ink-soft">Placed {{ $order->created_at->format('d M Y, H:i') }}</p>
         </div>
         <div class="flex items-center gap-2">
+            @if ($order->is_preorder)
+                <span class="badge bg-indigo-100 text-indigo-800">🗓️ Preorder</span>
+            @endif
             @include('admin.partials.payment-badge', ['order' => $order])
             @include('admin.partials.status-badge', ['order' => $order])
             <a href="{{ route('admin.orders.ticket', $order) }}" target="_blank" class="btn-secondary !py-2 text-sm">Print ticket</a>
@@ -30,6 +33,7 @@
                         <div class="flex items-start justify-between gap-3 py-2 text-sm">
                             <span>
                                 <span class="font-semibold">{{ $line->quantity }}×</span> {{ $line->item_name_snapshot }}
+                                @if ($line->options_snapshot)<span class="block text-xs font-medium text-brand-700">{{ $line->options_snapshot }}</span>@endif
                                 <span class="block text-xs text-ink-soft">{{ config('ordering.currency') }} {{ $line->item_price_formatted }} each</span>
                                 @if ($line->item_note)<span class="block text-xs italic text-ink-soft">“{{ $line->item_note }}”</span>@endif
                             </span>

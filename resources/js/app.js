@@ -3,11 +3,24 @@ import QRCode from 'qrcode';
 
 const CART_KEY = 'ck_cart_v1';
 
+// A cart line is identified by item id + chosen size + egg, so the same dish
+// in different sizes stays on separate lines.
+function lineKey(id, protein, size, egg) {
+    return [id, protein || 'x', size || 'n', egg || 'none'].join('|');
+}
+
+function normalizeLine(i) {
+    const protein = i.protein ?? null;
+    const size = i.size ?? null;
+    const egg = i.egg || 'none';
+    return { ...i, protein, size, egg, key: i.key || lineKey(i.id, protein, size, egg) };
+}
+
 function loadCart() {
     try {
         const raw = localStorage.getItem(CART_KEY);
         const parsed = raw ? JSON.parse(raw) : [];
-        return Array.isArray(parsed) ? parsed : [];
+        return Array.isArray(parsed) ? parsed.map(normalizeLine) : [];
     } catch (e) {
         return [];
     }
@@ -52,22 +65,31 @@ document.addEventListener('alpine:init', () => {
             saveCart(this.items);
         },
 
-        find(id) {
-            return this.items.find((i) => i.id === id);
+        find(key) {
+            return this.items.find((i) => i.key === key);
         },
 
         add(item, qty = 1, note = '') {
             qty = Math.max(1, Math.min(20, parseInt(qty, 10) || 1));
-            const existing = this.find(item.id);
+            const protein = item.protein ?? null;
+            const size = item.size ?? null;
+            const egg = item.egg || 'none';
+            const key = lineKey(item.id, protein, size, egg);
+            const existing = this.find(key);
             if (existing) {
                 existing.qty = Math.min(20, existing.qty + qty);
                 if (note) existing.note = note;
             } else {
                 this.items.push({
+                    key,
                     id: item.id,
                     name: item.name,
-                    price: item.price, // minor units
+                    price: item.price, // minor units — unit price incl. options
                     image: item.image || null,
+                    isDrink: item.isDrink || false,
+                    protein,
+                    size,
+                    egg,
                     qty,
                     note: note || '',
                 });
@@ -76,33 +98,33 @@ document.addEventListener('alpine:init', () => {
             Alpine.store('toasts').push(`${item.name} added to cart`);
         },
 
-        setQty(id, qty) {
-            const item = this.find(id);
+        setQty(key, qty) {
+            const item = this.find(key);
             if (!item) return;
             qty = Math.max(1, Math.min(20, parseInt(qty, 10) || 1));
             item.qty = qty;
             this.persist();
         },
 
-        increment(id) {
-            const item = this.find(id);
-            if (item) this.setQty(id, item.qty + 1);
+        increment(key) {
+            const item = this.find(key);
+            if (item) this.setQty(key, item.qty + 1);
         },
 
-        decrement(id) {
-            const item = this.find(id);
-            if (item) this.setQty(id, item.qty - 1);
+        decrement(key) {
+            const item = this.find(key);
+            if (item) this.setQty(key, item.qty - 1);
         },
 
-        setNote(id, note) {
-            const item = this.find(id);
+        setNote(key, note) {
+            const item = this.find(key);
             if (!item) return;
             item.note = note;
             this.persist();
         },
 
-        remove(id) {
-            this.items = this.items.filter((i) => i.id !== id);
+        remove(key) {
+            this.items = this.items.filter((i) => i.key !== key);
             this.persist();
             Alpine.store('toasts').push('Item removed', 'info');
         },
@@ -123,7 +145,14 @@ document.addEventListener('alpine:init', () => {
         // Compact payload for the checkout POST.
         toPayload() {
             return JSON.stringify(
-                this.items.map((i) => ({ id: i.id, qty: i.qty, note: i.note || '' }))
+                this.items.map((i) => ({
+                    id: i.id,
+                    qty: i.qty,
+                    note: i.note || '',
+                    protein: i.protein || null,
+                    size: i.size || null,
+                    egg: i.egg || 'none',
+                }))
             );
         },
     });

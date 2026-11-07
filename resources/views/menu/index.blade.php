@@ -8,6 +8,30 @@
             0% { transform: translateX(-120%) skewX(-12deg); }
             55%, 100% { transform: translateX(120%) skewX(-12deg); }
         }
+        /* Slow gold sheen that drifts across the hero headline */
+        @keyframes hero-sheen { to { background-position: 200% center; } }
+        .hero-sheen-text, .hero-sheen-text-2 {
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            color: transparent;
+        }
+        .hero-sheen-text {
+            background-image: linear-gradient(100deg, #ffffff 12%, #fde68a 32%, #ffffff 50%, #fde68a 68%, #ffffff 88%);
+            animation: hero-sheen 7s linear infinite;
+        }
+        .hero-sheen-text-2 {
+            background-image: linear-gradient(100deg, #fff7ed 10%, #fed7aa 38%, #ffffff 58%, #fecdd3 92%);
+            animation: hero-sheen 9s linear infinite;
+        }
+        /* draw the underline on once the hero appears */
+        @keyframes hero-underline { from { stroke-dashoffset: 320; } to { stroke-dashoffset: 0; } }
+        .hero-underline path { stroke-dasharray: 320; animation: hero-underline 1.1s .25s ease-out both; }
+        @media (prefers-reduced-motion: reduce) {
+            .hero-sheen-text, .hero-sheen-text-2 { animation: none; }
+            .hero-underline path { animation: none; stroke-dashoffset: 0; }
+        }
     </style>
 
     {{-- Hero --}}
@@ -41,9 +65,16 @@
                 @endif
             </span>
 
-            <h1 class="mt-5 text-4xl font-extrabold leading-[1.08] tracking-tight drop-shadow-sm sm:text-5xl">
-                {{ __('Authentic Thai,') }}<br>
-                <span class="bg-gradient-to-r from-amber-100 to-white bg-clip-text text-transparent">{{ __('delivered to your dorm.') }}</span>
+            <h1 class="mt-5 text-4xl font-extrabold leading-[1.04] tracking-tight drop-shadow-[0_2px_14px_rgba(0,0,0,0.18)] sm:text-5xl lg:text-6xl">
+                <span class="relative inline-block">
+                    <span class="hero-sheen-text">{{ __('Authentic Thai,') }}</span>
+                    {{-- hand-drawn underline accent --}}
+                    <svg aria-hidden="true" class="hero-underline absolute -bottom-2 left-0 h-3 w-full text-amber-300" viewBox="0 0 300 12" fill="none" preserveAspectRatio="none">
+                        <path d="M3 8C70 2 150 11 297 5" stroke="currentColor" stroke-width="4" stroke-linecap="round"/>
+                    </svg>
+                </span>
+                <br>
+                <span class="hero-sheen-text-2">{{ __('delivered to your dorm.') }}</span>
             </h1>
 
             <p class="mt-4 max-w-md text-base leading-relaxed text-white/90">{{ __('Noodles, fried rice, and spicy basil favourites — built fresh and brought to your door. Pay by QR transfer or cash on delivery.') }}</p>
@@ -89,6 +120,18 @@
             </div>
         </div>
     </section>
+
+    {{-- Preorder window open --}}
+    @if ($preorderStatus->isOpen())
+        <a href="{{ route('cart.index') }}" class="group mb-6 flex items-center gap-4 overflow-hidden rounded-2xl bg-gradient-to-r from-indigo-600 to-violet-700 p-4 text-white shadow-lg shadow-indigo-500/20 transition hover:-translate-y-0.5 sm:p-5">
+            <span class="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-white/15 text-2xl backdrop-blur">🗓️</span>
+            <div class="min-w-0 flex-1">
+                <p class="font-bold">{{ __('Preorder is open!') }}</p>
+                <p class="truncate text-sm text-indigo-50/90">{{ __('Reserve your meal for :window.', ['window' => $preorderStatus->windowLabel()]) }}</p>
+            </div>
+            <span class="hidden shrink-0 items-center gap-1 rounded-full bg-white px-4 py-2 text-sm font-bold text-indigo-700 sm:inline-flex">{{ __('Preorder now') }} →</span>
+        </a>
+    @endif
 
     {{-- Search --}}
     <form method="GET" action="{{ route('menu.index') }}" class="mb-5">

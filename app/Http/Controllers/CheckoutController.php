@@ -38,7 +38,7 @@ class CheckoutController extends Controller
         }
 
         // 2. Parse & validate the cart payload (sent from localStorage).
-        $cart = $this->parseCart($request->input('cart'));
+        $cart = \App\Services\CartParser::parse($request->input('cart'));
 
         if (empty($cart)) {
             return redirect()
@@ -46,19 +46,16 @@ class CheckoutController extends Controller
                 ->with('error', 'Your cart is empty.');
         }
 
-        $items = MenuItem::query()
-            ->available()
-            ->whereIn('id', array_keys($cart))
-            ->get()
-            ->keyBy('id');
-
-        // Any requested item that is gone or unavailable rejects the whole order.
-        $missing = array_diff(array_keys($cart), $items->keys()->all());
-        if (! empty($missing)) {
+        // Build order lines with option-aware price snapshots, totalled
+        // server-side. Any item that is gone or unavailable rejects the order.
+        $built = \App\Services\OrderLines::build($cart);
+        if ($built['missing']) {
             return redirect()
                 ->route('cart.index')
                 ->with('error', 'One or more items are no longer available. Please review your cart.');
         }
+        $lines = $built['lines'];
+        $subtotal = $built['subtotal'];
 
         // 3. Validate preferred delivery time against the chosen date's hours.
         if ($request->filled('preferred_time')) {
@@ -73,27 +70,6 @@ class CheckoutController extends Controller
         }
 
         $settings = $status->settings();
-        $maxQty = (int) config('ordering.max_qty', 20);
-
-        // 4. Build order lines with price snapshots, totalled server-side.
-        $lines = [];
-        $subtotal = 0;
-
-        foreach ($cart as $id => $entry) {
-            $menuItem = $items[$id];
-            $qty = max(1, min($maxQty, (int) $entry['qty']));
-            $lineTotal = $menuItem->price * $qty;
-            $subtotal += $lineTotal;
-
-            $lines[] = [
-                'menu_item_id' => $menuItem->id,
-                'item_name_snapshot' => $menuItem->name,
-                'item_price_snapshot' => $menuItem->price,
-                'item_note' => $entry['note'] !== '' ? mb_substr($entry['note'], 0, 200) : null,
-                'quantity' => $qty,
-                'line_total' => $lineTotal,
-            ];
-        }
 
         // Loyalty reward: registered customers who have reached the delivered-
         // order threshold get free delivery forever. Decided server-side so the
@@ -101,7 +77,17 @@ class CheckoutController extends Controller
         $customer = Auth::guard('customer')->user();
         $freeDelivery = $customer?->hasFreeDelivery() ?? false;
 
-        $deliveryFee = $freeDelivery ? 0 : (int) $settings->default_delivery_fee;
+        // Per-item delivery: base rate × food units, drinks free alongside food,
+        // flat base for a drinks-only order. Computed server-side so the client
+        // can never understate it.
+        $deliveryFee = $freeDelivery
+            ? 0
+            : \App\Services\DeliveryFee::compute(
+                (int) $settings->default_delivery_fee,
+                (int) $built['food_qty'],
+                (int) $built['drink_qty'],
+                (int) $settings->delivery_fee_cap,
+            );
         $total = $subtotal + $deliveryFee;
 
         // 5. Persist order + items atomically, then store any screenshot.

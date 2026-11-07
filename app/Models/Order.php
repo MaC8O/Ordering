@@ -52,6 +52,7 @@ class Order extends Model
         'payment_screenshot_path',
         'payment_status',
         'order_status',
+        'is_preorder',
         'eta_at',
         'subtotal',
         'delivery_fee',
@@ -66,6 +67,7 @@ class Order extends Model
         'total' => 'integer',
         'eta_at' => 'datetime',
         'delivery_date' => 'date',
+        'is_preorder' => 'boolean',
     ];
 
     public function items(): HasMany

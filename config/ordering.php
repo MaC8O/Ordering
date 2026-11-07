@@ -24,6 +24,9 @@ return [
     'min_qty' => 1,
     'max_qty' => 20,
 
+    // Flat fee for a fried / half-boiled egg add-on, in minor units (10 THB).
+    'egg_addon_fee' => (int) env('ORDERING_EGG_ADDON_FEE', 1000),
+
     // Supported interface languages (English / Thai).
     'locales' => ['en', 'th'],
 

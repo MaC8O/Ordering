@@ -30,8 +30,17 @@ class SettingController extends Controller
             'account_name' => ['nullable', 'string', 'max:120'],
             'cutoff_minutes_before_close' => ['required', 'integer', 'min:0', 'max:240'],
             'default_delivery_fee' => ['required', 'numeric', 'min:0', 'max:1000'],
+            'delivery_fee_cap' => ['required', 'numeric', 'min:0', 'max:1000'],
             'dorms' => ['nullable', 'string'],
         ]);
+
+        // A cap below the per-item fee would make every order pay the cap. Allow
+        // 0 (cap disabled); otherwise require the cap to be at least one item's fee.
+        if ($data['delivery_fee_cap'] > 0 && $data['delivery_fee_cap'] < $data['default_delivery_fee']) {
+            return back()->withInput()->withErrors([
+                'delivery_fee_cap' => 'The delivery fee cap must be at least the per-item fee, or 0 to disable it.',
+            ]);
+        }
 
         $dorms = collect(preg_split('/\r\n|\r|\n/', (string) ($data['dorms'] ?? '')))
             ->map(fn ($d) => trim($d))
@@ -47,10 +56,44 @@ class SettingController extends Controller
             'account_name' => $data['account_name'] ?? null,
             'cutoff_minutes_before_close' => (int) $data['cutoff_minutes_before_close'],
             'default_delivery_fee' => (int) round($data['default_delivery_fee'] * 100),
+            'delivery_fee_cap' => (int) round($data['delivery_fee_cap'] * 100),
             'dorms' => $dorms,
         ]);
 
         return back()->with('success', 'Settings saved.');
+    }
+
+    public function updatePreorder(Request $request)
+    {
+        $data = $request->validate([
+            'preorder_enabled' => ['nullable', 'boolean'],
+            'preorder_open_day' => ['required', 'integer', 'between:0,6'],
+            'preorder_open_time' => ['required', 'date_format:H:i'],
+            'preorder_cutoff_day' => ['required', 'integer', 'between:0,6'],
+            'preorder_cutoff_time' => ['required', 'date_format:H:i'],
+            'preorder_fulfillment_day' => ['required', 'integer', 'between:0,6'],
+            'preorder_window_start' => ['required', 'date_format:H:i'],
+            'preorder_window_end' => ['required', 'date_format:H:i'],
+            'preorder_delivery_fee' => ['required', 'numeric', 'min:0', 'max:1000'],
+        ]);
+
+        if ($data['preorder_window_end'] <= $data['preorder_window_start']) {
+            return back()->with('error', 'Preorder: the delivery window end time must be after the start time.');
+        }
+
+        Setting::current()->update([
+            'preorder_enabled' => (bool) ($data['preorder_enabled'] ?? false),
+            'preorder_open_day' => (int) $data['preorder_open_day'],
+            'preorder_open_time' => $data['preorder_open_time'],
+            'preorder_cutoff_day' => (int) $data['preorder_cutoff_day'],
+            'preorder_cutoff_time' => $data['preorder_cutoff_time'],
+            'preorder_fulfillment_day' => (int) $data['preorder_fulfillment_day'],
+            'preorder_window_start' => $data['preorder_window_start'],
+            'preorder_window_end' => $data['preorder_window_end'],
+            'preorder_delivery_fee' => (int) round($data['preorder_delivery_fee'] * 100),
+        ]);
+
+        return back()->with('success', 'Preorder settings saved.');
     }
 
     public function uploadQr(Request $request)

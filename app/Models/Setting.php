@@ -14,16 +14,37 @@ class Setting extends Model
         'qr_image_path',
         'cutoff_minutes_before_close',
         'default_delivery_fee',
+        'delivery_fee_cap',
         'accepting_orders',
         'dorms',
+        'preorder_enabled',
+        'preorder_open_day',
+        'preorder_open_time',
+        'preorder_cutoff_day',
+        'preorder_cutoff_time',
+        'preorder_fulfillment_day',
+        'preorder_window_start',
+        'preorder_window_end',
+        'preorder_delivery_fee',
     ];
 
     protected $casts = [
         'cutoff_minutes_before_close' => 'integer',
         'default_delivery_fee' => 'integer',
+        'delivery_fee_cap' => 'integer',
         'accepting_orders' => 'boolean',
         'dorms' => 'array',
+        'preorder_enabled' => 'boolean',
+        'preorder_open_day' => 'integer',
+        'preorder_cutoff_day' => 'integer',
+        'preorder_fulfillment_day' => 'integer',
+        'preorder_delivery_fee' => 'integer',
     ];
+
+    public function getPreorderDeliveryFeeFormattedAttribute(): string
+    {
+        return number_format($this->preorder_delivery_fee / 100, 2);
+    }
 
     /**
      * There is only ever one settings row (singleton).
@@ -36,5 +57,10 @@ class Setting extends Model
     public function getDeliveryFeeFormattedAttribute(): string
     {
         return number_format($this->default_delivery_fee / 100, 2);
+    }
+
+    public function getDeliveryFeeCapFormattedAttribute(): string
+    {
+        return number_format($this->delivery_fee_cap / 100, 2);
     }
 }
