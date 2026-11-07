@@ -35,6 +35,9 @@
                 @include('partials.theme-toggle')
                 <a href="{{ route('menu.index') }}" class="nav-link rounded-lg px-2 py-2 text-sm font-semibold hover:bg-hover sm:px-3 {{ request()->routeIs('menu.*') ? 'is-active text-brand-700' : 'text-ink-soft' }}">{{ __('Menu') }}</a>
                 <a href="{{ route('my-order.index') }}" class="nav-link rounded-lg px-2 py-2 text-sm font-semibold hover:bg-hover sm:px-3 {{ request()->routeIs('my-order.*') ? 'is-active text-brand-700' : 'text-ink-soft' }}">{{ __('My Order') }}</a>
+                @if ($preorderStatus->isOpen())
+                    <a href="{{ route('preorder.create') }}" class="nav-link inline-flex items-center gap-1 rounded-lg px-2 py-2 text-sm font-bold hover:bg-indigo-50 sm:px-3 {{ request()->routeIs('preorder.*') ? 'is-active text-indigo-700' : 'text-indigo-600' }} dark:text-indigo-300 dark:hover:bg-indigo-500/10">🗓️ {{ __('Preorder') }}</a>
+                @endif
                 <a href="{{ route('about') }}" class="nav-link rounded-lg px-2 py-2 text-sm font-semibold hover:bg-hover sm:px-3 {{ request()->routeIs('about') ? 'is-active text-brand-700' : 'text-ink-soft' }}">{{ __('About') }}</a>
                 @auth('customer')
                     <a href="{{ route('account.index') }}" class="nav-link rounded-lg px-2 py-2 text-sm font-semibold hover:bg-hover sm:px-3 {{ request()->routeIs('account.*') ? 'is-active text-brand-700' : 'text-ink-soft' }}">{{ __('Account') }}</a>
@@ -90,6 +93,9 @@
                     <nav class="flex flex-wrap gap-x-4 gap-y-1 font-semibold">
                         <a href="{{ route('menu.index') }}" class="hover:text-brand-700">{{ __('Menu') }}</a>
                         <a href="{{ route('my-order.index') }}" class="hover:text-brand-700">{{ __('My Order') }}</a>
+                        @if ($preorderStatus->isOpen())
+                            <a href="{{ route('preorder.create') }}" class="font-bold text-indigo-600 hover:text-indigo-700 dark:text-indigo-300">{{ __('Preorder') }}</a>
+                        @endif
                         <a href="{{ route('about') }}" class="hover:text-brand-700">{{ __('About') }}</a>
                     </nav>
                     @if ($storeSettings->phone)
