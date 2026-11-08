@@ -32,6 +32,15 @@ class PreorderStatus
         return (bool) $this->settings->preorder_enabled;
     }
 
+    /**
+     * Admin override: preorders are forced open right now, ignoring the weekly
+     * schedule, until the admin turns it off again.
+     */
+    public function forcedOpen(): bool
+    {
+        return $this->enabled() && (bool) $this->settings->preorder_force_open;
+    }
+
     protected function now(): Carbon
     {
         return Carbon::now();
@@ -90,6 +99,11 @@ class PreorderStatus
             return false;
         }
 
+        // Admin "open now" override wins over the weekly schedule.
+        if ($this->forcedOpen()) {
+            return true;
+        }
+
         $open = $this->mostRecentOpen();
         $cutoff = $this->cutoffAfter($open);
 
@@ -102,6 +116,11 @@ class PreorderStatus
     public function closesAt(): ?Carbon
     {
         if (! $this->isOpen()) {
+            return null;
+        }
+
+        // Forced-open stays open until the admin closes it — no scheduled cutoff.
+        if ($this->forcedOpen()) {
             return null;
         }
 
