@@ -3,12 +3,18 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Category;
 use App\Models\Customer;
+use App\Models\MenuItem;
 use App\Models\Order;
 use App\Models\Setting;
+use App\Services\DeliveryFee;
+use App\Services\OrderLines;
+use App\Services\OrderNumberGenerator;
 use App\Services\SmsService;
 use App\Services\StoreStatus;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 
 class OrderController extends Controller
@@ -70,6 +76,132 @@ class OrderController extends Controller
             'latest_number' => $latest?->order_number,
             'pending' => Order::whereIn('order_status', ['pending', 'confirmed', 'preparing'])->count(),
         ]);
+    }
+
+    /**
+     * Form to log an order by hand — e.g. a customer who transferred by QR but
+     * never completed checkout, so no order was created automatically.
+     */
+    public function create(StoreStatus $status)
+    {
+        $settings = $status->settings();
+
+        // Menu items the admin can pick, with the option data the picker needs.
+        $items = MenuItem::available()
+            ->with('category')
+            ->orderBy('category_id')
+            ->orderBy('display_order')
+            ->get()
+            ->map(fn (MenuItem $i) => [
+                'id' => $i->id,
+                'name' => $i->name,
+                'category' => $i->category?->name ?? '—',
+                'price' => (int) $i->price,
+                'proteins' => $i->hasProteins() ? array_values($i->proteins) : [],
+                'proteinPrices' => $i->protein_prices ?: (object) [],
+                'hasSizes' => $i->hasSizes(),
+                'largePrice' => $i->large_price !== null ? (int) $i->large_price : null,
+                'hasEgg' => (bool) $i->has_egg_addon,
+                'isDrink' => (bool) $i->is_drink,
+            ])
+            ->values();
+
+        return view('admin.orders.create', [
+            'menuItems' => $items,
+            'dorms' => (array) ($settings->dorms ?? []),
+            'settings' => $settings,
+            'statuses' => Order::ORDER_STATUSES,
+            'paymentStatuses' => Order::PAYMENT_STATUSES,
+            'eggFee' => (int) config('ordering.egg_addon_fee'),
+        ]);
+    }
+
+    /**
+     * Persist a hand-entered order. Prices are computed server-side with the
+     * same services the storefront uses, so totals stay consistent.
+     */
+    public function store(Request $request, OrderNumberGenerator $numbers, StoreStatus $status)
+    {
+        $data = $request->validate([
+            'customer_name' => ['required', 'string', 'min:2', 'max:120'],
+            'customer_phone' => ['required', 'string', 'regex:/^\+?[0-9]{7,15}$/'],
+            'delivery_dorm' => ['required', 'string', 'min:2', 'max:120'],
+            'delivery_date' => ['required', 'date_format:Y-m-d'],
+            'preferred_time' => ['nullable', 'date_format:H:i'],
+            'delivery_notes' => ['nullable', 'string', 'max:500'],
+            'notes' => ['nullable', 'string', 'max:500'],
+            'payment_method' => ['required', Rule::in(['qr', 'cash'])],
+            'payment_status' => ['required', Rule::in(array_keys(Order::PAYMENT_STATUSES))],
+            'order_status' => ['required', Rule::in(array_keys(Order::ORDER_STATUSES))],
+            'delivery_fee' => ['nullable', 'numeric', 'min:0', 'max:100000'],
+            'items' => ['required', 'array', 'min:1'],
+            'items.*.id' => ['required', 'integer', 'exists:menu_items,id'],
+            'items.*.qty' => ['required', 'integer', 'min:1', 'max:' . (int) config('ordering.max_qty', 20)],
+            'items.*.protein' => ['nullable', 'string', 'max:40'],
+            'items.*.size' => ['nullable', Rule::in(['normal', 'large'])],
+            'items.*.egg' => ['nullable', Rule::in(['none', 'fried', 'half-boiled'])],
+            'items.*.note' => ['nullable', 'string', 'max:200'],
+        ], [
+            'customer_phone.regex' => 'Enter a valid phone number (digits only, 7–15 characters, optional leading +).',
+            'items.required' => 'Add at least one item to the order.',
+        ]);
+
+        // Shape the items like a parsed cart so we can reuse OrderLines.
+        $cart = array_map(fn ($line) => [
+            'id' => (int) $line['id'],
+            'qty' => (int) $line['qty'],
+            'note' => $line['note'] ?? '',
+            'protein' => $line['protein'] ?? null,
+            'size' => ($line['size'] ?? null) === 'large' ? 'large' : null,
+            'egg' => in_array($line['egg'] ?? null, ['fried', 'half-boiled'], true) ? $line['egg'] : 'none',
+        ], $data['items']);
+
+        $built = OrderLines::build($cart);
+        if ($built['missing']) {
+            return back()->withInput()->with('error', 'One or more items are no longer available.');
+        }
+
+        $settings = $status->settings();
+
+        // Delivery fee: admin override if given, else the standard computation.
+        $deliveryFee = $request->filled('delivery_fee')
+            ? (int) round(((float) $data['delivery_fee']) * 100)
+            : DeliveryFee::compute(
+                (int) $settings->default_delivery_fee,
+                (int) $built['food_qty'],
+                (int) $built['drink_qty'],
+                (int) $settings->delivery_fee_cap,
+            );
+
+        $total = $built['subtotal'] + $deliveryFee;
+
+        $order = DB::transaction(function () use ($data, $numbers, $built, $deliveryFee, $total) {
+            $order = Order::create([
+                'order_number' => $numbers->generate(),
+                'customer_name' => $data['customer_name'],
+                'customer_phone' => $data['customer_phone'],
+                'delivery_dorm' => $data['delivery_dorm'],
+                'delivery_date' => $data['delivery_date'],
+                'preferred_time' => $data['preferred_time'] ?? null,
+                'delivery_notes' => $data['delivery_notes'] ?? null,
+                'payment_method' => $data['payment_method'],
+                'payment_status' => $data['payment_status'],
+                'order_status' => $data['order_status'],
+                'subtotal' => $built['subtotal'],
+                'delivery_fee' => $deliveryFee,
+                'total' => $total,
+                'notes' => $data['notes'] ?? null,
+                'admin_note' => 'Created manually by admin.',
+            ]);
+
+            $order->items()->createMany($built['lines']);
+
+            return $order;
+        });
+
+        return redirect()
+            ->route('admin.orders.show', $order)
+            ->with('success', 'Manual order ' . $order->order_number . ' created.');
     }
 
     public function show(Order $order)

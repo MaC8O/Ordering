@@ -112,6 +112,10 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/orders', [AdminOrderController::class, 'index'])->name('orders.index');
         // Lightweight JSON feed polled by the admin UI to detect new orders.
         Route::get('/orders-feed', [AdminOrderController::class, 'feed'])->name('orders.feed');
+        // Manual order entry (for customers who paid outside the normal flow).
+        // Registered before /orders/{order} so "create" isn't treated as an id.
+        Route::get('/orders/create', [AdminOrderController::class, 'create'])->name('orders.create');
+        Route::post('/orders', [AdminOrderController::class, 'store'])->name('orders.store');
         Route::get('/orders/{order}', [AdminOrderController::class, 'show'])->name('orders.show');
         Route::get('/orders/{order}/ticket', [AdminOrderController::class, 'ticket'])->name('orders.ticket');
         Route::patch('/orders/{order}/status', [AdminOrderController::class, 'updateStatus'])->name('orders.status');
