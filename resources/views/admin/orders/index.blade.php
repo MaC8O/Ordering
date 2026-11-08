@@ -72,7 +72,17 @@
                             <td class="px-4 py-3">{{ $order->customer_name }}<span class="block text-xs text-ink-soft">{{ $order->customer_phone }}</span></td>
                             <td class="px-4 py-3">{{ $order->items_count }}</td>
                             <td class="whitespace-nowrap px-4 py-3 font-semibold">{{ config('ordering.currency') }} {{ $order->total_formatted }}</td>
-                            <td class="px-4 py-3">@include('admin.partials.payment-badge', ['order' => $order])<span class="ml-1 text-xs text-ink-soft">{{ strtoupper($order->payment_method) }}</span></td>
+                            <td class="px-4 py-3">
+                                @include('admin.partials.payment-badge', ['order' => $order])<span class="ml-1 text-xs text-ink-soft">{{ strtoupper($order->payment_method) }}</span>
+                                @if ($order->hasReceipt())
+                                    <span class="mt-1 inline-flex items-center gap-1 rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-800" title="Payment receipt attached">
+                                        <svg class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8 5a3 3 0 0 1 6 0v6a5 5 0 0 1-10 0V7a1 1 0 1 1 2 0v4a3 3 0 0 0 6 0V5a1 1 0 1 0-2 0v6a1 1 0 1 1-2 0V5Z" clip-rule="evenodd"/></svg>
+                                        Receipt
+                                    </span>
+                                @elseif ($order->payment_method === 'qr')
+                                    <span class="mt-1 inline-flex items-center rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-800" title="No payment receipt uploaded">No receipt</span>
+                                @endif
+                            </td>
                             <td class="px-4 py-3">@include('admin.partials.status-badge', ['order' => $order])</td>
                         </tr>
                     @endforeach

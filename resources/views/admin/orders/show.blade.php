@@ -101,8 +101,12 @@
                 <p class="mt-2 text-sm">Method: <span class="font-semibold">{{ $order->payment_method === 'qr' ? 'QR bank transfer' : 'Cash on delivery' }}</span></p>
 
                 @if ($order->payment_method === 'qr')
-                    @if ($order->payment_screenshot_path && file_exists(public_path($order->payment_screenshot_path)))
-                        <button type="button" @click="lightbox = true" class="mt-3 block w-full overflow-hidden rounded-xl border">
+                    @if ($order->hasReceipt())
+                        <p class="mt-3 flex items-center gap-1.5 rounded-lg bg-green-50 px-3 py-2 text-sm font-medium text-green-800">
+                            <svg class="h-4 w-4 flex-shrink-0" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.7 5.3a1 1 0 0 1 0 1.4l-7.5 7.5a1 1 0 0 1-1.4 0l-3.5-3.5a1 1 0 0 1 1.4-1.4l2.8 2.8 6.8-6.8a1 1 0 0 1 1.4 0Z" clip-rule="evenodd"/></svg>
+                            Payment receipt attached
+                        </p>
+                        <button type="button" @click="lightbox = true" class="mt-2 block w-full overflow-hidden rounded-xl border">
                             <img src="{{ asset($order->payment_screenshot_path) }}" alt="Payment screenshot" class="max-h-56 w-full object-contain bg-surface-2">
                         </button>
                         <p class="mt-1 text-xs text-ink-soft">Tap to view full size.</p>
