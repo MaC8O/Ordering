@@ -110,6 +110,8 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
         // Orders
         Route::get('/orders', [AdminOrderController::class, 'index'])->name('orders.index');
+        // Lightweight JSON feed polled by the admin UI to detect new orders.
+        Route::get('/orders-feed', [AdminOrderController::class, 'feed'])->name('orders.feed');
         Route::get('/orders/{order}', [AdminOrderController::class, 'show'])->name('orders.show');
         Route::get('/orders/{order}/ticket', [AdminOrderController::class, 'ticket'])->name('orders.ticket');
         Route::patch('/orders/{order}/status', [AdminOrderController::class, 'updateStatus'])->name('orders.status');

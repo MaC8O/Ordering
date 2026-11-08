@@ -56,6 +56,22 @@ class OrderController extends Controller
         ]);
     }
 
+    /**
+     * Lightweight JSON snapshot polled by the admin dashboard / orders page to
+     * detect new orders without a manual refresh. Returns the id and number of
+     * the most recent order, plus how many still need attention.
+     */
+    public function feed()
+    {
+        $latest = Order::latest('id')->first(['id', 'order_number']);
+
+        return response()->json([
+            'latest_id' => $latest?->id ?? 0,
+            'latest_number' => $latest?->order_number,
+            'pending' => Order::whereIn('order_status', ['pending', 'confirmed', 'preparing'])->count(),
+        ]);
+    }
+
     public function show(Order $order)
     {
         $order->load('items', 'customer');
