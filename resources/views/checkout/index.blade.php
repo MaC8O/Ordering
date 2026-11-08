@@ -143,6 +143,14 @@
                          class="mt-5 overflow-hidden rounded-2xl border border-brand-100 bg-white shadow-sm"
                          x-data="{ zoom: false }">
 
+                        {{-- Must-read: transferring alone does not place the order --}}
+                        <div class="border-b border-amber-300 bg-amber-50 p-4 sm:p-5">
+                            <p class="flex items-start gap-2 text-sm text-amber-900">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="mt-0.5 h-5 w-5 shrink-0 text-amber-600" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z"/></svg>
+                                <span><span class="font-bold">{{ __('Important:') }}</span> {{ __('After transferring, you MUST upload your transfer screenshot and click “:button” to complete your order. Transferring alone does not confirm your order.', ['button' => $isPreorder ? __('Place preorder') : __('Place order')]) }}</span>
+                            </p>
+                        </div>
+
                         {{-- Step 1 — scan & pay --}}
                         <div class="border-b border-brand-100 bg-gradient-to-br from-brand-50 to-brand-50/40 p-4 sm:p-5">
                             <div class="flex items-center gap-2">
