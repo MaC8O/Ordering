@@ -43,9 +43,17 @@ class OrderLines
             $menuItem = $items[$line['id']];
             $qty = max(1, min($maxQty, (int) $line['qty']));
 
+            // Protein — only honour a value the item actually offers.
+            $protein = ($menuItem->hasProteins() && in_array($line['protein'], $menuItem->proteins, true))
+                ? $line['protein']
+                : null;
+
             // Size — only honour "large" when the item actually offers it.
             $size = ($line['size'] === 'large' && $menuItem->hasSizes()) ? 'large' : 'normal';
-            $unit = $size === 'large' ? (int) $menuItem->large_price : (int) $menuItem->price;
+
+            // Unit price is computed server-side from the chosen protein + size,
+            // so the client can never set its own price.
+            $unit = $menuItem->priceForProtein($protein, $size);
 
             // Egg add-on — only when the item allows it.
             $egg = (in_array($line['egg'], ['fried', 'half-boiled'], true) && $menuItem->has_egg_addon)
@@ -54,11 +62,6 @@ class OrderLines
             if ($egg !== 'none') {
                 $unit += $eggFee;
             }
-
-            // Protein — only honour a value the item actually offers.
-            $protein = ($menuItem->hasProteins() && in_array($line['protein'], $menuItem->proteins, true))
-                ? $line['protein']
-                : null;
 
             $lineTotal = $unit * $qty;
             $subtotal += $lineTotal;

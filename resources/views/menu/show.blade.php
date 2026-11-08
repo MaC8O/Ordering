@@ -6,6 +6,20 @@
     @php
         $currency = config('ordering.currency');
         $eggFee = (int) config('ordering.egg_addon_fee');
+
+        // Per-protein price map (in the smallest currency unit) for the picker.
+        // Falls back to the dish-level price for proteins saved before per-protein
+        // pricing existed, so every protein always has a price.
+        $proteinPriceMap = [];
+        foreach ($item->proteins ?? [] as $p) {
+            $pp = $item->protein_prices[$p] ?? null;
+            $proteinPriceMap[$p] = [
+                'normal' => isset($pp['normal']) ? (int) $pp['normal'] : (int) $item->price,
+                'large' => (is_array($pp) && array_key_exists('large', $pp) && $pp['large'] !== null)
+                    ? (int) $pp['large']
+                    : ($item->large_price !== null ? (int) $item->large_price : null),
+            ];
+        }
     @endphp
 
     <a href="{{ route('menu.index') }}" class="mb-4 inline-flex items-center gap-1 text-sm font-semibold text-ink-soft hover:text-brand-700">
@@ -21,6 +35,7 @@
             egg: 'none',
             proteins: @js($item->proteins ?? []),
             protein: @js(($item->proteins[0] ?? null)),
+            proteinPrices: @js($proteinPriceMap),
             base: {{ $item->price }},
             large: {{ $item->large_price ?? 'null' }},
             eggFee: {{ $eggFee }},
@@ -28,8 +43,17 @@
             hasEgg: {{ $item->has_egg_addon ? 'true' : 'false' }},
             hasProteins: {{ $item->hasProteins() ? 'true' : 'false' }},
             meta: { id: {{ $item->id }}, name: @js($item->localized_name), image: @js($item->image_url), isDrink: {{ $item->is_drink ? 'true' : 'false' }} },
+            // Price (in the smallest currency unit) for the chosen protein.
+            get currentNormal() {
+                const pp = this.hasProteins && this.protein ? this.proteinPrices[this.protein] : null;
+                return pp ? pp.normal : this.base;
+            },
+            get currentLarge() {
+                const pp = this.hasProteins && this.protein ? this.proteinPrices[this.protein] : null;
+                return pp ? pp.large : this.large;
+            },
             get unitPrice() {
-                let p = (this.hasSizes && this.size === 'large' && this.large) ? this.large : this.base;
+                let p = (this.hasSizes && this.size === 'large' && this.currentLarge) ? this.currentLarge : this.currentNormal;
                 if (this.hasEgg && this.egg !== 'none') p += this.eggFee;
                 return p;
             },
@@ -52,7 +76,7 @@
             <p class="text-sm font-semibold uppercase tracking-wide text-brand-600">{{ $item->category->localized_name }}</p>
             <h1 class="mt-1 text-2xl font-bold">{{ $item->localized_name }}</h1>
             <p class="mt-2 text-2xl font-bold text-brand-700">
-                {{ $currency }} {{ $item->price_formatted }}@if ($item->hasSizes())<span class="text-base font-semibold text-ink-soft"> – {{ $item->large_price_formatted }}</span>@endif
+                <span x-text="window.CURRENCY + ' ' + window.money(currentNormal)"></span><span x-show="hasSizes && currentLarge && currentLarge > currentNormal" x-cloak class="text-base font-semibold text-ink-soft"> – <span x-text="window.money(currentLarge)"></span></span>
             </p>
 
             @if ($item->localized_description)
@@ -81,12 +105,12 @@
                         <button type="button" @click="size = 'normal'"
                                 :class="size === 'normal' ? 'border-brand-600 bg-brand-50 text-brand-700' : 'border-line text-ink'"
                                 class="flex items-center justify-between rounded-xl border px-4 py-3 text-sm font-semibold transition">
-                            <span>{{ __('Normal') }}</span><span>{{ $currency }} {{ $item->price_formatted }}</span>
+                            <span>{{ __('Normal') }}</span><span x-text="window.CURRENCY + ' ' + window.money(currentNormal)"></span>
                         </button>
                         <button type="button" @click="size = 'large'"
                                 :class="size === 'large' ? 'border-brand-600 bg-brand-50 text-brand-700' : 'border-line text-ink'"
                                 class="flex items-center justify-between rounded-xl border px-4 py-3 text-sm font-semibold transition">
-                            <span>{{ __('Large') }}</span><span>{{ $currency }} {{ $item->large_price_formatted }}</span>
+                            <span>{{ __('Large') }}</span><span x-text="window.CURRENCY + ' ' + window.money(currentLarge || currentNormal)"></span>
                         </button>
                     </div>
                 </div>

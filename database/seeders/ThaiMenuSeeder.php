@@ -76,6 +76,16 @@ class ThaiMenuSeeder extends Seeder
             foreach ($dishes as $i => [$slug, $name, $normal, $large, $egg, $spice, $proteins, $desc]) {
                 $image = 'uploads/menu/' . $slug . '.jpg';
 
+                // Seed each protein with its own price, starting equal to the
+                // dish price; admins can then edit any protein individually.
+                $proteinPrices = null;
+                if ($proteins) {
+                    $proteinPrices = [];
+                    foreach ($proteins as $p) {
+                        $proteinPrices[$p] = ['normal' => $normal * 100, 'large' => $large * 100];
+                    }
+                }
+
                 $item = MenuItem::updateOrCreate(
                     ['name' => $name, 'category_id' => $category->id],
                     [
@@ -85,6 +95,7 @@ class ThaiMenuSeeder extends Seeder
                         'has_egg_addon' => $egg,
                         'has_spice_note' => $spice,
                         'proteins' => $proteins ?: null,
+                        'protein_prices' => $proteinPrices,
                         'image_path' => is_file(public_path($image)) ? $image : null,
                         'is_available' => true,
                         'is_drink' => false,
