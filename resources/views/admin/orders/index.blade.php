@@ -44,6 +44,7 @@
         </div>
     </form>
 
+    <div data-live-refresh="orders">
     @if ($orders->isEmpty())
         <div class="card p-8 text-center text-sm text-ink-soft">No orders match these filters.</div>
     @else
@@ -78,4 +79,7 @@
 
         <div class="mt-4">{{ $orders->links() }}</div>
     @endif
+    </div>
+
+    @include('admin.partials.live-feed')
 @endsection

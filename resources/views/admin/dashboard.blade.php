@@ -31,7 +31,7 @@
     @endunless
 
     {{-- Today snapshot tiles --}}
-    <div class="mb-8 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
+    <div data-live-refresh="tiles" class="mb-8 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
         <div class="card flex items-center gap-3 p-4 sm:p-5">
             <span class="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-brand-50 text-brand-600">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 10.5V6a3.75 3.75 0 1 0-7.5 0v4.5m11.356-1.993 1.263 12A1.125 1.125 0 0 1 19.743 21H4.257a1.125 1.125 0 0 1-1.12-1.243l1.264-12A1.125 1.125 0 0 1 5.513 7.5h12.974c.576 0 1.059.435 1.119 1.007Z"/></svg>
@@ -209,6 +209,7 @@
         <a href="{{ route('admin.orders.index') }}" class="text-sm font-semibold text-brand-700 hover:underline">All orders →</a>
     </div>
 
+    <div data-live-refresh="today-orders">
     @if ($orders->isEmpty())
         <div class="card mt-3 p-8 text-center text-sm text-ink-soft">No orders yet today.</div>
     @else
@@ -239,4 +240,7 @@
             </table>
         </div>
     @endif
+    </div>
+
+    @include('admin.partials.live-feed')
 @endsection
