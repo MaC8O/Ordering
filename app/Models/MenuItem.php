@@ -23,6 +23,7 @@ class MenuItem extends Model
         'has_egg_addon',
         'has_spice_note',
         'proteins',
+        'protein_prices',
         'image_path',
         'is_available',
         'is_drink',
@@ -35,6 +36,7 @@ class MenuItem extends Model
         'has_egg_addon' => 'boolean',
         'has_spice_note' => 'boolean',
         'proteins' => 'array',
+        'protein_prices' => 'array',
         'is_available' => 'boolean',
         'is_drink' => 'boolean',
         'display_order' => 'integer',
@@ -48,6 +50,40 @@ class MenuItem extends Model
     public function hasProteins(): bool
     {
         return is_array($this->proteins) && count($this->proteins) > 0;
+    }
+
+    /**
+     * Whether this dish carries its own price for each protein choice (set via
+     * the admin menu editor). When true, the selected protein — not the
+     * dish-level `price` — decides what the customer pays.
+     */
+    public function hasProteinPrices(): bool
+    {
+        return is_array($this->protein_prices) && count($this->protein_prices) > 0;
+    }
+
+    /**
+     * The unit price (in the smallest currency unit) for a given protein and
+     * size, before any egg add-on. Falls back to the dish-level price when the
+     * dish has no per-protein pricing or the protein is unknown. A protein with
+     * no large price uses its normal price for the large size.
+     */
+    public function priceForProtein(?string $protein, string $size = 'normal'): int
+    {
+        $prices = $this->protein_prices[$protein] ?? null;
+
+        if (is_array($prices) && isset($prices['normal'])) {
+            $normal = (int) $prices['normal'];
+            $large = isset($prices['large']) && $prices['large'] !== null
+                ? (int) $prices['large']
+                : $normal;
+
+            return $size === 'large' ? $large : $normal;
+        }
+
+        return $size === 'large' && $this->large_price !== null
+            ? (int) $this->large_price
+            : (int) $this->price;
     }
 
     /**

@@ -57,7 +57,12 @@
                                     </div>
                                 </td>
                                 <td class="px-4 py-3 text-ink-soft">{{ $item->category?->name ?? '—' }}</td>
-                                <td class="px-4 py-3 font-semibold">{{ config('ordering.currency') }} {{ $item->price_formatted }}</td>
+                                <td class="px-4 py-3 font-semibold">
+                                    @if ($item->hasProteinPrices() && count(array_unique(array_column($item->protein_prices, 'normal'))) > 1)
+                                        <span class="text-xs font-normal text-ink-soft">from </span>
+                                    @endif
+                                    {{ config('ordering.currency') }} {{ $item->price_formatted }}
+                                </td>
                                 <td class="px-4 py-3">
                                     <form method="POST" action="{{ route('admin.items.toggle', $item) }}">
                                         @csrf @method('PATCH')
