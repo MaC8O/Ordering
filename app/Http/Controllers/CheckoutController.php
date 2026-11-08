@@ -4,13 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\CheckoutRequest;
 use App\Models\MenuItem;
-use App\Models\Order;
 use App\Services\OrderNumberGenerator;
 use App\Services\StoreStatus;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 
 class CheckoutController extends Controller
 {
@@ -90,32 +88,26 @@ class CheckoutController extends Controller
             );
         $total = $subtotal + $deliveryFee;
 
-        // 5. Persist order + items atomically, then store any screenshot.
-        $order = DB::transaction(function () use ($request, $numbers, $lines, $subtotal, $deliveryFee, $total, $customer, $freeDelivery) {
-            $order = Order::create([
-                'order_number' => $numbers->generate(),
-                'customer_id' => $customer?->id,
-                'customer_name' => $request->string('customer_name'),
-                'customer_phone' => $request->string('customer_phone'),
-                'delivery_dorm' => $request->string('delivery_dorm'),
-                'delivery_room' => null,
-                'delivery_date' => $request->input('delivery_date'),
-                'delivery_notes' => $request->input('delivery_notes'),
-                'preferred_time' => $request->input('preferred_time'),
-                'payment_method' => $request->string('payment_method'),
-                'payment_status' => 'pending',
-                'order_status' => 'pending',
-                'subtotal' => $subtotal,
-                'delivery_fee' => $deliveryFee,
-                'total' => $total,
-                'is_free_delivery_reward' => $freeDelivery,
-                'notes' => $request->input('notes'),
-            ]);
-
-            $order->items()->createMany($lines);
-
-            return $order;
-        });
+        // 5. Persist order + items atomically (retrying on the rare order-number
+        //    collision so a concurrent order is never lost), then store any screenshot.
+        $order = $numbers->createOrder([
+            'customer_id' => $customer?->id,
+            'customer_name' => $request->string('customer_name'),
+            'customer_phone' => $request->string('customer_phone'),
+            'delivery_dorm' => $request->string('delivery_dorm'),
+            'delivery_room' => null,
+            'delivery_date' => $request->input('delivery_date'),
+            'delivery_notes' => $request->input('delivery_notes'),
+            'preferred_time' => $request->input('preferred_time'),
+            'payment_method' => $request->string('payment_method'),
+            'payment_status' => 'pending',
+            'order_status' => 'pending',
+            'subtotal' => $subtotal,
+            'delivery_fee' => $deliveryFee,
+            'total' => $total,
+            'is_free_delivery_reward' => $freeDelivery,
+            'notes' => $request->input('notes'),
+        ], $lines);
 
         // 6. QR receipt upload. Stored by Order::storeReceipt(), which names the
         //    file by the unguessable token so receipts can't be found by guessing.
