@@ -109,10 +109,31 @@
                 <form method="POST" action="{{ route('admin.settings.preorder') }}" class="mt-4 space-y-4">
                     @csrf @method('PATCH')
 
+                    @php $preorderStatus = new \App\Services\PreorderStatus($settings); @endphp
+                    <div class="rounded-xl border border-line bg-surface-2 p-3 text-sm">
+                        Status now:
+                        @if ($preorderStatus->isOpen())
+                            <span class="font-semibold text-green-700">OPEN{{ $preorderStatus->forcedOpen() ? ' (forced)' : '' }}</span> — customers can preorder.
+                        @elseif (! $settings->preorder_enabled)
+                            <span class="font-semibold text-ink-soft">DISABLED</span> — tick the box below to enable.
+                        @else
+                            <span class="font-semibold text-amber-700">CLOSED</span> — waiting for the schedule window.
+                        @endif
+                    </div>
+
                     <label class="flex items-center gap-2 text-sm font-semibold">
                         <input type="hidden" name="preorder_enabled" value="0">
                         <input type="checkbox" name="preorder_enabled" value="1" @checked(old('preorder_enabled', $settings->preorder_enabled)) class="h-4 w-4 accent-brand-600">
                         Enable weekly preorders
+                    </label>
+
+                    <label class="flex items-start gap-2 rounded-xl border border-brand-200 bg-brand-50 p-3 text-sm font-semibold">
+                        <input type="hidden" name="preorder_force_open" value="0">
+                        <input type="checkbox" name="preorder_force_open" value="1" @checked(old('preorder_force_open', $settings->preorder_force_open)) class="mt-0.5 h-4 w-4 accent-brand-600">
+                        <span>
+                            Open preorders right now <span class="font-normal text-ink-soft">(ignore the schedule)</span>
+                            <span class="mt-0.5 block font-normal text-ink-soft">Keeps preorders open until you untick this. Requires "Enable weekly preorders" above.</span>
+                        </span>
                     </label>
 
                     <div class="grid gap-4 sm:grid-cols-2">

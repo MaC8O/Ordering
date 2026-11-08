@@ -67,6 +67,7 @@ class SettingController extends Controller
     {
         $data = $request->validate([
             'preorder_enabled' => ['nullable', 'boolean'],
+            'preorder_force_open' => ['nullable', 'boolean'],
             'preorder_open_day' => ['required', 'integer', 'between:0,6'],
             'preorder_open_time' => ['required', 'date_format:H:i'],
             'preorder_cutoff_day' => ['required', 'integer', 'between:0,6'],
@@ -83,6 +84,7 @@ class SettingController extends Controller
 
         Setting::current()->update([
             'preorder_enabled' => (bool) ($data['preorder_enabled'] ?? false),
+            'preorder_force_open' => (bool) ($data['preorder_force_open'] ?? false),
             'preorder_open_day' => (int) $data['preorder_open_day'],
             'preorder_open_time' => $data['preorder_open_time'],
             'preorder_cutoff_day' => (int) $data['preorder_cutoff_day'],
