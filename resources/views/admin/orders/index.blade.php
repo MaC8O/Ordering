@@ -3,7 +3,10 @@
 @section('title', 'Orders')
 
 @section('content')
-    <h1 class="mb-5 text-2xl font-bold">Orders</h1>
+    <div class="mb-5 flex items-center justify-between gap-3">
+        <h1 class="text-2xl font-bold">Orders</h1>
+        <a href="{{ route('admin.orders.create') }}" class="btn-primary !py-2 text-sm">+ New order</a>
+    </div>
 
     {{-- Filters --}}
     <form method="GET" action="{{ route('admin.orders.index') }}" class="card mb-5 p-4">
