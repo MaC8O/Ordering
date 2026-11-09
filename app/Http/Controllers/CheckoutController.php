@@ -28,12 +28,11 @@ class CheckoutController extends Controller
 
     public function store(CheckoutRequest $request, StoreStatus $status, OrderNumberGenerator $numbers)
     {
-        // 1. Server-side open/close gate — never trust the client.
-        if (! $status->isOpen()) {
-            return redirect()
-                ->route('cart.index')
-                ->with('error', $status->closedReason() ?? 'Ordering is currently closed.');
-        }
+        // 1. Open/close gate — evaluated server-side, never trusted from the
+        //    client. When closed we no longer reject: the customer may have
+        //    started this checkout before we closed, so we still accept the
+        //    order but flag it "pending review" for the admin to handle by hand.
+        $isOpen = $status->isOpen();
 
         // 2. Parse & validate the cart payload (sent from localStorage).
         $cart = \App\Services\CartParser::parse($request->input('cart'));
@@ -56,7 +55,9 @@ class CheckoutController extends Controller
         $subtotal = $built['subtotal'];
 
         // 3. Validate preferred delivery time against the chosen date's hours.
-        if ($request->filled('preferred_time')) {
+        //    Skipped when closed: a checkout started before closing may now show
+        //    a stale time, and we'd rather keep the order for review than reject it.
+        if ($isOpen && $request->filled('preferred_time')) {
             $error = $this->validatePreferredTime(
                 $request->input('preferred_time'),
                 $request->input('delivery_date'),
@@ -90,6 +91,8 @@ class CheckoutController extends Controller
 
         // 5. Persist order + items atomically (retrying on the rare order-number
         //    collision so a concurrent order is never lost), then store any screenshot.
+        //    Orders placed while the store is closed start as "pending review" so
+        //    the admin can confirm or reject them manually.
         $order = $numbers->createOrder([
             'customer_id' => $customer?->id,
             'customer_name' => $request->string('customer_name'),
@@ -101,7 +104,7 @@ class CheckoutController extends Controller
             'preferred_time' => $request->input('preferred_time'),
             'payment_method' => $request->string('payment_method'),
             'payment_status' => 'pending',
-            'order_status' => 'pending',
+            'order_status' => $isOpen ? 'pending' : 'pending_review',
             'subtotal' => $subtotal,
             'delivery_fee' => $deliveryFee,
             'total' => $total,

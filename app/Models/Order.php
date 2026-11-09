@@ -24,6 +24,7 @@ class Order extends Model
     }
 
     public const ORDER_STATUSES = [
+        'pending_review' => 'Pending review',
         'pending' => 'Pending',
         'confirmed' => 'Confirmed',
         'preparing' => 'Preparing',
@@ -168,6 +169,15 @@ class Order extends Model
     public function isOutForDelivery(): bool
     {
         return $this->order_status === 'out_for_delivery';
+    }
+
+    /**
+     * An order submitted after the store closed, held for the admin to confirm
+     * or reject by hand rather than being rejected outright at checkout.
+     */
+    public function needsReview(): bool
+    {
+        return $this->order_status === 'pending_review';
     }
 
     public function isDone(): bool

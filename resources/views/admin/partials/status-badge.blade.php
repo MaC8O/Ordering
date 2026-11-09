@@ -1,5 +1,6 @@
 @php
     $cls = [
+        'pending_review' => 'bg-amber-100 text-amber-800',
         'pending' => 'bg-gray-100 text-gray-700',
         'confirmed' => 'bg-blue-100 text-blue-800',
         'preparing' => 'bg-brand-100 text-brand-800',
