@@ -116,14 +116,16 @@ Route::prefix('admin')->name('admin.')->group(function () {
         // Registered before /orders/{order} so "create" isn't treated as an id.
         Route::get('/orders/create', [AdminOrderController::class, 'create'])->name('orders.create');
         Route::post('/orders', [AdminOrderController::class, 'store'])->name('orders.store');
-        // Bulk status update — literal path, registered before /orders/{order}.
+        // Bulk actions — literal paths, registered before /orders/{order}.
         Route::patch('/orders/bulk-status', [AdminOrderController::class, 'bulkUpdateStatus'])->name('orders.bulkStatus');
+        Route::delete('/orders/bulk-delete', [AdminOrderController::class, 'bulkDestroy'])->name('orders.bulkDelete');
         Route::get('/orders/{order}', [AdminOrderController::class, 'show'])->name('orders.show');
         Route::get('/orders/{order}/ticket', [AdminOrderController::class, 'ticket'])->name('orders.ticket');
         Route::patch('/orders/{order}/status', [AdminOrderController::class, 'updateStatus'])->name('orders.status');
         Route::patch('/orders/{order}/schedule', [AdminOrderController::class, 'updateSchedule'])->name('orders.schedule');
         Route::patch('/orders/{order}/payment', [AdminOrderController::class, 'updatePayment'])->name('orders.payment');
         Route::patch('/orders/{order}/cancel', [AdminOrderController::class, 'cancel'])->name('orders.cancel');
+        Route::delete('/orders/{order}', [AdminOrderController::class, 'destroy'])->name('orders.destroy');
 
         // Menu management
         Route::get('/menu', [AdminMenuController::class, 'index'])->name('menu.index');

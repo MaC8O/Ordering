@@ -178,6 +178,13 @@
                         <input type="hidden" name="admin_note" value="Cancelled by the restaurant.">
                         <button class="btn-ghost !py-2 text-sm text-red-600">Cancel order</button>
                     </form>
+                @else
+                    <form method="POST" action="{{ route('admin.orders.destroy', $order) }}" class="mt-3"
+                          onsubmit="return confirm('Permanently delete this cancelled order and its items? This cannot be undone.')">
+                        @csrf @method('DELETE')
+                        <button class="btn-ghost !py-2 text-sm text-red-600">Delete order</button>
+                    </form>
+                    <p class="mt-1 text-xs text-ink-soft">Permanently removes this cancelled order — no recovery.</p>
                 @endif
             </div>
 

@@ -64,22 +64,36 @@
         {{-- Bulk action bar: appears when one or more orders are selected --}}
         <div x-show="selected.length > 0" x-cloak
              class="fixed inset-x-0 bottom-0 z-40 border-t border-line bg-surface/95 px-4 py-3 shadow-[0_-8px_24px_-18px_rgba(0,0,0,0.45)] backdrop-blur">
-            <form method="POST" action="{{ route('admin.orders.bulkStatus') }}"
-                  @submit="if (bulkStatus === 'cancelled' && ! confirm(`Cancel ${selected.length} order(s)? This can't be undone.`)) $event.preventDefault()"
-                  class="mx-auto flex max-w-6xl flex-wrap items-center gap-2">
-                @csrf @method('PATCH')
-                <template x-for="id in selected" :key="id"><input type="hidden" name="order_ids[]" :value="id"></template>
+            <div class="mx-auto flex max-w-6xl flex-wrap items-center gap-2">
                 <span class="text-sm font-semibold" x-text="`${selected.length} selected`"></span>
-                <select name="order_status" x-model="bulkStatus" required class="input !w-auto !py-2 text-sm">
-                    <option value="">Set status…</option>
-                    @foreach ($bulkStatuses as $key)
-                        <option value="{{ $key }}">{{ $statuses[$key] }}</option>
-                    @endforeach
-                </select>
-                <button type="submit" :disabled="! bulkStatus" class="btn-primary !py-2 text-sm disabled:opacity-50"
-                        x-text="`Update ${selected.length} ${selected.length === 1 ? 'order' : 'orders'}`"></button>
+
+                {{-- Set status on all selected --}}
+                <form method="POST" action="{{ route('admin.orders.bulkStatus') }}"
+                      @submit="if (bulkStatus === 'cancelled' && ! confirm(`Cancel ${selected.length} order(s)? This can't be undone.`)) $event.preventDefault()"
+                      class="flex flex-wrap items-center gap-2">
+                    @csrf @method('PATCH')
+                    <template x-for="id in selected" :key="id"><input type="hidden" name="order_ids[]" :value="id"></template>
+                    <select name="order_status" x-model="bulkStatus" required class="input !w-auto !py-2 text-sm">
+                        <option value="">Set status…</option>
+                        @foreach ($bulkStatuses as $key)
+                            <option value="{{ $key }}">{{ $statuses[$key] }}</option>
+                        @endforeach
+                    </select>
+                    <button type="submit" :disabled="! bulkStatus" class="btn-primary !py-2 text-sm disabled:opacity-50"
+                            x-text="`Update ${selected.length} ${selected.length === 1 ? 'order' : 'orders'}`"></button>
+                </form>
+
+                {{-- Delete the cancelled orders among the selection (others are skipped) --}}
+                <form method="POST" action="{{ route('admin.orders.bulkDelete') }}"
+                      @submit="if (! confirm(`Delete the cancelled orders among ${selected.length} selected? This permanently removes them and can't be undone.`)) $event.preventDefault()"
+                      class="flex items-center gap-2">
+                    @csrf @method('DELETE')
+                    <template x-for="id in selected" :key="id"><input type="hidden" name="order_ids[]" :value="id"></template>
+                    <button type="submit" class="btn-ghost !py-2 text-sm font-semibold text-red-600 hover:bg-red-50">Delete selected</button>
+                </form>
+
                 <button type="button" @click="clear()" class="btn-ghost !py-2 text-sm">Clear</button>
-            </form>
+            </div>
         </div>
 
         <div data-live-refresh="orders" :class="selected.length > 0 ? 'pb-24' : ''">
