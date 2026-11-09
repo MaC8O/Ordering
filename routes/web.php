@@ -116,6 +116,8 @@ Route::prefix('admin')->name('admin.')->group(function () {
         // Registered before /orders/{order} so "create" isn't treated as an id.
         Route::get('/orders/create', [AdminOrderController::class, 'create'])->name('orders.create');
         Route::post('/orders', [AdminOrderController::class, 'store'])->name('orders.store');
+        // Bulk status update — literal path, registered before /orders/{order}.
+        Route::patch('/orders/bulk-status', [AdminOrderController::class, 'bulkUpdateStatus'])->name('orders.bulkStatus');
         Route::get('/orders/{order}', [AdminOrderController::class, 'show'])->name('orders.show');
         Route::get('/orders/{order}/ticket', [AdminOrderController::class, 'ticket'])->name('orders.ticket');
         Route::patch('/orders/{order}/status', [AdminOrderController::class, 'updateStatus'])->name('orders.status');

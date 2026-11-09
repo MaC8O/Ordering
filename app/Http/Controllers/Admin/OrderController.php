@@ -18,6 +18,12 @@ use Illuminate\Validation\Rule;
 
 class OrderController extends Controller
 {
+    /**
+     * Statuses offered for the bulk action bar on the orders list — the forward
+     * operational steps, labelled from the canonical map.
+     */
+    private const BULK_STATUSES = ['confirmed', 'preparing', 'out_for_delivery', 'completed', 'cancelled'];
+
     public function index(Request $request)
     {
         $query = Order::query()->withCount('items');
@@ -63,6 +69,7 @@ class OrderController extends Controller
             'statuses' => Order::ORDER_STATUSES,
             'paymentStatuses' => Order::PAYMENT_STATUSES,
             'dorms' => array_values((array) (Setting::current()->dorms ?? [])),
+            'bulkStatuses' => self::BULK_STATUSES,
         ]);
     }
 
@@ -267,6 +274,66 @@ class OrderController extends Controller
         // Text the customer when the order first goes out for delivery.
         if ($data['order_status'] === 'out_for_delivery' && ! $wasOutForDelivery) {
             $message .= ' ' . $this->sendOnTheWaySms($order, $sms);
+        }
+
+        return back()->with('success', $message);
+    }
+
+    /**
+     * Update several orders to one status at once from the orders-list bulk bar.
+     * Mirrors the single-order rules: going out for delivery sets a default ETA
+     * and texts each newly-dispatched customer; completing/cancelling clears the
+     * ETA. SMS sending is best-effort so one failure can't abort the batch.
+     */
+    public function bulkUpdateStatus(Request $request, SmsService $sms)
+    {
+        $data = $request->validate([
+            'order_ids' => ['required', 'array', 'min:1'],
+            'order_ids.*' => ['integer'],
+            'order_status' => ['required', Rule::in(self::BULK_STATUSES)],
+        ]);
+
+        $status = $data['order_status'];
+        $orders = Order::whereIn('id', $data['order_ids'])->get();
+
+        $newlyDispatched = [];
+
+        foreach ($orders as $order) {
+            $wasOutForDelivery = $order->order_status === 'out_for_delivery';
+            $updates = ['order_status' => $status];
+
+            if ($status === 'out_for_delivery') {
+                $updates['eta_at'] = now()->addMinutes(20);
+            } elseif (in_array($status, ['completed', 'cancelled'], true)) {
+                $updates['eta_at'] = null;
+            }
+
+            $order->update($updates);
+
+            if ($status === 'out_for_delivery' && ! $wasOutForDelivery) {
+                $newlyDispatched[] = $order;
+            }
+        }
+
+        // Text each customer first sent out for delivery (best-effort).
+        $smsSent = 0;
+        foreach ($newlyDispatched as $order) {
+            try {
+                $this->sendOnTheWaySms($order, $sms);
+                $smsSent++;
+            } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\Log::warning('Bulk status: on-the-way SMS failed.', [
+                    'order_number' => $order->order_number,
+                    'exception' => $e->getMessage(),
+                ]);
+            }
+        }
+
+        $count = $orders->count();
+        $message = 'Updated ' . $count . ' ' . \Illuminate\Support\Str::plural('order', $count)
+            . ' to ' . Order::ORDER_STATUSES[$status] . '.';
+        if ($smsSent > 0) {
+            $message .= ' Sent ' . $smsSent . ' on-the-way ' . \Illuminate\Support\Str::plural('SMS', $smsSent) . '.';
         }
 
         return back()->with('success', $message);
