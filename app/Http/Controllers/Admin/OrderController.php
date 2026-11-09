@@ -34,6 +34,10 @@ class OrderController extends Controller
             $query->where('payment_status', $request->input('payment_status'));
         }
 
+        if ($request->filled('dorm')) {
+            $query->where('delivery_dorm', $request->input('dorm'));
+        }
+
         if ($request->filled('from')) {
             $query->whereDate('created_at', '>=', $request->date('from'));
         }
@@ -55,9 +59,10 @@ class OrderController extends Controller
 
         return view('admin.orders.index', [
             'orders' => $orders,
-            'filters' => $request->only(['status', 'payment_method', 'payment_status', 'from', 'to', 'q']),
+            'filters' => $request->only(['status', 'payment_method', 'payment_status', 'dorm', 'from', 'to', 'q']),
             'statuses' => Order::ORDER_STATUSES,
             'paymentStatuses' => Order::PAYMENT_STATUSES,
+            'dorms' => array_values((array) (Setting::current()->dorms ?? [])),
         ]);
     }
 

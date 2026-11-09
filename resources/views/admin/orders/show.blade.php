@@ -154,10 +154,16 @@
                         </select>
                         <button class="btn-primary !py-2 text-sm">Update</button>
                     </div>
-                    {{-- ETA only matters when sending it out for delivery --}}
+                    {{-- ETA only matters when sending it out for delivery. The field is
+                         disabled unless that status is selected, so an out-of-range value
+                         (e.g. 0 once the ETA has passed) on a hidden control can't block
+                         the form — which previously made "Delivered" impossible to save. --}}
                     <label x-show="status === 'out_for_delivery'" x-cloak class="flex items-center gap-2 text-sm text-ink-soft">
                         Arriving in
-                        <input type="number" name="eta_minutes" min="1" max="240" value="{{ $order->etaMinutesLeft() ?? 20 }}" class="input !w-20 !py-1.5 text-center">
+                        <input type="number" name="eta_minutes" min="1" max="240"
+                               value="{{ min(240, max(1, $order->etaMinutesLeft() ?? 20)) }}"
+                               :disabled="status !== 'out_for_delivery'"
+                               class="input !w-20 !py-1.5 text-center">
                         minutes
                     </label>
                     <p x-show="status === 'out_for_delivery' && '{{ $order->order_status }}' !== 'out_for_delivery'" x-cloak class="flex items-center gap-1.5 text-xs text-teal-700">

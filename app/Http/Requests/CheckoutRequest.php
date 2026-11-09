@@ -2,7 +2,9 @@
 
 namespace App\Http\Requests;
 
+use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rule;
 
 class CheckoutRequest extends FormRequest
@@ -10,6 +12,23 @@ class CheckoutRequest extends FormRequest
     public function authorize(): bool
     {
         return true;
+    }
+
+    /**
+     * Record which fields failed before redirecting back. A customer who paid by
+     * QR but whose order never saved often fell out here (e.g. a screenshot
+     * larger than the server's upload limit), which was otherwise invisible.
+     */
+    protected function failedValidation(Validator $validator): void
+    {
+        Log::warning('Checkout validation failed — order not created.', [
+            'fields' => array_keys($validator->errors()->toArray()),
+            'phone' => (string) $this->input('customer_phone'),
+            'has_screenshot' => $this->hasFile('payment_screenshot'),
+            'content_length' => $this->server('CONTENT_LENGTH'),
+        ]);
+
+        parent::failedValidation($validator);
     }
 
     public function rules(): array
