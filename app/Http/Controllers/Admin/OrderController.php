@@ -14,6 +14,7 @@ use App\Services\OrderNumberGenerator;
 use App\Services\SmsService;
 use App\Services\StoreStatus;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 
 class OrderController extends Controller
