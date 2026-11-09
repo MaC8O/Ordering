@@ -268,6 +268,7 @@
     "Those credentials do not match our records.": "ข้อมูลเข้าสู่ระบบไม่ถูกต้อง",
 
     "Pending": "รอดำเนินการ",
+    "Pending review": "รอตรวจสอบ",
     "Confirmed": "ยืนยันแล้ว",
     "Preparing": "กำลังเตรียม",
     "Out for delivery": "กำลังจัดส่ง",
@@ -275,5 +276,21 @@
     "Delivered": "จัดส่งแล้ว",
     "Cancelled": "ยกเลิก",
     "Verified": "ตรวจสอบแล้ว",
-    "Failed": "ไม่สำเร็จ"
+    "Failed": "ไม่สำเร็จ",
+
+    "Important:": "สำคัญ:",
+    "After transferring, you MUST upload your transfer screenshot and click “:button” to complete your order. Transferring alone does not confirm your order.": "หลังจากโอนแล้ว คุณต้องอัปโหลดภาพสลิปการโอนและกดปุ่ม “:button” เพื่อยืนยันออเดอร์ให้เสร็จสมบูรณ์ การโอนเพียงอย่างเดียวยังไม่ถือว่ายืนยันออเดอร์",
+    "Delivered :time. Pay now by QR transfer to reserve your meal.": "จัดส่ง :time · ชำระผ่าน QR ตอนนี้เพื่อจองมื้ออาหารของคุณ",
+    "Pay when your batch arrives.": "ชำระเงินเมื่อรอบจัดส่งของคุณมาถึง",
+    "Delivery window": "ช่วงเวลาจัดส่ง",
+    "All preorders are delivered together on this date.": "พรีออเดอร์ทั้งหมดจะถูกจัดส่งพร้อมกันในวันที่กำหนด",
+    "Scheduled delivery": "นัดหมายการจัดส่ง",
+    "Expected around :time": "คาดว่าจะถึงประมาณ :time",
+    "We received your order — confirmation to follow.": "เราได้รับออเดอร์ของคุณแล้ว — รอการยืนยันอีกครั้ง",
+    "You placed this just as we were closing, so a staff member will review it and confirm whether we can prepare it. We’ll be in touch shortly.": "คุณสั่งเข้ามาช่วงที่เรากำลังจะปิดพอดี พนักงานจะตรวจสอบและยืนยันว่าเราสามารถเตรียมออเดอร์นี้ได้หรือไม่ เราจะติดต่อกลับโดยเร็ว",
+
+    "Page not found": "ไม่พบหน้าที่ต้องการ",
+    "404 — Page not found": "404 — ไม่พบหน้าที่ต้องการ",
+    "We couldn’t find what you were looking for.": "เราไม่พบสิ่งที่คุณกำลังค้นหา",
+    "Back to the menu": "กลับไปที่เมนู"
 }

@@ -405,13 +405,13 @@
                     const file = e.target.files[0];
                     if (!file) { this.fileChosen = false; return; }
                     if (!file.type.startsWith('image/')) {
-                        this.fileError = 'Please choose an image file.';
+                        this.fileError = @js(__('The upload must be an image file.'));
                         this.fileChosen = false;
                         e.target.value = '';
                         return;
                     }
                     if (file.size > 5 * 1024 * 1024) {
-                        this.fileError = 'The screenshot must be 5 MB or smaller.';
+                        this.fileError = @js(__('The screenshot must be 5 MB or smaller.'));
                         this.fileChosen = false;
                         e.target.value = '';
                         return;
