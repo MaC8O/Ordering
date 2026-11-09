@@ -40,6 +40,16 @@
                     </div>
                 @endif
 
+                @if ($order->eta_at && ! $order->isOutForDelivery())
+                    <div class="mt-4 flex items-center gap-3 rounded-xl border border-brand-100 bg-brand-50/60 p-4 text-sm">
+                        <span class="text-2xl">🕒</span>
+                        <div>
+                            <p class="font-semibold">{{ __('Scheduled delivery') }}</p>
+                            <p class="text-ink-soft">{{ __('Expected around :time', ['time' => $order->scheduledDeliveryLabel()]) }}</p>
+                        </div>
+                    </div>
+                @endif
+
                 @if ($order->payment_method === 'cash')
                     <div class="mt-4 rounded-xl border border-brand-100 bg-brand-50/60 p-4 text-sm">
                         {{ __('Please prepare :amount in cash for the rider.', ['amount' => config('ordering.currency') . ' ' . $order->total_formatted]) }}
