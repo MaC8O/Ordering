@@ -428,4 +428,76 @@ class OrderController extends Controller
 
         return back()->with('success', 'Order cancelled.');
     }
+
+    /**
+     * Permanently delete a single cancelled order (and its items). Only cancelled
+     * orders may be removed; anything else is refused so live orders are never
+     * lost by mistake. This is a hard delete — there is no recovery.
+     */
+    public function destroy(Order $order)
+    {
+        if ($order->order_status !== 'cancelled') {
+            return back()->with('error', 'Only cancelled orders can be deleted.');
+        }
+
+        $number = $order->order_number;
+        $this->hardDeleteOrder($order);
+
+        return redirect()
+            ->route('admin.orders.index')
+            ->with('success', "Order {$number} permanently deleted.");
+    }
+
+    /**
+     * Permanently delete the cancelled orders among the selected ids. Orders that
+     * are not cancelled are skipped, and the message reports deleted vs skipped.
+     */
+    public function bulkDestroy(Request $request)
+    {
+        $data = $request->validate([
+            'order_ids' => ['required', 'array', 'min:1'],
+            'order_ids.*' => ['integer'],
+        ]);
+
+        $orders = Order::whereIn('id', $data['order_ids'])->get();
+
+        $deleted = 0;
+        $skipped = 0;
+
+        foreach ($orders as $order) {
+            if ($order->order_status === 'cancelled') {
+                $this->hardDeleteOrder($order);
+                $deleted++;
+            } else {
+                $skipped++;
+            }
+        }
+
+        $message = $deleted . ' ' . \Illuminate\Support\Str::plural('order', $deleted) . ' deleted';
+        if ($skipped > 0) {
+            $message .= ', ' . $skipped . ' skipped (only cancelled orders can be deleted)';
+        }
+        $message .= '.';
+
+        return back()->with($deleted > 0 ? 'success' : 'error', $message);
+    }
+
+    /**
+     * Hard-delete an order: drop its stored payment receipt file, then remove the
+     * order and its items together in a transaction.
+     */
+    protected function hardDeleteOrder(Order $order): void
+    {
+        if ($order->payment_screenshot_path) {
+            $path = public_path($order->payment_screenshot_path);
+            if (is_file($path)) {
+                @unlink($path);
+            }
+        }
+
+        DB::transaction(function () use ($order) {
+            $order->items()->delete();
+            $order->delete();
+        });
+    }
 }
