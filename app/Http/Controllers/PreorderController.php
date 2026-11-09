@@ -58,8 +58,13 @@ class PreorderController extends Controller
             'delivery_dorm' => ['required', 'string', 'min:2', 'max:120', ...$dormRule],
             'delivery_notes' => ['nullable', 'string', 'max:500'],
             'notes' => ['nullable', 'string', 'max:500'],
-            // Preorders are paid upfront by QR transfer to lock in the batch.
-            'payment_screenshot' => ['required', 'image', 'mimes:jpg,jpeg,png,webp', 'max:' . config('ordering.screenshot_max_kb')],
+            'payment_method' => ['required', \Illuminate\Validation\Rule::in(['qr', 'cash'])],
+            // QR preorders pay upfront and must upload a receipt; cash preorders
+            // pay on delivery day, so no screenshot is required.
+            'payment_screenshot' => [
+                \Illuminate\Validation\Rule::requiredIf(fn () => $request->input('payment_method') === 'qr'),
+                'nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:' . config('ordering.screenshot_max_kb'),
+            ],
             'cart' => ['required', 'string'],
         ], [
             'customer_phone.regex' => __('Enter a valid phone number (digits only, 7–15 characters, optional leading +).'),
@@ -84,6 +89,7 @@ class PreorderController extends Controller
         $deliveryFee = $freeDelivery ? 0 : $preorder->deliveryFee();
         $total = $subtotal + $deliveryFee;
         $fulfillmentDate = $preorder->fulfillmentDate();
+        $paymentMethod = $request->input('payment_method') === 'cash' ? 'cash' : 'qr';
 
         try {
             $order = $numbers->createOrder([
@@ -95,7 +101,7 @@ class PreorderController extends Controller
                 'delivery_date' => $fulfillmentDate,
                 'delivery_notes' => $request->input('delivery_notes'),
                 'preferred_time' => null,
-                'payment_method' => 'qr',
+                'payment_method' => $paymentMethod,
                 'payment_status' => 'pending',
                 'order_status' => 'pending',
                 'is_preorder' => true,
@@ -120,13 +126,15 @@ class PreorderController extends Controller
             ));
         }
 
-        try {
-            $order->storeReceipt($request->file('payment_screenshot'));
-        } catch (\Throwable $e) {
-            Log::error('Preorder saved but the payment receipt upload failed.', [
-                'order_number' => $order->order_number,
-                'exception' => $e->getMessage(),
-            ]);
+        if ($paymentMethod === 'qr' && $request->hasFile('payment_screenshot')) {
+            try {
+                $order->storeReceipt($request->file('payment_screenshot'));
+            } catch (\Throwable $e) {
+                Log::error('Preorder saved but the payment receipt upload failed.', [
+                    'order_number' => $order->order_number,
+                    'exception' => $e->getMessage(),
+                ]);
+            }
         }
 
         return redirect()->route('order.show', $order->public_token);

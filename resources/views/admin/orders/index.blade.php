@@ -133,6 +133,9 @@
                                         <span class="font-semibold">{{ config('ordering.currency') }} {{ $order->total_formatted }}</span>
                                     </span>
                                 </div>
+                                @if ($order->payment_method === 'cash' && $order->payment_status === 'pending')
+                                    <p class="mt-2"><span class="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-800">💵 Cash — collect on delivery</span></p>
+                                @endif
                             </a>
                         </div>
                     @endforeach
@@ -176,6 +179,9 @@
                                         </span>
                                     @elseif ($order->payment_method === 'qr')
                                         <span class="mt-1 inline-flex items-center rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-800" title="No payment receipt uploaded">No receipt</span>
+                                    @endif
+                                    @if ($order->payment_method === 'cash' && $order->payment_status === 'pending')
+                                        <span class="mt-1 inline-flex items-center gap-1 rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-800" title="Collect cash on delivery">💵 Collect on delivery</span>
                                     @endif
                                 </td>
                                 <td class="px-4 py-3">@include('admin.partials.status-badge', ['order' => $order])</td>

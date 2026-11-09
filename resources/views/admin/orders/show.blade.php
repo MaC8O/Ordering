@@ -120,6 +120,14 @@
                     @endif
                 @else
                     <p class="mt-3 rounded-lg bg-surface-2 p-3 text-sm">Collect {{ config('ordering.currency') }} {{ $order->total_formatted }} in cash on delivery.</p>
+                    @if ($order->payment_status === 'pending')
+                        <form method="POST" action="{{ route('admin.orders.payment', $order) }}" class="mt-3">
+                            @csrf @method('PATCH')
+                            <input type="hidden" name="payment_status" value="verified">
+                            <button class="btn-primary w-full !py-2 text-sm">✓ Mark as Paid</button>
+                        </form>
+                        <p class="mt-1 text-xs text-ink-soft">Tap once you've collected the cash — marks the payment verified.</p>
+                    @endif
                 @endif
 
                 <form method="POST" action="{{ route('admin.orders.payment', $order) }}" class="mt-4 space-y-2">

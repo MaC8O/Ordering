@@ -110,11 +110,6 @@
                 {{-- Payment --}}
                 <section class="card p-5">
                     <h2 class="text-lg font-bold">{{ __('Payment') }}</h2>
-                    @if ($isPreorder)
-                        {{-- Preorders are paid upfront by QR to reserve the batch. --}}
-                        <input type="hidden" name="payment_method" value="qr">
-                        <p class="mt-2 text-sm text-ink-soft">{{ __('Preorders are paid upfront by QR transfer to reserve your meal.') }}</p>
-                    @else
                     <div class="mt-4 grid gap-3 sm:grid-cols-2">
                         <label class="flex cursor-pointer items-center gap-3 rounded-xl border p-4 transition"
                                :class="f.payment === 'qr' ? 'border-brand-600 bg-brand-50' : 'border-line'">
@@ -129,11 +124,10 @@
                             <input type="radio" name="payment_method" value="cash" x-model="f.payment" class="h-4 w-4 accent-brand-600">
                             <span>
                                 <span class="block font-semibold">{{ __('Cash on delivery') }}</span>
-                                <span class="block text-xs text-ink-soft">{{ __('Pay the rider when it arrives.') }}</span>
+                                <span class="block text-xs text-ink-soft">{{ $isPreorder ? __('Pay when your batch arrives.') : __('Pay the rider when it arrives.') }}</span>
                             </span>
                         </label>
                     </div>
-                    @endif
                     @error('payment_method') <p class="mt-2 text-sm text-red-600">{{ $message }}</p> @enderror
 
                     {{-- QR flow --}}
