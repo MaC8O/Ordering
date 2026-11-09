@@ -74,7 +74,7 @@ class OrderController extends Controller
         return response()->json([
             'latest_id' => $latest?->id ?? 0,
             'latest_number' => $latest?->order_number,
-            'pending' => Order::whereIn('order_status', ['pending', 'confirmed', 'preparing'])->count(),
+            'pending' => Order::whereIn('order_status', ['pending_review', 'pending', 'confirmed', 'preparing'])->count(),
         ]);
     }
 
@@ -335,8 +335,9 @@ class OrderController extends Controller
             $updates['admin_note'] = $data['admin_note'];
         }
 
-        // Verifying payment advances a still-pending order to confirmed.
-        if ($data['payment_status'] === 'verified' && $order->order_status === 'pending') {
+        // Verifying payment advances a still-pending (or under-review) order to
+        // confirmed — so accepting a reviewed order also clears the review flag.
+        if ($data['payment_status'] === 'verified' && in_array($order->order_status, ['pending', 'pending_review'], true)) {
             $updates['order_status'] = 'confirmed';
         }
 

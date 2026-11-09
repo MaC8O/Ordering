@@ -29,6 +29,16 @@
                     <span class="badge bg-brand-100 text-brand-800">{{ __($order->order_status_label) }}</span>
                 </div>
 
+                @if ($order->needsReview())
+                    <div class="mt-4 flex items-start gap-3 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
+                        <span class="text-2xl">⏳</span>
+                        <div>
+                            <p class="font-semibold">{{ __('We received your order — confirmation to follow.') }}</p>
+                            <p class="mt-0.5">{{ __('You placed this just as we were closing, so a staff member will review it and confirm whether we can prepare it. We’ll be in touch shortly.') }}</p>
+                        </div>
+                    </div>
+                @endif
+
                 @if ($order->isOutForDelivery())
                     <div class="mt-4 flex items-center gap-3 rounded-xl bg-gradient-to-br from-teal-600 to-teal-700 p-4 text-white">
                         <span class="text-3xl motion-safe:animate-bounce">🛵</span>
