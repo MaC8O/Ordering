@@ -13,7 +13,7 @@
             <h1 class="text-2xl font-bold">{{ $order->order_number }}</h1>
             <p class="text-sm text-ink-soft">Placed {{ $order->created_at->format('d M Y, H:i') }}</p>
         </div>
-        <div class="flex items-center gap-2">
+        <div class="flex flex-wrap items-center gap-2">
             @if ($order->is_preorder)
                 <span class="badge bg-indigo-100 text-indigo-800">🗓️ Preorder</span>
             @endif

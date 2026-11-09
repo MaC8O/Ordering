@@ -51,7 +51,34 @@
     @if ($orders->isEmpty())
         <div class="card p-8 text-center text-sm text-ink-soft">No orders match these filters.</div>
     @else
-        <div class="overflow-x-auto rounded-2xl border border-line bg-surface">
+        {{-- Mobile: tap-friendly cards --}}
+        <div class="space-y-3 sm:hidden">
+            @foreach ($orders as $order)
+                <a href="{{ route('admin.orders.show', $order) }}" class="card block p-4 active:bg-brand-50/50">
+                    <div class="flex items-start justify-between gap-3">
+                        <div class="min-w-0">
+                            <p class="font-semibold">{{ $order->order_number }}</p>
+                            <p class="truncate text-sm">{{ $order->customer_name }}</p>
+                            <p class="text-xs text-ink-soft">{{ $order->customer_phone }}</p>
+                        </div>
+                        <div class="shrink-0 text-right">
+                            @include('admin.partials.status-badge', ['order' => $order])
+                            <p class="mt-1 text-xs text-ink-soft">{{ $order->created_at->format('d M, H:i') }}</p>
+                        </div>
+                    </div>
+                    <div class="mt-3 flex items-center justify-between gap-3 border-t border-line pt-3 text-sm">
+                        <span class="text-ink-soft">{{ $order->items_count }} {{ \Illuminate\Support\Str::plural('item', $order->items_count) }}</span>
+                        <span class="flex items-center gap-1.5">
+                            @include('admin.partials.payment-badge', ['order' => $order])
+                            <span class="font-semibold">{{ config('ordering.currency') }} {{ $order->total_formatted }}</span>
+                        </span>
+                    </div>
+                </a>
+            @endforeach
+        </div>
+
+        {{-- Desktop: table --}}
+        <div class="hidden overflow-x-auto rounded-2xl border border-line bg-surface sm:block">
             <table class="w-full text-left text-sm">
                 <thead class="bg-surface-2 text-xs uppercase tracking-wide text-ink-soft">
                     <tr>
