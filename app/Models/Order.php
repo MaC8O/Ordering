@@ -178,6 +178,22 @@ class Order extends Model
     }
 
     /**
+     * The scheduled delivery time the admin set (stored in eta_at), formatted
+     * for display: just the time when it's today, otherwise date + time. Used
+     * on the orders list and the customer's tracking page.
+     */
+    public function scheduledDeliveryLabel(): ?string
+    {
+        if (! $this->eta_at) {
+            return null;
+        }
+
+        return $this->eta_at->isToday()
+            ? $this->eta_at->format('H:i')
+            : $this->eta_at->format('D, d M · H:i');
+    }
+
+    /**
      * Friendly arrival line, e.g. "around 18:45 · in about 12 min".
      */
     public function etaLabel(): ?string

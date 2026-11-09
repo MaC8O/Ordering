@@ -66,6 +66,9 @@
                             <p class="mt-1 text-xs text-ink-soft">{{ $order->created_at->format('d M, H:i') }}</p>
                         </div>
                     </div>
+                    @if ($order->scheduledDeliveryLabel())
+                        <p class="mt-2 text-sm"><span class="text-ink-soft">Delivery</span> <span class="font-semibold">🕒 {{ $order->scheduledDeliveryLabel() }}</span></p>
+                    @endif
                     <div class="mt-3 flex items-center justify-between gap-3 border-t border-line pt-3 text-sm">
                         <span class="text-ink-soft">{{ $order->items_count }} {{ \Illuminate\Support\Str::plural('item', $order->items_count) }}</span>
                         <span class="flex items-center gap-1.5">
@@ -84,6 +87,7 @@
                     <tr>
                         <th class="px-4 py-3">Order</th>
                         <th class="px-4 py-3">Time</th>
+                        <th class="px-4 py-3">Scheduled</th>
                         <th class="px-4 py-3">Customer</th>
                         <th class="px-4 py-3">Items</th>
                         <th class="px-4 py-3">Total</th>
@@ -96,6 +100,7 @@
                         <tr class="cursor-pointer hover:bg-brand-50/50" onclick="window.location='{{ route('admin.orders.show', $order) }}'">
                             <td class="px-4 py-3 font-semibold">{{ $order->order_number }}</td>
                             <td class="whitespace-nowrap px-4 py-3 text-ink-soft">{{ $order->created_at->format('d M, H:i') }}</td>
+                            <td class="whitespace-nowrap px-4 py-3">{{ $order->scheduledDeliveryLabel() ?? '—' }}</td>
                             <td class="px-4 py-3">{{ $order->customer_name }}<span class="block text-xs text-ink-soft">{{ $order->customer_phone }}</span></td>
                             <td class="px-4 py-3">{{ $order->items_count }}</td>
                             <td class="whitespace-nowrap px-4 py-3 font-semibold">{{ config('ordering.currency') }} {{ $order->total_formatted }}</td>

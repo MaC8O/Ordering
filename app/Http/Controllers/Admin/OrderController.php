@@ -275,6 +275,30 @@ class OrderController extends Controller
         return back()->with('success', $message);
     }
 
+    /**
+     * Set or clear the scheduled delivery time the customer should expect.
+     * Stored in eta_at so it drives the same arrival displays. An empty value
+     * clears the schedule. Works for both regular orders and preorders.
+     */
+    public function updateSchedule(Request $request, Order $order)
+    {
+        $data = $request->validate([
+            'scheduled_at' => ['nullable', 'date'],
+        ]);
+
+        $scheduledAt = $data['scheduled_at'] ?? null;
+
+        $order->update([
+            'eta_at' => $scheduledAt
+                ? \Illuminate\Support\Carbon::parse($scheduledAt)
+                : null,
+        ]);
+
+        return back()->with('success', $order->eta_at
+            ? 'Scheduled delivery time saved.'
+            : 'Scheduled delivery time cleared.');
+    }
+
     protected function sendOnTheWaySms(Order $order, SmsService $sms): string
     {
         $settings = Setting::current();

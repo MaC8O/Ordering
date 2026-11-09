@@ -170,6 +170,45 @@
                     </form>
                 @endif
             </div>
+
+            {{-- Delivery schedule --}}
+            @php
+                $scheduledDefault = old('scheduled_at', $order->eta_at
+                    ? $order->eta_at->format('Y-m-d\TH:i')
+                    : (($order->delivery_date ? $order->delivery_date->format('Y-m-d') : now()->format('Y-m-d'))
+                        . 'T' . ($order->preferred_time ? \Illuminate\Support\Str::of($order->preferred_time)->substr(0, 5) : '12:00')));
+            @endphp
+            <div class="card p-5">
+                <h2 class="text-sm font-bold uppercase tracking-wide text-ink-soft">Delivery schedule</h2>
+
+                @if ($order->preferred_time)
+                    <p class="mt-2 text-sm">Customer requested
+                        <span class="font-semibold">{{ \Illuminate\Support\Str::of($order->preferred_time)->substr(0, 5) }}</span>@if ($order->delivery_date) on {{ $order->delivery_date->format('D, d M') }}@endif.
+                    </p>
+                @else
+                    <p class="mt-2 text-sm text-ink-soft">The customer didn't request a specific time.</p>
+                @endif
+
+                @if ($order->eta_at)
+                    <p class="mt-1 text-sm">Scheduled for <span class="font-semibold text-brand-700">{{ $order->scheduledDeliveryLabel() }}</span>.</p>
+                @endif
+
+                <form method="POST" action="{{ route('admin.orders.schedule', $order) }}" class="mt-3 space-y-2">
+                    @csrf @method('PATCH')
+                    <label class="label !text-xs">Set scheduled delivery time</label>
+                    <input type="datetime-local" name="scheduled_at" value="{{ $scheduledDefault }}" class="input !py-2 text-sm">
+                    @error('scheduled_at') <p class="text-sm text-red-600">{{ $message }}</p> @enderror
+                    <button class="btn-primary w-full !py-2 text-sm">Save delivery time</button>
+                </form>
+                @if ($order->eta_at)
+                    <form method="POST" action="{{ route('admin.orders.schedule', $order) }}" class="mt-2">
+                        @csrf @method('PATCH')
+                        {{-- no scheduled_at field submitted → clears it --}}
+                        <button class="btn-ghost !py-2 text-sm text-red-600">Clear scheduled time</button>
+                    </form>
+                @endif
+                <p class="mt-2 text-xs text-ink-soft">The customer sees this on their order tracking page.</p>
+            </div>
         </div>
     </div>
 @endsection
