@@ -83,7 +83,7 @@ class DashboardRevenueTest extends TestCase
         $response = $this->get(route('admin.dashboard', ['period' => 'all']));
 
         $response->assertOk();
-        $response->assertSee('Sales breakdown');
+        $response->assertSee('Revenue breakdown');
         $response->assertSee('Revenue by category');
         $response->assertSee('Noodles');
         $response->assertSee('Rice');

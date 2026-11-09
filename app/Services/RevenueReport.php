@@ -98,6 +98,10 @@ class RevenueReport
             'daily' => $daily,
             'dailyMax' => max(1, (int) collect($daily)->max('revenue')),
             'dailyTotal' => (int) collect($daily)->sum('revenue'),
+            // Largest single food-or-delivery bar, for scaling the grouped chart.
+            'dailyBarMax' => max(1, (int) collect($daily)
+                ->flatMap(fn ($d) => [$d['food'], $d['delivery']])
+                ->max()),
         ];
     }
 
@@ -123,18 +127,24 @@ class RevenueReport
             ->where('order_status', '!=', 'cancelled')
             ->where('created_at', '>=', $start)
             ->selectRaw('DATE(created_at) as d')
+            ->selectRaw('COALESCE(SUM(subtotal), 0) as food')
+            ->selectRaw('COALESCE(SUM(delivery_fee), 0) as delivery')
             ->selectRaw('COALESCE(SUM(total), 0) as revenue')
             ->groupBy('d')
-            ->pluck('revenue', 'd');
+            ->get()
+            ->keyBy('d');
 
         $series = [];
         for ($i = 0; $i < $days; $i++) {
             $date = $start->copy()->addDays($i);
             $key = $date->toDateString();
+            $row = $rows[$key] ?? null;
             $series[] = [
                 'label' => $date->isoFormat('dd D'),
                 'date' => $key,
-                'revenue' => (int) ($rows[$key] ?? 0),
+                'food' => (int) ($row->food ?? 0),
+                'delivery' => (int) ($row->delivery ?? 0),
+                'revenue' => (int) ($row->revenue ?? 0),
             ];
         }
 
