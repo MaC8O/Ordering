@@ -3,14 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Models\MenuItem;
-use App\Models\Order;
 use App\Services\CartParser;
 use App\Services\OrderNumberGenerator;
 use App\Services\PreorderStatus;
 use App\Services\StoreStatus;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 
 class PreorderController extends Controller
 {
@@ -86,32 +84,25 @@ class PreorderController extends Controller
         $total = $subtotal + $deliveryFee;
         $fulfillmentDate = $preorder->fulfillmentDate();
 
-        $order = DB::transaction(function () use ($request, $numbers, $lines, $subtotal, $deliveryFee, $total, $customer, $fulfillmentDate, $freeDelivery) {
-            $order = Order::create([
-                'order_number' => $numbers->generate(),
-                'customer_id' => $customer?->id,
-                'customer_name' => $request->string('customer_name'),
-                'customer_phone' => $request->string('customer_phone'),
-                'delivery_dorm' => $request->string('delivery_dorm'),
-                'delivery_room' => null,
-                'delivery_date' => $fulfillmentDate,
-                'delivery_notes' => $request->input('delivery_notes'),
-                'preferred_time' => null,
-                'payment_method' => 'qr',
-                'payment_status' => 'pending',
-                'order_status' => 'pending',
-                'is_preorder' => true,
-                'subtotal' => $subtotal,
-                'delivery_fee' => $deliveryFee,
-                'total' => $total,
-                'is_free_delivery_reward' => $freeDelivery,
-                'notes' => $request->input('notes'),
-            ]);
-
-            $order->items()->createMany($lines);
-
-            return $order;
-        });
+        $order = $numbers->createOrder([
+            'customer_id' => $customer?->id,
+            'customer_name' => $request->string('customer_name'),
+            'customer_phone' => $request->string('customer_phone'),
+            'delivery_dorm' => $request->string('delivery_dorm'),
+            'delivery_room' => null,
+            'delivery_date' => $fulfillmentDate,
+            'delivery_notes' => $request->input('delivery_notes'),
+            'preferred_time' => null,
+            'payment_method' => 'qr',
+            'payment_status' => 'pending',
+            'order_status' => 'pending',
+            'is_preorder' => true,
+            'subtotal' => $subtotal,
+            'delivery_fee' => $deliveryFee,
+            'total' => $total,
+            'is_free_delivery_reward' => $freeDelivery,
+            'notes' => $request->input('notes'),
+        ], $lines);
 
         $order->storeReceipt($request->file('payment_screenshot'));
 

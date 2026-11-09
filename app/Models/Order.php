@@ -95,6 +95,16 @@ class Order extends Model
     }
 
     /**
+     * Whether a payment receipt image is actually attached and present on disk,
+     * so admin views can show an "attached" indicator without re-checking paths.
+     */
+    public function hasReceipt(): bool
+    {
+        return $this->payment_screenshot_path
+            && is_file(public_path($this->payment_screenshot_path));
+    }
+
+    /**
      * Save a payment receipt image, named by the unguessable public token so it
      * can't be found by guessing, replacing any earlier receipt. Centralised so
      * checkout and the customer re-upload path behave identically.

@@ -14,7 +14,6 @@ use App\Services\OrderNumberGenerator;
 use App\Services\SmsService;
 use App\Services\StoreStatus;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 
 class OrderController extends Controller
@@ -175,29 +174,22 @@ class OrderController extends Controller
 
         $total = $built['subtotal'] + $deliveryFee;
 
-        $order = DB::transaction(function () use ($data, $numbers, $built, $deliveryFee, $total) {
-            $order = Order::create([
-                'order_number' => $numbers->generate(),
-                'customer_name' => $data['customer_name'],
-                'customer_phone' => $data['customer_phone'],
-                'delivery_dorm' => $data['delivery_dorm'],
-                'delivery_date' => $data['delivery_date'],
-                'preferred_time' => $data['preferred_time'] ?? null,
-                'delivery_notes' => $data['delivery_notes'] ?? null,
-                'payment_method' => $data['payment_method'],
-                'payment_status' => $data['payment_status'],
-                'order_status' => $data['order_status'],
-                'subtotal' => $built['subtotal'],
-                'delivery_fee' => $deliveryFee,
-                'total' => $total,
-                'notes' => $data['notes'] ?? null,
-                'admin_note' => 'Created manually by admin.',
-            ]);
-
-            $order->items()->createMany($built['lines']);
-
-            return $order;
-        });
+        $order = $numbers->createOrder([
+            'customer_name' => $data['customer_name'],
+            'customer_phone' => $data['customer_phone'],
+            'delivery_dorm' => $data['delivery_dorm'],
+            'delivery_date' => $data['delivery_date'],
+            'preferred_time' => $data['preferred_time'] ?? null,
+            'delivery_notes' => $data['delivery_notes'] ?? null,
+            'payment_method' => $data['payment_method'],
+            'payment_status' => $data['payment_status'],
+            'order_status' => $data['order_status'],
+            'subtotal' => $built['subtotal'],
+            'delivery_fee' => $deliveryFee,
+            'total' => $total,
+            'notes' => $data['notes'] ?? null,
+            'admin_note' => 'Created manually by admin.',
+        ], $built['lines']);
 
         return redirect()
             ->route('admin.orders.show', $order)
