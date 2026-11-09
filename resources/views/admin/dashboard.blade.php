@@ -134,7 +134,7 @@
 
         {{-- Revenue by category + top items (unchanged) --}}
         <div class="mt-4 grid gap-4 lg:grid-cols-2">
-            <div class="overflow-hidden rounded-2xl border border-line bg-surface">
+            <div class="overflow-x-auto rounded-2xl border border-line bg-surface">
                 <div class="border-b border-line bg-surface-2 px-4 py-3 text-xs font-semibold uppercase tracking-wide text-ink-soft">Revenue by category</div>
                 @if ($report['byCategory']->isEmpty())
                     <div class="p-6 text-center text-sm text-ink-soft">No sales in this period.</div>
@@ -166,7 +166,7 @@
                 @endif
             </div>
 
-            <div class="overflow-hidden rounded-2xl border border-line bg-surface">
+            <div class="overflow-x-auto rounded-2xl border border-line bg-surface">
                 <div class="border-b border-line bg-surface-2 px-4 py-3 text-xs font-semibold uppercase tracking-wide text-ink-soft">Top-selling items</div>
                 @if ($report['topItems']->isEmpty())
                     <div class="p-6 text-center text-sm text-ink-soft">No sales in this period.</div>
@@ -270,7 +270,7 @@
     @if ($orders->isEmpty())
         <div class="card mt-3 p-8 text-center text-sm text-ink-soft">No orders yet today.</div>
     @else
-        <div class="mt-3 overflow-hidden rounded-2xl border border-line bg-surface">
+        <div class="mt-3 overflow-x-auto rounded-2xl border border-line bg-surface">
             <table class="w-full text-left text-sm">
                 <thead class="bg-surface-2 text-xs uppercase tracking-wide text-ink-soft">
                     <tr>

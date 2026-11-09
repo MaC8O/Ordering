@@ -109,7 +109,7 @@
                 @error('name') <p class="mt-2 text-sm text-red-600">{{ $message }}</p> @enderror
             </div>
 
-            <div class="overflow-hidden rounded-2xl border border-line bg-surface" id="category-list">
+            <div class="overflow-x-auto rounded-2xl border border-line bg-surface" id="category-list">
                 <table class="w-full text-left text-sm">
                     <thead class="bg-surface-2 text-xs uppercase tracking-wide text-ink-soft">
                         <tr>
