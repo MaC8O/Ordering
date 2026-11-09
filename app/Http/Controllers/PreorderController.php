@@ -9,6 +9,7 @@ use App\Services\PreorderStatus;
 use App\Services\StoreStatus;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class PreorderController extends Controller
 {
@@ -84,27 +85,49 @@ class PreorderController extends Controller
         $total = $subtotal + $deliveryFee;
         $fulfillmentDate = $preorder->fulfillmentDate();
 
-        $order = $numbers->createOrder([
-            'customer_id' => $customer?->id,
-            'customer_name' => $request->string('customer_name'),
-            'customer_phone' => $request->string('customer_phone'),
-            'delivery_dorm' => $request->string('delivery_dorm'),
-            'delivery_room' => null,
-            'delivery_date' => $fulfillmentDate,
-            'delivery_notes' => $request->input('delivery_notes'),
-            'preferred_time' => null,
-            'payment_method' => 'qr',
-            'payment_status' => 'pending',
-            'order_status' => 'pending',
-            'is_preorder' => true,
-            'subtotal' => $subtotal,
-            'delivery_fee' => $deliveryFee,
-            'total' => $total,
-            'is_free_delivery_reward' => $freeDelivery,
-            'notes' => $request->input('notes'),
-        ], $lines);
+        try {
+            $order = $numbers->createOrder([
+                'customer_id' => $customer?->id,
+                'customer_name' => $request->string('customer_name'),
+                'customer_phone' => $request->string('customer_phone'),
+                'delivery_dorm' => $request->string('delivery_dorm'),
+                'delivery_room' => null,
+                'delivery_date' => $fulfillmentDate,
+                'delivery_notes' => $request->input('delivery_notes'),
+                'preferred_time' => null,
+                'payment_method' => 'qr',
+                'payment_status' => 'pending',
+                'order_status' => 'pending',
+                'is_preorder' => true,
+                'subtotal' => $subtotal,
+                'delivery_fee' => $deliveryFee,
+                'total' => $total,
+                'is_free_delivery_reward' => $freeDelivery,
+                'notes' => $request->input('notes'),
+            ], $lines);
+        } catch (\Throwable $e) {
+            Log::error('Preorder failed to save the order.', [
+                'phone' => (string) $request->string('customer_phone'),
+                'total' => $total,
+                'exception' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
 
-        $order->storeReceipt($request->file('payment_screenshot'));
+            return back()->withInput()->with('error', __(
+                'Something went wrong while saving your preorder. If you have already paid, '
+                . 'please keep your transfer screenshot and contact us — your payment is safe '
+                . 'and we will sort it out.'
+            ));
+        }
+
+        try {
+            $order->storeReceipt($request->file('payment_screenshot'));
+        } catch (\Throwable $e) {
+            Log::error('Preorder saved but the payment receipt upload failed.', [
+                'order_number' => $order->order_number,
+                'exception' => $e->getMessage(),
+            ]);
+        }
 
         return redirect()->route('order.show', $order->public_token);
     }

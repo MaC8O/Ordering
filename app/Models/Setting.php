@@ -24,6 +24,7 @@ class Setting extends Model
         'preorder_cutoff_day',
         'preorder_cutoff_time',
         'preorder_fulfillment_day',
+        'preorder_fulfillment_date',
         'preorder_window_start',
         'preorder_window_end',
         'preorder_delivery_fee',
@@ -40,6 +41,7 @@ class Setting extends Model
         'preorder_open_day' => 'integer',
         'preorder_cutoff_day' => 'integer',
         'preorder_fulfillment_day' => 'integer',
+        'preorder_fulfillment_date' => 'date',
         'preorder_delivery_fee' => 'integer',
     ];
 

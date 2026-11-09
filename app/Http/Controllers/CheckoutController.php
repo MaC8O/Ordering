@@ -9,6 +9,7 @@ use App\Services\StoreStatus;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class CheckoutController extends Controller
 {
@@ -38,6 +39,13 @@ class CheckoutController extends Controller
         $cart = \App\Services\CartParser::parse($request->input('cart'));
 
         if (empty($cart)) {
+            // A paid customer whose cart arrived empty gets no order — log it so
+            // these silent drops are traceable in storage/logs/laravel.log.
+            Log::warning('Checkout aborted: empty or invalid cart payload.', [
+                'phone' => (string) $request->input('customer_phone'),
+                'cart_raw' => mb_substr((string) $request->input('cart'), 0, 1000),
+            ]);
+
             return redirect()
                 ->route('cart.index')
                 ->with('error', 'Your cart is empty.');
@@ -47,6 +55,11 @@ class CheckoutController extends Controller
         // server-side. Any item that is gone or unavailable rejects the order.
         $built = \App\Services\OrderLines::build($cart);
         if ($built['missing']) {
+            Log::warning('Checkout aborted: one or more items unavailable.', [
+                'phone' => (string) $request->input('customer_phone'),
+                'cart' => $cart,
+            ]);
+
             return redirect()
                 ->route('cart.index')
                 ->with('error', 'One or more items are no longer available. Please review your cart.');
@@ -93,29 +106,56 @@ class CheckoutController extends Controller
         //    collision so a concurrent order is never lost), then store any screenshot.
         //    Orders placed while the store is closed start as "pending review" so
         //    the admin can confirm or reject them manually.
-        $order = $numbers->createOrder([
-            'customer_id' => $customer?->id,
-            'customer_name' => $request->string('customer_name'),
-            'customer_phone' => $request->string('customer_phone'),
-            'delivery_dorm' => $request->string('delivery_dorm'),
-            'delivery_room' => null,
-            'delivery_date' => $request->input('delivery_date'),
-            'delivery_notes' => $request->input('delivery_notes'),
-            'preferred_time' => $request->input('preferred_time'),
-            'payment_method' => $request->string('payment_method'),
-            'payment_status' => 'pending',
-            'order_status' => $isOpen ? 'pending' : 'pending_review',
-            'subtotal' => $subtotal,
-            'delivery_fee' => $deliveryFee,
-            'total' => $total,
-            'is_free_delivery_reward' => $freeDelivery,
-            'notes' => $request->input('notes'),
-        ], $lines);
+        try {
+            $order = $numbers->createOrder([
+                'customer_id' => $customer?->id,
+                'customer_name' => $request->string('customer_name'),
+                'customer_phone' => $request->string('customer_phone'),
+                'delivery_dorm' => $request->string('delivery_dorm'),
+                'delivery_room' => null,
+                'delivery_date' => $request->input('delivery_date'),
+                'delivery_notes' => $request->input('delivery_notes'),
+                'preferred_time' => $request->input('preferred_time'),
+                'payment_method' => $request->string('payment_method'),
+                'payment_status' => 'pending',
+                'order_status' => $isOpen ? 'pending' : 'pending_review',
+                'subtotal' => $subtotal,
+                'delivery_fee' => $deliveryFee,
+                'total' => $total,
+                'is_free_delivery_reward' => $freeDelivery,
+                'notes' => $request->input('notes'),
+            ], $lines);
+        } catch (\Throwable $e) {
+            // Previously an exception here bubbled up as a blank 500 and the order
+            // was silently lost even though the customer may have already paid.
+            // Record the full failure so it can be traced and recovered by hand.
+            Log::error('Checkout failed to save the order.', [
+                'phone' => (string) $request->string('customer_phone'),
+                'payment_method' => (string) $request->string('payment_method'),
+                'total' => $total,
+                'exception' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            return back()->withInput()->with('error',
+                'Something went wrong while saving your order. If you have already paid, '
+                . 'please keep your transfer screenshot and contact us — your payment is safe '
+                . 'and we will sort it out.');
+        }
 
         // 6. QR receipt upload. Stored by Order::storeReceipt(), which names the
         //    file by the unguessable token so receipts can't be found by guessing.
+        //    The order is already saved, so a failed image upload must not lose it:
+        //    log and continue; the customer can re-upload from their order page.
         if ($request->input('payment_method') === 'qr' && $request->hasFile('payment_screenshot')) {
-            $order->storeReceipt($request->file('payment_screenshot'));
+            try {
+                $order->storeReceipt($request->file('payment_screenshot'));
+            } catch (\Throwable $e) {
+                Log::error('Checkout saved the order but the payment receipt upload failed.', [
+                    'order_number' => $order->order_number,
+                    'exception' => $e->getMessage(),
+                ]);
+            }
         }
 
         return redirect()->route('order.show', $order->public_token);

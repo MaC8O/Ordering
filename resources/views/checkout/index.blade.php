@@ -13,7 +13,8 @@
                 <span class="text-2xl">🗓️</span>
                 <div>
                     <p class="font-bold">{{ __('Preorder — cooked & delivered in one batch') }}</p>
-                    <p class="mt-1 text-sm text-indigo-50/90">{{ __('Arrives :window. Pay now by QR transfer to reserve your meal.', ['window' => $preorder->windowLabel()]) }}</p>
+                    <p class="mt-1 text-base font-semibold">🗓️ {{ $preorder->fulfillmentDateLabel() }}</p>
+                    <p class="mt-0.5 text-sm text-indigo-50/90">{{ __('Delivered :time. Pay now by QR transfer to reserve your meal.', ['time' => $preorder->timeWindow()]) }}</p>
                 </div>
             </div>
         </div>
@@ -77,9 +78,12 @@
                                 <label class="label">{{ __('Delivery') }}</label>
                                 <div class="flex items-center gap-3 rounded-xl border border-indigo-100 bg-indigo-50/60 px-4 py-3 text-sm">
                                     <span class="text-lg">🛵</span>
-                                    <p class="font-semibold text-ink">{{ $preorder->windowLabel() }}</p>
+                                    <div>
+                                        <p class="font-semibold text-ink">{{ $preorder->fulfillmentDateLabel() }}</p>
+                                        <p class="text-xs text-ink-soft">{{ __('Delivery window') }}: {{ $preorder->timeWindow() }}</p>
+                                    </div>
                                 </div>
-                                <p class="mt-1 text-xs text-ink-soft">{{ __('All preorders are delivered together in this one window.') }}</p>
+                                <p class="mt-1 text-xs text-ink-soft">{{ __('All preorders are delivered together on this date.') }}</p>
                             </div>
                         @else
                             <div>

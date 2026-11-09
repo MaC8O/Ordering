@@ -163,9 +163,17 @@
                         </div>
                     </div>
 
+                    <div>
+                        <label class="label">Specific delivery date <span class="font-normal text-ink-soft">(optional)</span></label>
+                        <input type="date" name="preorder_fulfillment_date" min="{{ now()->toDateString() }}"
+                               value="{{ old('preorder_fulfillment_date', optional($settings->preorder_fulfillment_date)->toDateString()) }}" class="input">
+                        @error('preorder_fulfillment_date') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
+                        <p class="mt-1 text-xs text-ink-soft">Pin an exact delivery date for this batch — it overrides the weekday below. Leave blank to use the recurring weekday. A past date is ignored automatically.</p>
+                    </div>
+
                     <div class="grid gap-4 sm:grid-cols-3">
                         <div>
-                            <label class="label">Delivery day</label>
+                            <label class="label">Delivery day <span class="font-normal text-ink-soft">(recurring)</span></label>
                             <select name="preorder_fulfillment_day" class="input">
                                 @foreach ($weekdays as $num => $name)
                                     <option value="{{ $num }}" @selected((int) old('preorder_fulfillment_day', $settings->preorder_fulfillment_day) === $num)>{{ $name }}</option>

@@ -10,10 +10,23 @@
 
     {{-- Filters --}}
     <form method="GET" action="{{ route('admin.orders.index') }}" class="card mb-5 p-4">
-        <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-6">
+        <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
             <div class="lg:col-span-2">
                 <label class="label">Search</label>
                 <input type="search" name="q" value="{{ $filters['q'] ?? '' }}" placeholder="Order #, name, phone" class="input">
+            </div>
+            <div>
+                <label class="label">Hall</label>
+                <select name="dorm" class="input">
+                    <option value="">All halls</option>
+                    @foreach ($dorms as $dorm)
+                        <option value="{{ $dorm }}" @selected(($filters['dorm'] ?? '') === $dorm)>{{ $dorm }}</option>
+                    @endforeach
+                    @if (($filters['dorm'] ?? '') !== '' && ! in_array($filters['dorm'], $dorms, true))
+                        {{-- A hall no longer in settings but still used by older orders. --}}
+                        <option value="{{ $filters['dorm'] }}" selected>{{ $filters['dorm'] }}</option>
+                    @endif
+                </select>
             </div>
             <div>
                 <label class="label">Status</label>

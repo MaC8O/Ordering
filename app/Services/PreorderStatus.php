@@ -153,11 +153,20 @@ class PreorderStatus
      */
     public function fulfillmentAt(): Carbon
     {
+        [$h, $m] = $this->hm($this->settings->preorder_window_start);
+
+        // An admin-pinned exact date overrides the recurring weekday — as long as
+        // it hasn't already passed (a stale date falls back to the weekly schedule
+        // so customers never see a delivery date in the past).
+        $pinned = $this->settings->preorder_fulfillment_date;
+        if ($pinned && $pinned->copy()->endOfDay()->greaterThanOrEqualTo($this->now())) {
+            return $pinned->copy()->setTime($h, $m, 0);
+        }
+
         $anchor = $this->isOpen()
             ? $this->cutoffAfter($this->mostRecentOpen())
             : ($this->opensAt() ?? $this->now());
 
-        [$h, $m] = $this->hm($this->settings->preorder_window_start);
         $date = $anchor->copy();
 
         while ($date->dayOfWeek !== (int) $this->settings->preorder_fulfillment_day) {
@@ -165,6 +174,28 @@ class PreorderStatus
         }
 
         return $date->setTime($h, $m, 0);
+    }
+
+    /**
+     * Whether the batch date is a specific admin-pinned date (vs. the recurring
+     * weekday). True only while that pinned date is still current.
+     */
+    public function hasPinnedDate(): bool
+    {
+        $pinned = $this->settings->preorder_fulfillment_date;
+
+        return $pinned && $pinned->copy()->endOfDay()->greaterThanOrEqualTo($this->now());
+    }
+
+    /**
+     * The full delivery date spelled out for customers, e.g.
+     * "Monday, 10 November 2026" — localized.
+     */
+    public function fulfillmentDateLabel(): string
+    {
+        return $this->fulfillmentAt()
+            ->locale(app()->getLocale())
+            ->isoFormat('dddd, D MMMM YYYY');
     }
 
     /**
