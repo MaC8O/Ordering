@@ -98,9 +98,9 @@
             {{-- Payment --}}
             <div class="card p-5" x-data="{ lightbox: false }">
                 <h2 class="text-sm font-bold uppercase tracking-wide text-ink-soft">Payment</h2>
-                <p class="mt-2 text-sm">Method: <span class="font-semibold">{{ $order->payment_method === 'qr' ? 'QR bank transfer' : 'Cash on delivery' }}</span></p>
+                <p class="mt-2 text-sm">Method: <span class="font-semibold">{{ $order->isCash() ? 'Cash on delivery' : 'QR bank transfer' }}</span></p>
 
-                @if ($order->payment_method === 'qr')
+                @if (! $order->isCash())
                     @if ($order->hasReceipt())
                         <p class="mt-3 flex items-center gap-1.5 rounded-lg bg-green-50 px-3 py-2 text-sm font-medium text-green-800">
                             <svg class="h-4 w-4 flex-shrink-0" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.7 5.3a1 1 0 0 1 0 1.4l-7.5 7.5a1 1 0 0 1-1.4 0l-3.5-3.5a1 1 0 0 1 1.4-1.4l2.8 2.8 6.8-6.8a1 1 0 0 1 1.4 0Z" clip-rule="evenodd"/></svg>

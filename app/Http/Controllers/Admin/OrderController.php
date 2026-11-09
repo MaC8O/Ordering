@@ -62,10 +62,25 @@ class OrderController extends Controller
             });
         }
 
-        $orders = $query->latest()->paginate(20)->withQueryString();
+        // Split into two groups: active orders (need attention) are shown in full
+        // at the top; finished orders are paginated below. The same filters apply
+        // to both. A status filter naturally lands everything in one group.
+        $activeOrders = (clone $query)
+            ->whereIn('order_status', Order::ACTIVE_STATUSES)
+            ->latest()
+            ->get();
+
+        $completedOrders = (clone $query)
+            ->whereIn('order_status', Order::FINISHED_STATUSES)
+            ->latest()
+            ->paginate(20)
+            ->withQueryString();
 
         return view('admin.orders.index', [
-            'orders' => $orders,
+            'activeOrders' => $activeOrders,
+            'completedOrders' => $completedOrders,
+            'activeCount' => $activeOrders->count(),
+            'completedCount' => $completedOrders->total(),
             'filters' => $request->only(['status', 'payment_method', 'payment_status', 'dorm', 'from', 'to', 'q']),
             'statuses' => Order::ORDER_STATUSES,
             'paymentStatuses' => Order::PAYMENT_STATUSES,

@@ -180,6 +180,25 @@ class Order extends Model
         return $this->order_status === 'pending_review';
     }
 
+    /**
+     * Whether this order is paid in cash (i.e. anything that is not a QR
+     * transfer). Treats a missing or legacy payment_method as cash so older
+     * cash orders — created before the value was standardised — are still
+     * handled by the cash flow (e.g. the "Mark as Paid" action).
+     */
+    public function isCash(): bool
+    {
+        return $this->payment_method !== 'qr';
+    }
+
+    /**
+     * Statuses that count as active (needing attention) vs. finished, used to
+     * group the admin orders list.
+     */
+    public const ACTIVE_STATUSES = ['pending', 'pending_review', 'confirmed', 'preparing', 'out_for_delivery'];
+
+    public const FINISHED_STATUSES = ['completed', 'cancelled'];
+
     public function isDone(): bool
     {
         return in_array($this->order_status, ['completed', 'cancelled'], true);
