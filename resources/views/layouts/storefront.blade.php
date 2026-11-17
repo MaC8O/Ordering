@@ -41,7 +41,7 @@
                     @if ($preorderStatus->isOpen())
                         <a href="{{ route('preorder.create') }}" class="nav-link inline-flex items-center gap-1 rounded-lg px-3 py-2 text-sm font-bold hover:bg-indigo-50 {{ request()->routeIs('preorder.*') ? 'is-active text-indigo-700' : 'text-indigo-600' }} dark:text-indigo-300 dark:hover:bg-indigo-500/10">🗓️ {{ __('Preorder') }}</a>
                     @endif
-                    <a href="{{ route('about') }}" class="nav-link rounded-lg px-3 py-2 text-sm font-semibold hover:bg-hover {{ request()->routeIs('about') ? 'is-active text-brand-700' : 'text-ink-soft' }}">{{ __('About') }}</a>
+                    <a href="{{ route('about') }}" class="nav-link rounded-lg px-3 py-2 text-sm font-semibold hover:bg-hover {{ request()->routeIs('about') ? 'is-active text-brand-700' : 'text-ink-soft' }}">{{ __('About Us') }}</a>
                     @auth('customer')
                         <a href="{{ route('account.index') }}" class="nav-link rounded-lg px-3 py-2 text-sm font-semibold hover:bg-hover {{ request()->routeIs('account.*') ? 'is-active text-brand-700' : 'text-ink-soft' }}">{{ __('Account') }}</a>
                     @else
@@ -80,7 +80,7 @@
             @if ($preorderStatus->isOpen())
                 <a href="{{ route('preorder.create') }}" class="{{ $mob }} text-indigo-600 dark:text-indigo-300">🗓️ {{ __('Preorder') }}</a>
             @endif
-            <a href="{{ route('about') }}" class="{{ $mob }} {{ request()->routeIs('about') ? 'text-brand-700' : 'text-ink' }}">{{ __('About') }}</a>
+            <a href="{{ route('about') }}" class="{{ $mob }} {{ request()->routeIs('about') ? 'text-brand-700' : 'text-ink' }}">{{ __('About Us') }}</a>
             @auth('customer')
                 <a href="{{ route('account.index') }}" class="{{ $mob }} {{ request()->routeIs('account.*') ? 'text-brand-700' : 'text-ink' }}">{{ __('Account') }}</a>
             @else
@@ -128,7 +128,7 @@
                         @if ($preorderStatus->isOpen())
                             <a href="{{ route('preorder.create') }}" class="font-bold text-indigo-600 hover:text-indigo-700 dark:text-indigo-300">{{ __('Preorder') }}</a>
                         @endif
-                        <a href="{{ route('about') }}" class="hover:text-brand-700">{{ __('About') }}</a>
+                        <a href="{{ route('about') }}" class="hover:text-brand-700">{{ __('About Us') }}</a>
                     </nav>
                     @if ($storeSettings->phone)
                         <p class="text-xs">{{ __('Call us:') }} <a href="tel:{{ $storeSettings->phone }}" class="font-semibold text-brand-700">{{ $storeSettings->phone }}</a></p>

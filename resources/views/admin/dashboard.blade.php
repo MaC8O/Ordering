@@ -111,12 +111,12 @@
                             </span>
                             <div class="flex h-full w-full items-end justify-center gap-0.5">
                                 @if ($fh > 0)
-                                    <div class="w-1/2 max-w-[0.65rem] rounded-t bg-gradient-to-t from-brand-600 to-brand-400 transition-all duration-300" style="height: {{ $fh }}%"></div>
+                                    <div class="w-1/2 max-w-[0.65rem] rounded-t bg-gradient-to-t from-brand-600 to-brand-400 transition-all duration-300" @style(["height: {$fh}%"])></div>
                                 @else
                                     <div class="h-1 w-1/2 max-w-[0.65rem] rounded-full bg-surface-2"></div>
                                 @endif
                                 @if ($dh > 0)
-                                    <div class="w-1/2 max-w-[0.65rem] rounded-t bg-gradient-to-t from-teal-600 to-teal-400 transition-all duration-300" style="height: {{ $dh }}%"></div>
+                                    <div class="w-1/2 max-w-[0.65rem] rounded-t bg-gradient-to-t from-teal-600 to-teal-400 transition-all duration-300" @style(["height: {$dh}%"])></div>
                                 @else
                                     <div class="h-1 w-1/2 max-w-[0.65rem] rounded-full bg-surface-2"></div>
                                 @endif
@@ -154,7 +154,7 @@
                                     <td class="px-4 py-2.5">
                                         <div class="font-semibold">{{ $row->category }}</div>
                                         <div class="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-surface-2">
-                                            <div class="h-full rounded-full bg-brand-500" style="width: {{ round($row->revenue / $catMax * 100) }}%"></div>
+                                            <div class="h-full rounded-full bg-brand-500" @style(['width: '.round($row->revenue / $catMax * 100).'%'])></div>
                                         </div>
                                     </td>
                                     <td class="px-4 py-2.5 text-right text-ink-soft">{{ number_format($row->qty) }}</td>
@@ -285,7 +285,7 @@
                 </thead>
                 <tbody class="divide-y divide-line">
                     @foreach ($orders as $order)
-                        <tr class="cursor-pointer hover:bg-brand-50/50" onclick="window.location='{{ route('admin.orders.show', $order) }}'">
+                        <tr class="js-row-link cursor-pointer hover:bg-brand-50/50" data-href="{{ route('admin.orders.show', $order) }}">
                             <td class="px-4 py-3 font-semibold">{{ $order->order_number }}</td>
                             <td class="px-4 py-3 text-ink-soft">{{ $order->created_at->format('H:i') }}</td>
                             <td class="hidden px-4 py-3 sm:table-cell">{{ $order->customer_name }}</td>
@@ -302,4 +302,13 @@
     </div>
 
     @include('admin.partials.live-feed')
+
+    <script>
+        document.querySelectorAll('.js-row-link').forEach(function (row) {
+            row.addEventListener('click', function () {
+                const href = row.dataset.href;
+                if (href) window.location = href;
+            });
+        });
+    </script>
 @endsection

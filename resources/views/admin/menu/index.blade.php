@@ -125,8 +125,8 @@
                             <tr>
                                 <td class="px-4 py-3">
                                     <div class="flex gap-1">
-                                        <button onclick="moveCategory({{ $category->id }}, -1)" class="rounded border px-2 {{ $i === 0 ? 'opacity-30' : '' }}" {{ $i === 0 ? 'disabled' : '' }}>↑</button>
-                                        <button onclick="moveCategory({{ $category->id }}, 1)" class="rounded border px-2 {{ $loop->last ? 'opacity-30' : '' }}" {{ $loop->last ? 'disabled' : '' }}>↓</button>
+                                        <button type="button" data-move="-1" data-id="{{ $category->id }}" class="js-move rounded border px-2 {{ $i === 0 ? 'opacity-30' : '' }}" {{ $i === 0 ? 'disabled' : '' }}>↑</button>
+                                        <button type="button" data-move="1" data-id="{{ $category->id }}" class="js-move rounded border px-2 {{ $loop->last ? 'opacity-30' : '' }}" {{ $loop->last ? 'disabled' : '' }}>↓</button>
                                     </div>
                                 </td>
                                 <td class="px-4 py-3">
@@ -159,22 +159,40 @@
         </div>
     </div>
 
+    <div id="category-reorder" class="hidden"
+         data-reorder-url="{{ route('admin.categories.reorder') }}"
+         data-order="{{ $categories->pluck('id')->values()->toJson() }}"></div>
+
     <script>
-        const CATEGORY_ORDER = @json($categories->pluck('id')->values());
-        function moveCategory(id, dir) {
-            const order = [...CATEGORY_ORDER];
-            const idx = order.indexOf(id);
-            const next = idx + dir;
-            if (idx < 0 || next < 0 || next >= order.length) return;
-            [order[idx], order[next]] = [order[next], order[idx]];
-            fetch('{{ route('admin.categories.reorder') }}', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content,
-                },
-                body: JSON.stringify({ order }),
-            }).then(() => location.reload());
-        }
+        (function () {
+            const holder = document.getElementById('category-reorder');
+            if (!holder) return;
+
+            const reorderUrl = holder.dataset.reorderUrl;
+            const CATEGORY_ORDER = JSON.parse(holder.dataset.order);
+            const token = document.querySelector('meta[name=csrf-token]').content;
+
+            document.querySelectorAll('.js-move').forEach(function (btn) {
+                btn.addEventListener('click', function () {
+                    moveCategory(parseInt(btn.dataset.id, 10), parseInt(btn.dataset.move, 10));
+                });
+            });
+
+            function moveCategory(id, dir) {
+                const order = [...CATEGORY_ORDER];
+                const idx = order.indexOf(id);
+                const next = idx + dir;
+                if (idx < 0 || next < 0 || next >= order.length) return;
+                [order[idx], order[next]] = [order[next], order[idx]];
+                fetch(reorderUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': token,
+                    },
+                    body: JSON.stringify({ order }),
+                }).then(() => location.reload());
+            }
+        })();
     </script>
 @endsection

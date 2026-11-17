@@ -1,6 +1,6 @@
 @extends('layouts.storefront')
 
-@section('title', __('About') . ' — ' . $storeStatus->restaurantName())
+@section('title', __('About Us') . ' — ' . $storeStatus->restaurantName())
 
 @section('content')
     <div class="mx-auto max-w-2xl space-y-6">
