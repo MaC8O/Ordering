@@ -19,7 +19,20 @@
             @endif
             @include('admin.partials.payment-badge', ['order' => $order])
             @include('admin.partials.status-badge', ['order' => $order])
-            <a href="{{ route('admin.orders.ticket', $order) }}" target="_blank" class="btn-secondary !py-2 text-sm">Print ticket</a>
+            <div x-data="{ open: false }" class="relative">
+                <button type="button" @click="open = ! open" @click.outside="open = false"
+                        class="btn-secondary !py-2 text-sm">
+                    Print slip
+                    <svg xmlns="http://www.w3.org/2000/svg" class="ml-1 inline h-4 w-4" :class="open ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5"/></svg>
+                </button>
+                <div x-show="open" x-cloak @click="open = false"
+                     class="absolute right-0 z-20 mt-1 w-44 overflow-hidden rounded-xl border border-line bg-surface py-1 shadow-lg">
+                    <a href="{{ route('admin.orders.ticket', ['order' => $order, 'lang' => 'en']) }}" target="_blank"
+                       class="block px-4 py-2 text-sm hover:bg-hover">Print (English)</a>
+                    <a href="{{ route('admin.orders.ticket', ['order' => $order, 'lang' => 'th']) }}" target="_blank"
+                       class="block px-4 py-2 text-sm hover:bg-hover">Print (ไทย)</a>
+                </div>
+            </div>
         </div>
     </div>
 

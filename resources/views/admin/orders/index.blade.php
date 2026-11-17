@@ -92,6 +92,10 @@
                     <button type="submit" class="btn-ghost !py-2 text-sm font-semibold text-red-600 hover:bg-red-50">Delete selected</button>
                 </form>
 
+                {{-- Print the selected orders — one slip per page, in either language. --}}
+                <button type="button" @click="printSelected('en')" class="btn-ghost !py-2 text-sm font-semibold">Print (English)</button>
+                <button type="button" @click="printSelected('th')" class="btn-ghost !py-2 text-sm font-semibold">Print (ไทย)</button>
+
                 <button type="button" @click="clear()" class="btn-ghost !py-2 text-sm">Clear</button>
             </div>
         </div>
@@ -157,6 +161,13 @@
                     }
                 },
                 clear() { this.selected = []; },
+                printSelected(lang) {
+                    if (this.selected.length === 0) return;
+                    const url = '{{ route('admin.orders.bulkTicket') }}'
+                        + '?lang=' + encodeURIComponent(lang)
+                        + '&ids=' + this.selected.join(',');
+                    window.open(url, '_blank');
+                },
             };
         }
     </script>

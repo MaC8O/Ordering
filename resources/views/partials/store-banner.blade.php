@@ -3,13 +3,16 @@
         {{-- Store closed, but the weekly preorder batch is open — turn the
              "closed" moment into an invitation rather than a dead end. --}}
         <a href="{{ route('preorder.create') }}" class="group block border-b border-indigo-300/60 bg-gradient-to-r from-indigo-600 to-violet-700 text-white transition hover:from-indigo-500 hover:to-violet-600">
-            <div class="mx-auto flex max-w-6xl items-center gap-3 px-4 py-3 text-sm">
+            <div class="mx-auto flex max-w-6xl flex-wrap items-center gap-x-3 gap-y-1.5 px-4 py-3 text-sm">
                 <span class="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-white/15 text-lg backdrop-blur">🗓️</span>
                 <p class="min-w-0 font-semibold">
                     {{ __('Preorder is open!') }}
                     <span class="font-normal text-indigo-50/90">{{ __('Reserve your meal for :window.', ['window' => $preorderStatus->windowLabel()]) }}</span>
                 </p>
                 <span class="ml-auto hidden shrink-0 items-center rounded-full bg-white px-3.5 py-1.5 text-xs font-bold text-indigo-700 shadow-sm transition group-hover:-translate-y-0.5 sm:inline-flex">{{ __('Preorder now') }} →</span>
+                <div class="w-full">
+                    @include('partials.preorder-deadline', ['variant' => 'banner'])
+                </div>
             </div>
         </a>
     @else

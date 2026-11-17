@@ -292,5 +292,30 @@
     "Page not found": "ไม่พบหน้าที่ต้องการ",
     "404 — Page not found": "404 — ไม่พบหน้าที่ต้องการ",
     "We couldn’t find what you were looking for.": "เราไม่พบสิ่งที่คุณกำลังค้นหา",
-    "Back to the menu": "กลับไปที่เมนู"
+    "Back to the menu": "กลับไปที่เมนู",
+
+    "Order before :deadline": "สั่งก่อน :deadline",
+    "Closes in": "ปิดรับใน",
+    "d": "วัน",
+    "h": "ชม.",
+    "m": "นาที",
+    "less than a minute left": "เหลืออีกไม่ถึงหนึ่งนาที",
+    "Preordering just closed.": "เพิ่งปิดรับพรีออเดอร์",
+    "Opens :when": "เปิดอีกครั้ง :when",
+
+    "Order slip": "ใบสั่งอาหาร",
+    "ORDER SLIP": "ใบสั่งอาหาร",
+    "Type": "ประเภท",
+    "Time": "เวลา",
+    "Name": "ชื่อ",
+    "Phone": "เบอร์โทร",
+    "Hall": "หอ/อาคาร",
+    "Preferred": "เวลาที่สะดวก",
+    "Notes": "หมายเหตุ",
+    "Food subtotal": "ยอดค่าอาหาร",
+    "TOTAL": "ยอดรวม",
+    "Payment status": "สถานะการชำระเงิน",
+    "Cash": "เงินสด",
+    "Thank you!": "ขอบคุณค่ะ!",
+    "Print": "พิมพ์"
 }

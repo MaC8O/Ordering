@@ -128,6 +128,63 @@ class PreorderStatus
     }
 
     /**
+     * The cutoff for the open window, spelled out for customers, e.g.
+     * "Sunday, 22 Nov at 09:00" — localized. Null when there is no scheduled
+     * cutoff (closed, or admin forced-open).
+     */
+    public function closesAtLabel(): ?string
+    {
+        $at = $this->closesAt();
+
+        return $at ? $this->dateTimeLabel($at) : null;
+    }
+
+    /**
+     * The cutoff as an ISO-8601 string (with offset) for a client-side
+     * countdown, or null when there is no scheduled cutoff.
+     */
+    public function closesAtIso(): ?string
+    {
+        return $this->closesAt()?->toIso8601String();
+    }
+
+    /**
+     * The next moment preorders open — whether closed now (the upcoming open)
+     * or open now (the open after the current window's cutoff). Null when the
+     * feature is disabled or admin-forced open (no schedule to project).
+     */
+    public function nextOpenAt(): ?Carbon
+    {
+        if (! $this->enabled() || $this->forcedOpen()) {
+            return null;
+        }
+
+        if (! $this->isOpen()) {
+            return $this->opensAt();
+        }
+
+        // Open now on the weekly schedule: the window reopens one week after the
+        // window that is currently open first opened.
+        $next = $this->mostRecentOpen()->copy();
+        while ($next->lessThanOrEqualTo($this->now())) {
+            $next->addWeek();
+        }
+
+        return $next;
+    }
+
+    /**
+     * A friendly "opens Saturday at 20:00" label for the next opening (used once
+     * the current window's deadline passes). Null when there is no schedule.
+     */
+    public function nextOpenLabel(): ?string
+    {
+        $at = $this->nextOpenAt();
+
+        return $at ? $this->friendlyOpenLabel($at) : null;
+    }
+
+    /**
      * The next moment preorders open, strictly in the future (when closed).
      */
     public function opensAt(): ?Carbon
@@ -238,10 +295,14 @@ class PreorderStatus
     {
         $at = $this->opensAt();
 
-        if (! $at) {
-            return null;
-        }
+        return $at ? $this->friendlyOpenLabel($at) : null;
+    }
 
+    /**
+     * "today at 20:00" / "tomorrow at 20:00" / "Saturday at 20:00" — localized.
+     */
+    protected function friendlyOpenLabel(Carbon $at): string
+    {
         $now = $this->now();
         $time = $at->format('H:i');
 
@@ -255,6 +316,15 @@ class PreorderStatus
         $day = $at->locale(app()->getLocale())->isoFormat('dddd');
 
         return "{$day} " . __('at') . " {$time}";
+    }
+
+    /**
+     * A full "Sunday, 22 Nov at 09:00" date+time label — localized.
+     */
+    protected function dateTimeLabel(Carbon $at): string
+    {
+        return $at->locale(app()->getLocale())->isoFormat('dddd, D MMM')
+            . ' ' . __('at') . ' ' . $at->format('H:i');
     }
 
     /**

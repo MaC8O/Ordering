@@ -256,13 +256,59 @@ class OrderController extends Controller
         ]);
     }
 
-    public function ticket(Order $order, StoreStatus $status)
+    public function ticket(Request $request, Order $order, StoreStatus $status)
     {
-        $order->load('items');
+        $order->load('items.menuItem');
+
+        return $this->renderSlips(collect([$order]), $status, $request);
+    }
+
+    /**
+     * Print slips for several selected orders at once — one slip per page.
+     * Order ids arrive as a comma-separated `ids` query param so the print view
+     * can be opened in a new tab straight from the bulk action bar.
+     */
+    public function bulkTicket(Request $request, StoreStatus $status)
+    {
+        $ids = collect(explode(',', (string) $request->query('ids')))
+            ->map(fn ($id) => (int) trim($id))
+            ->filter()
+            ->unique()
+            ->values();
+
+        if ($ids->isEmpty()) {
+            return redirect()->route('admin.orders.index')
+                ->with('error', 'Select at least one order to print.');
+        }
+
+        // Preserve the selection order the admin made where possible.
+        $orders = Order::with('items.menuItem')
+            ->whereIn('id', $ids)
+            ->get()
+            ->sortBy(fn ($order) => $ids->search($order->id))
+            ->values();
+
+        if ($orders->isEmpty()) {
+            return redirect()->route('admin.orders.index')
+                ->with('error', 'None of the selected orders could be found.');
+        }
+
+        return $this->renderSlips($orders, $status, $request);
+    }
+
+    /**
+     * Shared slip renderer. Honours a `lang` query param ('en' | 'th') and
+     * renders the whole print page in that language.
+     */
+    protected function renderSlips(\Illuminate\Support\Collection $orders, StoreStatus $status, Request $request)
+    {
+        $lang = $request->query('lang') === 'th' ? 'th' : 'en';
+        app()->setLocale($lang);
 
         return view('admin.orders.ticket', [
-            'order' => $order,
+            'orders' => $orders,
             'settings' => $status->settings(),
+            'lang' => $lang,
         ]);
     }
 

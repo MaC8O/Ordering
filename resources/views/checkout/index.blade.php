@@ -8,16 +8,28 @@
     <h1 class="mb-5 text-2xl font-bold">{{ $isPreorder ? __('Preorder for :day', ['day' => $preorder->fulfillmentAt()->locale(app()->getLocale())->isoFormat('dddd')]) : __('Checkout') }}</h1>
 
     @if ($isPreorder)
-        <div class="mb-5 overflow-hidden rounded-2xl bg-gradient-to-br from-indigo-600 to-violet-700 p-5 text-white shadow-lg">
-            <div class="flex items-start gap-3">
-                <span class="text-2xl">🗓️</span>
-                <div>
-                    <p class="font-bold">{{ __('Preorder — cooked & delivered in one batch') }}</p>
-                    <p class="mt-1 text-base font-semibold">🗓️ {{ $preorder->fulfillmentDateLabel() }}</p>
-                    <p class="mt-0.5 text-sm text-indigo-50/90">{{ __('Delivered :time. Pay now by QR transfer to reserve your meal.', ['time' => $preorder->timeWindow()]) }}</p>
+        {{-- Gate the whole preorder form on the live deadline: when the cutoff
+             passes, the countdown partial fires `preorder-expired`, we hide the
+             form and the banner shows the next opening time instead. --}}
+        <div x-data="{ expired: false }"
+             @preorder-expired.window="expired = true; window.scrollTo({ top: 0, behavior: 'smooth' })">
+            <div class="mb-5 overflow-hidden rounded-2xl bg-gradient-to-br from-indigo-600 to-violet-700 p-5 text-white shadow-lg">
+                <div class="flex items-start gap-3">
+                    <span class="text-2xl">🗓️</span>
+                    <div class="min-w-0">
+                        <p class="font-bold">{{ __('Preorder — cooked & delivered in one batch') }}</p>
+                        <p class="mt-1 text-base font-semibold">🗓️ {{ $preorder->fulfillmentDateLabel() }}</p>
+                        <p class="mt-0.5 text-sm text-indigo-50/90">{{ __('Delivered :time. Pay now by QR transfer to reserve your meal.', ['time' => $preorder->timeWindow()]) }}</p>
+                        <div class="mt-3">
+                            @include('partials.preorder-deadline', ['variant' => 'banner', 'announceExpiry' => true])
+                        </div>
+                    </div>
                 </div>
             </div>
-        </div>
+
+            {{-- The form (and everything below) collapses once the deadline passes. --}}
+            <div x-show="! expired">
+
     @endif
 
     @if ($freeDelivery)
@@ -315,6 +327,11 @@
             </div>
         </div>
     </form>
+
+    @if ($isPreorder)
+            </div> {{-- /x-show !expired --}}
+        </div> {{-- /preorder deadline gate --}}
+    @endif
 
     <script>
         function checkoutForm() {

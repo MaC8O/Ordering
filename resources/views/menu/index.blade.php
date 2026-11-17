@@ -127,7 +127,10 @@
             <span class="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-white/15 text-2xl backdrop-blur">🗓️</span>
             <div class="min-w-0 flex-1">
                 <p class="font-bold">{{ __('Preorder is open!') }}</p>
-                <p class="truncate text-sm text-indigo-50/90">{{ __('Reserve your meal for :window.', ['window' => $preorderStatus->windowLabel()]) }}</p>
+                <p class="text-sm text-indigo-50/90">{{ __('Reserve your meal for :window.', ['window' => $preorderStatus->windowLabel()]) }}</p>
+                <div class="mt-1.5">
+                    @include('partials.preorder-deadline', ['variant' => 'banner'])
+                </div>
             </div>
             <span class="hidden shrink-0 items-center gap-1 rounded-full bg-white px-4 py-2 text-sm font-bold text-indigo-700 sm:inline-flex">{{ __('Preorder now') }} →</span>
         </a>
