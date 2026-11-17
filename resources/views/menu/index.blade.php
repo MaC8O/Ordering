@@ -123,16 +123,23 @@
 
     {{-- Preorder window open --}}
     @if ($preorderStatus->isOpen())
-        <a href="{{ route('cart.index') }}" class="group mb-6 flex items-center gap-4 overflow-hidden rounded-2xl bg-gradient-to-r from-indigo-600 to-violet-700 p-4 text-white shadow-lg shadow-indigo-500/20 transition hover:-translate-y-0.5 sm:p-5">
-            <span class="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-white/15 text-2xl backdrop-blur">🗓️</span>
-            <div class="min-w-0 flex-1">
-                <p class="font-bold">{{ __('Preorder is open!') }}</p>
-                <p class="text-sm text-indigo-50/90">{{ __('Reserve your meal for :window.', ['window' => $preorderStatus->windowLabel()]) }}</p>
-                <div class="mt-1.5">
-                    @include('partials.preorder-deadline', ['variant' => 'banner'])
+        <a href="{{ route('cart.index') }}" class="group mb-6 flex flex-col gap-4 overflow-hidden rounded-2xl bg-gradient-to-r from-indigo-600 via-violet-600 to-purple-700 p-4 text-white shadow-lg shadow-indigo-500/20 transition hover:-translate-y-0.5 sm:flex-row sm:items-center sm:p-5">
+            <div class="flex min-w-0 items-center gap-4 sm:flex-1">
+                <span class="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-white/15 text-2xl backdrop-blur">🗓️</span>
+                <div class="min-w-0 leading-snug">
+                    <p>
+                        <span class="font-bold">{{ __('Preorder is open') }}</span>
+                        <span class="font-normal text-indigo-50/90">· {{ $preorderStatus->windowLabel() }}</span>
+                    </p>
+                    @if ($preorderStatus->closesAtLabel())
+                        <p class="mt-0.5 text-[0.8125rem] text-white/75">{{ __('Order before :deadline', ['deadline' => $preorderStatus->closesAtLabel()]) }}</p>
+                    @endif
                 </div>
             </div>
-            <span class="hidden shrink-0 items-center gap-1 rounded-full bg-white px-4 py-2 text-sm font-bold text-indigo-700 sm:inline-flex">{{ __('Preorder now') }} →</span>
+            <div class="flex w-full items-center gap-2 sm:w-auto sm:gap-3">
+                @include('partials.preorder-deadline', ['variant' => 'banner'])
+                <span class="inline-flex flex-1 shrink-0 items-center justify-center gap-1 rounded-full bg-white px-4 py-2 text-sm font-bold text-indigo-700 sm:flex-none">{{ __('Preorder now') }} →</span>
+            </div>
         </a>
     @endif
 

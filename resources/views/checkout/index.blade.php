@@ -13,16 +13,21 @@
              form and the banner shows the next opening time instead. --}}
         <div x-data="{ expired: false }"
              @preorder-expired.window="expired = true; window.scrollTo({ top: 0, behavior: 'smooth' })">
-            <div class="mb-5 overflow-hidden rounded-2xl bg-gradient-to-br from-indigo-600 to-violet-700 p-5 text-white shadow-lg">
-                <div class="flex items-start gap-3">
-                    <span class="text-2xl">🗓️</span>
-                    <div class="min-w-0">
-                        <p class="font-bold">{{ __('Preorder — cooked & delivered in one batch') }}</p>
-                        <p class="mt-1 text-base font-semibold">🗓️ {{ $preorder->fulfillmentDateLabel() }}</p>
-                        <p class="mt-0.5 text-sm text-indigo-50/90">{{ __('Delivered :time. Pay now by QR transfer to reserve your meal.', ['time' => $preorder->timeWindow()]) }}</p>
-                        <div class="mt-3">
-                            @include('partials.preorder-deadline', ['variant' => 'banner', 'announceExpiry' => true])
+            <div class="mb-5 overflow-hidden rounded-2xl bg-gradient-to-br from-indigo-600 via-violet-600 to-purple-700 p-5 text-white shadow-lg">
+                <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                    <div class="flex min-w-0 items-start gap-3">
+                        <span class="text-2xl leading-none">🗓️</span>
+                        <div class="min-w-0">
+                            <p class="font-bold">{{ __('Preorder — cooked & delivered in one batch') }}</p>
+                            <p class="mt-1 text-base font-semibold">{{ $preorder->fulfillmentDateLabel() }}</p>
+                            <p class="mt-0.5 text-sm text-indigo-50/90">{{ __('Delivered :time. Pay now by QR transfer to reserve your meal.', ['time' => $preorder->timeWindow()]) }}</p>
+                            @if ($preorder->closesAtLabel())
+                                <p class="mt-0.5 text-[0.8125rem] text-white/75">{{ __('Order before :deadline', ['deadline' => $preorder->closesAtLabel()]) }}</p>
+                            @endif
                         </div>
+                    </div>
+                    <div class="shrink-0">
+                        @include('partials.preorder-deadline', ['variant' => 'banner', 'announceExpiry' => true])
                     </div>
                 </div>
             </div>

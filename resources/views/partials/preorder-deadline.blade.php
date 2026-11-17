@@ -1,20 +1,22 @@
 {{--
-    Live preorder deadline + countdown.
+    Live preorder countdown — rendered as its own element (separate boxes for
+    days / hours / minutes), meant to sit next to the "Preorder now" button
+    rather than inside a sentence.
 
     Expects $preorderStatus in scope (shared by the storefront view composer).
     Renders nothing unless there is a scheduled cutoff (a plain weekly window —
     not an admin "forced open" with no deadline).
 
     Options:
-      $variant — 'banner' (light text on a coloured banner) or 'page' (card).
+      $variant — kept for backwards-compatibility; the box style is shared across
+                 the storefront banner, the menu promo and the preorder page
+                 (all sit on the purple gradient), so the look is the same.
       $announceExpiry — when true, dispatch a window `preorder-expired` event as
                         the deadline passes, so a surrounding form can close.
 --}}
 @php
     $deadlineIso = $preorderStatus->closesAtIso();
-    $deadlineLabel = $preorderStatus->closesAtLabel();
     $nextOpenLabel = $preorderStatus->nextOpenLabel();
-    $variant = $variant ?? 'banner';
     $announceExpiry = $announceExpiry ?? false;
 @endphp
 
@@ -24,42 +26,42 @@
             deadline: @js($deadlineIso),
             next: @js($nextOpenLabel),
             announce: {{ $announceExpiry ? 'true' : 'false' }},
+            urgentHours: 6,
             words: {
-                before: @js(__('Order before :deadline', ['deadline' => $deadlineLabel])),
-                closesIn: @js(__('Closes in')),
-                d: @js(__('d')),
-                h: @js(__('h')),
-                m: @js(__('m')),
-                lessThanMinute: @js(__('less than a minute left')),
-                closedOpens: @js(__('Preordering just closed.')),
+                days: @js(__('days')),
+                hrs: @js(__('hrs')),
+                min: @js(__('min')),
+                closed: @js(__('Preordering just closed.')),
                 opens: @js(__('Opens :when', ['when' => $nextOpenLabel ?? ''])),
             },
         })"
         x-init="start()"
-        @class([
-            'text-sm',
-            'text-indigo-50/95' => $variant === 'banner',
-            'rounded-xl border border-indigo-100 bg-indigo-50/70 px-4 py-3 text-indigo-900' => $variant === 'page',
-        ])
+        class="shrink-0"
     >
-        {{-- Live window still open --}}
-        <div x-show="! expired" x-cloak class="flex flex-wrap items-center gap-x-2 gap-y-0.5">
-            <span @class(['font-semibold' => $variant === 'page']) x-text="words.before"></span>
-            <span
-                @class([
-                    'inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-bold tabular-nums',
-                    'bg-white/20 text-white' => $variant === 'banner',
-                    'bg-indigo-600 text-white' => $variant === 'page',
-                ])
-            >
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6l3 1.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/></svg>
-                <span x-text="countdownText"></span>
-            </span>
+        {{-- Live window still open: three boxes, tabular digits so nothing jumps.
+             Under the urgent threshold the whole block warms to amber. --}}
+        <div
+            x-show="! expired"
+            x-cloak
+            class="flex items-stretch gap-1 rounded-xl p-1 ring-1 transition-colors"
+            :class="urgent ? 'bg-amber-500/90 ring-amber-200/60' : 'bg-white/10 ring-white/20'"
+            role="timer"
+        >
+            <template x-for="cell in cells" :key="cell.label">
+                <div class="flex min-w-[2.75rem] flex-col items-center rounded-lg bg-white/15 px-2.5 py-1.5">
+                    <span class="text-xl font-bold leading-none tabular-nums text-white" x-text="cell.value"></span>
+                    <span class="mt-1 text-[10px] font-semibold uppercase leading-none tracking-wider text-white/75" x-text="cell.label"></span>
+                </div>
+            </template>
         </div>
 
-        {{-- Deadline has passed (updated live, without a reload) --}}
-        <div x-show="expired" x-cloak @class(['font-semibold' => $variant === 'page'])>
-            <span x-text="words.closedOpens"></span>
+        {{-- Deadline has passed (updated live, without a reload). --}}
+        <div
+            x-show="expired"
+            x-cloak
+            class="rounded-xl bg-white/15 px-3 py-2 text-xs font-semibold text-white ring-1 ring-white/20"
+        >
+            <span x-text="words.closed"></span>
             <span x-show="next" x-text="words.opens"></span>
         </div>
     </div>
@@ -68,22 +70,39 @@
 @once
     <script>
         function preorderCountdown(cfg) {
+            const pad = (n) => String(n).padStart(2, '0');
+
             return {
                 expired: false,
-                countdownText: '',
+                urgent: false,
+                days: '00',
+                hours: '00',
+                mins: '00',
                 next: cfg.next,
                 words: cfg.words,
                 _timer: null,
+
+                get cells() {
+                    return [
+                        { value: this.days, label: this.words.days },
+                        { value: this.hours, label: this.words.hrs },
+                        { value: this.mins, label: this.words.min },
+                    ];
+                },
+
                 start() {
                     this.tick();
-                    // Refresh every minute, per the requested cadence.
-                    this._timer = setInterval(() => this.tick(), 60000);
+                    // Tick every second so the urgent threshold flips promptly and
+                    // the minute boundary stays accurate; only the rendered digits
+                    // (minute granularity) actually change.
+                    this._timer = setInterval(() => this.tick(), 1000);
                 },
+
                 tick() {
                     const end = new Date(cfg.deadline).getTime();
-                    let secs = Math.floor((end - Date.now()) / 1000);
-
                     if (isNaN(end)) { return; }
+
+                    let secs = Math.floor((end - Date.now()) / 1000);
 
                     if (secs <= 0) {
                         if (! this.expired) {
@@ -96,19 +115,10 @@
                         return;
                     }
 
-                    const days = Math.floor(secs / 86400);
-                    const hours = Math.floor((secs % 86400) / 3600);
-                    const mins = Math.floor((secs % 3600) / 60);
-
-                    const parts = [];
-                    if (days > 0) { parts.push(days + this.words.d); }
-                    if (hours > 0 || days > 0) { parts.push(hours + this.words.h); }
-                    parts.push(mins + this.words.m);
-
-                    // Under a minute: avoid a bare "0m".
-                    this.countdownText = (days === 0 && hours === 0 && mins === 0)
-                        ? this.words.lessThanMinute
-                        : this.words.closesIn + ' ' + parts.join(' ');
+                    this.urgent = secs < (cfg.urgentHours * 3600);
+                    this.days = pad(Math.floor(secs / 86400));
+                    this.hours = pad(Math.floor((secs % 86400) / 3600));
+                    this.mins = pad(Math.floor((secs % 3600) / 60));
                 },
             };
         }
