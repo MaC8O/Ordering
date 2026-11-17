@@ -34,7 +34,9 @@ class PreorderController extends Controller
             'storeStatus' => $status,
             'customer' => $customer,
             'freeDelivery' => $freeDelivery,
-            'deliveryFeeMinor' => $freeDelivery ? 0 : $preorder->deliveryFee(),
+            // Per-item base rate; the checkout computes the fee client-side by the
+            // same rule as regular orders (base × food units, drinks free, capped).
+            'deliveryFeeMinor' => $preorder->deliveryFeeBase(),
             'preorderMode' => true,
             'preorder' => $preorder,
         ]);
@@ -86,7 +88,9 @@ class PreorderController extends Controller
 
         $customer = Auth::guard('customer')->user();
         $freeDelivery = $customer?->hasFreeDelivery() ?? false;
-        $deliveryFee = $freeDelivery ? 0 : $preorder->deliveryFee();
+        $deliveryFee = $freeDelivery
+            ? 0
+            : $preorder->deliveryFee((int) $built['food_qty'], (int) $built['drink_qty']);
         $total = $subtotal + $deliveryFee;
         $fulfillmentDate = $preorder->fulfillmentDate();
         $paymentMethod = $request->input('payment_method') === 'cash' ? 'cash' : 'qr';

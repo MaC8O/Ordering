@@ -191,7 +191,7 @@
                     </div>
 
                     <div>
-                        <label class="label">Batch delivery fee ({{ config('ordering.currency') }}) <span class="font-normal text-ink-soft">— flat, shared; 0 = free</span></label>
+                        <label class="label">Delivery fee per item ({{ config('ordering.currency') }}) <span class="font-normal text-ink-soft">— per food item, drinks free, capped like regular orders; 0 = free</span></label>
                         <input name="preorder_delivery_fee" type="number" step="0.01" min="0" value="{{ old('preorder_delivery_fee', number_format($settings->preorder_delivery_fee / 100, 2, '.', '')) }}" class="input" required>
                     </div>
 

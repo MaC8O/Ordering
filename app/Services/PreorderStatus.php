@@ -263,9 +263,29 @@ class PreorderStatus
         return $this->fulfillmentAt()->toDateString();
     }
 
-    public function deliveryFee(): int
+    /**
+     * The per-item delivery fee base for preorders (minor units). Preorders bill
+     * delivery by the exact same rule as regular checkout, so this feeds
+     * {@see DeliveryFee::compute()}.
+     */
+    public function deliveryFeeBase(): int
     {
         return (int) $this->settings->preorder_delivery_fee;
+    }
+
+    /**
+     * The delivery fee for a preorder, using the same rule as regular checkout:
+     * per-item base × food units, drinks free alongside food, flat base for a
+     * drinks-only order, clamped by the shared delivery fee cap.
+     */
+    public function deliveryFee(int $foodQty = 0, int $drinkQty = 0): int
+    {
+        return DeliveryFee::compute(
+            $this->deliveryFeeBase(),
+            $foodQty,
+            $drinkQty,
+            (int) $this->settings->delivery_fee_cap,
+        );
     }
 
     /**

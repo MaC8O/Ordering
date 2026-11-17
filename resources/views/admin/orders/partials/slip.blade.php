@@ -73,6 +73,10 @@
     {{-- Money --}}
     <div class="row"><span>{{ __('Food subtotal') }}</span><span>{{ $currency }} {{ $order->subtotal_formatted }}</span></div>
     <div class="row"><span>{{ __('Delivery fee') }}</span><span>{{ $currency }} {{ $order->delivery_fee_formatted }}</span></div>
+    @php($deliveryBreakdown = $order->deliveryFeeBreakdown())
+    @if ($deliveryBreakdown)
+        <p class="opts">↳ {{ $deliveryBreakdown['qty'] }} {{ $deliveryBreakdown['qty'] === 1 ? __('item') : __('items') }} × {{ $currency }} {{ number_format($deliveryBreakdown['unit'] / 100, 2) }} = {{ $currency }} {{ $order->delivery_fee_formatted }}</p>
+    @endif
     <div class="row total"><span>{{ __('TOTAL') }}</span><span>{{ $currency }} {{ $order->total_formatted }}</span></div>
     <hr>
 

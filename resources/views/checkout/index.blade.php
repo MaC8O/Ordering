@@ -314,6 +314,7 @@
                             <span x-show="!freeDelivery" class="font-semibold" x-text="window.CURRENCY + ' ' + window.money(deliveryFee)"></span>
                             <span x-show="freeDelivery" x-cloak class="font-bold uppercase text-green-600">{{ __('Free') }}</span>
                         </div>
+                        <p x-show="!freeDelivery && deliveryBreakdown" x-cloak class="-mt-1 text-xs text-ink-soft" x-text="deliveryBreakdown"></p>
                         <p x-show="hasDrink && !drinksOnly" x-cloak class="flex items-center gap-1.5 rounded-lg bg-green-50 px-2.5 py-1.5 text-xs font-medium text-green-700">🥤 {{ __('Your drinks are delivered free with your food order.') }}</p>
                         <p x-show="drinksOnly" x-cloak class="flex items-center gap-1.5 rounded-lg bg-amber-50 px-2.5 py-1.5 text-xs font-medium text-amber-800">🥤 {{ __('A delivery fee applies to drinks-only orders.') }}</p>
                         <div class="flex justify-between text-base font-bold">
@@ -343,7 +344,7 @@
             return {
                 deliveryFeeBase: {{ $deliveryFeeMinor ?? (int) $settings->default_delivery_fee }},
                 deliveryFeeCap: {{ (int) $settings->delivery_fee_cap }},
-                perItemDelivery: {{ ($isPreorder ?? false) ? 'false' : 'true' }},
+                perItemDelivery: true,
                 freeDelivery: {{ $freeDelivery ? 'true' : 'false' }},
                 isPreorder: {{ ($isPreorder ?? false) ? 'true' : 'false' }},
                 todayStr: new Date().toLocaleDateString('en-CA'),
@@ -372,8 +373,8 @@
                     this.$watch('$store.cart.items', () => this.renderQr());
                 },
                 // Mirrors App\Services\DeliveryFee on the server: base × food units,
-                // drinks free with food, flat base for a drinks-only order. Preorders
-                // stay on their own flat fee.
+                // drinks free with food, flat base for a drinks-only order, capped.
+                // Preorders use the exact same rule as regular orders.
                 get deliveryFee() {
                     if (this.freeDelivery) return 0;
                     if (!this.perItemDelivery) return this.deliveryFeeBase;
@@ -385,6 +386,23 @@
                     else if (drinkQty > 0) fee = this.deliveryFeeBase;
                     else return 0;
                     return this.deliveryFeeCap > 0 ? Math.min(fee, this.deliveryFeeCap) : fee;
+                },
+                // Human breakdown of the per-item delivery fee, e.g.
+                // "Delivery: 5 items × ฿10 = ฿50" (shows the cap when it clamps).
+                get deliveryBreakdown() {
+                    if (this.freeDelivery || !this.perItemDelivery) return '';
+                    const items = this.$store.cart.items;
+                    const foodQty = items.reduce((s, i) => s + (i.isDrink ? 0 : i.qty), 0);
+                    if (foodQty < 1) return '';
+                    const C = window.CURRENCY + ' ';
+                    const uncapped = this.deliveryFeeBase * foodQty;
+                    const unit = C + window.money(this.deliveryFeeBase);
+                    const word = foodQty === 1 ? @js(__('item')) : @js(__('items'));
+                    let s = @js(__('Delivery')) + ': ' + foodQty + ' ' + word + ' × ' + unit + ' = ' + C + window.money(uncapped);
+                    if (this.deliveryFeeCap > 0 && uncapped > this.deliveryFeeCap) {
+                        s += ' → ' + C + window.money(this.deliveryFeeCap) + ' (' + @js(__('max')) + ')';
+                    }
+                    return s;
                 },
                 get grandTotal() {
                     return this.$store.cart.subtotal + this.deliveryFee;

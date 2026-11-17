@@ -156,6 +156,39 @@ class Order extends Model
         return number_format($this->total / 100, 2);
     }
 
+    /**
+     * Number of food (non-drink) units in the order. Drinks ride free on
+     * delivery, so this is the count the per-item delivery fee is billed on.
+     */
+    public function foodItemCount(): int
+    {
+        return (int) $this->items->sum(
+            fn ($line) => ($line->menuItem?->is_drink) ? 0 : $line->quantity
+        );
+    }
+
+    /**
+     * How the delivery fee was billed, reconstructed from the order's own data:
+     * ['qty' => food units, 'unit' => per-item fee in minor units]. Null when it
+     * can't be shown as a clean "N × fee" breakdown — a free-delivery reward, a
+     * drinks-only flat fee, or any fee (e.g. a capped or legacy one) that doesn't
+     * divide evenly by the food count. Reconstructing from the stored fee keeps
+     * old orders' slips truthful without touching their totals.
+     */
+    public function deliveryFeeBreakdown(): ?array
+    {
+        if ($this->is_free_delivery_reward || $this->delivery_fee <= 0) {
+            return null;
+        }
+
+        $food = $this->foodItemCount();
+        if ($food < 1 || $this->delivery_fee % $food !== 0) {
+            return null;
+        }
+
+        return ['qty' => $food, 'unit' => intdiv($this->delivery_fee, $food)];
+    }
+
     public function getOrderStatusLabelAttribute(): string
     {
         return self::ORDER_STATUSES[$this->order_status] ?? ucfirst($this->order_status);
