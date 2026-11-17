@@ -66,8 +66,8 @@ class OrderLines
             $lineTotal = $unit * $qty;
             $subtotal += $lineTotal;
 
-            // Track food vs. drink units so delivery can be billed per food item,
-            // with drinks riding free alongside a food order.
+            // Track food and drink units separately; delivery bills on the total
+            // of the two (DeliveryFee::compute sums them), kept split for clarity.
             if ($menuItem->is_drink) {
                 $drinkQty += $qty;
             } else {

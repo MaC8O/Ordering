@@ -250,10 +250,9 @@
                         return this.rows.reduce((s, r) => { const it = this.meta(r); return s + (it && it.isDrink ? (parseInt(r.qty) || 0) : 0); }, 0);
                     },
                     get computedDeliveryFee() {
-                        let fee;
-                        if (this.foodQty > 0) fee = this.deliveryBase * this.foodQty;
-                        else if (this.drinkQty > 0) fee = this.deliveryBase;
-                        else return 0;
+                        const qty = this.foodQty + this.drinkQty;
+                        if (qty < 1) return 0;
+                        const fee = this.deliveryBase * qty;
                         return this.deliveryCap > 0 ? Math.min(fee, this.deliveryCap) : fee;
                     },
                     get deliveryFee() {

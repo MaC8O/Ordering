@@ -157,23 +157,21 @@ class Order extends Model
     }
 
     /**
-     * Number of food (non-drink) units in the order. Drinks ride free on
-     * delivery, so this is the count the per-item delivery fee is billed on.
+     * Total item units in the order — every item counts toward delivery, food
+     * and drinks alike, so this is the count the per-item delivery fee is on.
      */
-    public function foodItemCount(): int
+    public function itemCount(): int
     {
-        return (int) $this->items->sum(
-            fn ($line) => ($line->menuItem?->is_drink) ? 0 : $line->quantity
-        );
+        return (int) $this->items->sum('quantity');
     }
 
     /**
      * How the delivery fee was billed, reconstructed from the order's own data:
-     * ['qty' => food units, 'unit' => per-item fee in minor units]. Null when it
-     * can't be shown as a clean "N × fee" breakdown — a free-delivery reward, a
-     * drinks-only flat fee, or any fee (e.g. a capped or legacy one) that doesn't
-     * divide evenly by the food count. Reconstructing from the stored fee keeps
-     * old orders' slips truthful without touching their totals.
+     * ['qty' => item units, 'unit' => per-item fee in minor units]. Null when it
+     * can't be shown as a clean "N × fee" breakdown — a free-delivery reward, or
+     * any fee (e.g. a capped or legacy one) that doesn't divide evenly by the
+     * item count. Reconstructing from the stored fee keeps old orders' slips
+     * truthful without touching their totals.
      */
     public function deliveryFeeBreakdown(): ?array
     {
@@ -181,12 +179,12 @@ class Order extends Model
             return null;
         }
 
-        $food = $this->foodItemCount();
-        if ($food < 1 || $this->delivery_fee % $food !== 0) {
+        $qty = $this->itemCount();
+        if ($qty < 1 || $this->delivery_fee % $qty !== 0) {
             return null;
         }
 
-        return ['qty' => $food, 'unit' => intdiv($this->delivery_fee, $food)];
+        return ['qty' => $qty, 'unit' => intdiv($this->delivery_fee, $qty)];
     }
 
     public function getOrderStatusLabelAttribute(): string
