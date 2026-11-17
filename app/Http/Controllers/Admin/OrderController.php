@@ -11,6 +11,7 @@ use App\Models\Setting;
 use App\Services\DeliveryFee;
 use App\Services\OrderLines;
 use App\Services\OrderNumberGenerator;
+use App\Services\PreorderStatus;
 use App\Services\SmsService;
 use App\Services\StoreStatus;
 use Illuminate\Http\Request;
@@ -294,6 +295,145 @@ class OrderController extends Controller
         }
 
         return $this->renderSlips($orders, $status, $request);
+    }
+
+    /**
+     * One kitchen summary sheet for a batch of orders, instead of one slip per
+     * order. Three sources, chosen by query param:
+     *   • ?ids=1,2,3  — the orders selected in the bulk action bar
+     *   • ?scope=today    — today's active regular orders (confirmed + preparing)
+     *   • ?scope=preorder — every preorder for the current delivery (batch) date
+     * Honours ?lang=en|th like the slips.
+     */
+    public function summary(Request $request, StoreStatus $status, PreorderStatus $preorder)
+    {
+        $lang = $request->query('lang') === 'th' ? 'th' : 'en';
+        app()->setLocale($lang);
+
+        $scope = $request->query('scope');
+        $with = ['items.menuItem.category'];
+        $batchType = null;
+        $batchDate = null;
+
+        if ($scope === 'today') {
+            // Same-day kitchen work: active, non-preorder orders placed today.
+            $orders = Order::with($with)
+                ->where('is_preorder', false)
+                ->whereIn('order_status', ['confirmed', 'preparing'])
+                ->whereDate('created_at', now()->toDateString())
+                ->get();
+            $batchType = 'regular';
+        } elseif ($scope === 'preorder') {
+            // The preorder batch for the current (or admin-pinned) delivery date.
+            $batchDate = \Illuminate\Support\Carbon::parse($preorder->fulfillmentDate());
+            $orders = Order::with($with)
+                ->where('is_preorder', true)
+                ->where('order_status', '!=', 'cancelled')
+                ->whereDate('delivery_date', $batchDate->toDateString())
+                ->get();
+            $batchType = 'preorder';
+        } else {
+            // Orders hand-picked in the bulk action bar.
+            $ids = collect(explode(',', (string) $request->query('ids')))
+                ->map(fn ($id) => (int) trim($id))
+                ->filter()
+                ->unique()
+                ->values();
+
+            $orders = $ids->isEmpty()
+                ? collect()
+                : Order::with($with)->whereIn('id', $ids)->get();
+        }
+
+        if ($orders->isEmpty()) {
+            return redirect()->route('admin.orders.index')
+                ->with('error', $scope === 'today'
+                    ? 'No active orders for today to summarise.'
+                    : ($scope === 'preorder'
+                        ? 'No preorders in the current batch to summarise.'
+                        : 'Select at least one order to summarise.'));
+        }
+
+        // Derive the batch type for a hand-picked selection.
+        if ($batchType === null) {
+            $batchType = $orders->every(fn ($o) => $o->is_preorder)
+                ? 'preorder'
+                : ($orders->every(fn ($o) => ! $o->is_preorder) ? 'regular' : 'mixed');
+        }
+
+        // Preorders share one delivery date — surface it in the header.
+        if ($batchType === 'preorder' && $batchDate === null) {
+            $batchDate = $orders->pluck('delivery_date')->filter()->first();
+        }
+
+        // Order list is sorted by hall (then order number) so the rider can work
+        // straight down the page.
+        $orders = $orders
+            ->sort(fn ($a, $b) => [(string) $a->delivery_dorm, (string) $a->order_number]
+                <=> [(string) $b->delivery_dorm, (string) $b->order_number])
+            ->values();
+
+        return view('admin.orders.summary', [
+            'orders' => $orders,
+            'kitchen' => $this->buildKitchenTotals($orders),
+            'settings' => $status->settings(),
+            'lang' => $lang,
+            'batchType' => $batchType,
+            'batchDate' => $batchDate,
+            'printedAt' => now(),
+            'totalItems' => $orders->sum(fn ($o) => $o->items->sum('quantity')),
+            'totalFood' => $orders->sum(fn ($o) => $o->items->sum('line_total')),
+        ]);
+    }
+
+    /**
+     * Aggregate the kitchen totals: one row per dish + exact option combination
+     * (protein / size / egg), with the summed quantity and any per-item (spice)
+     * notes tagged with their order number. Returned sorted by category, then
+     * dish, then options so the cook can read down the page.
+     *
+     * @return \Illuminate\Support\Collection<int, array<string, mixed>>
+     */
+    protected function buildKitchenTotals(\Illuminate\Support\Collection $orders): \Illuminate\Support\Collection
+    {
+        $groups = [];
+
+        foreach ($orders as $order) {
+            foreach ($order->items as $line) {
+                $category = $line->menuItem?->category;
+                $options = $line->options_snapshot;
+                // Group by category + dish + exact options (a soft-deleted dish
+                // keeps its snapshot name and sorts last under "—").
+                $key = ($category?->name ?? '~') . "\x1f" . $line->item_name_snapshot . "\x1f" . ($options ?? '');
+
+                if (! isset($groups[$key])) {
+                    $groups[$key] = [
+                        'category' => $category?->name,
+                        'category_th' => $category?->name_th,
+                        'category_order' => $category?->display_order ?? PHP_INT_MAX,
+                        'dish' => $line->item_name_snapshot,
+                        'dish_th' => $line->menuItem?->name_th,
+                        'options' => $options,
+                        'qty' => 0,
+                        'notes' => [],
+                    ];
+                }
+
+                $groups[$key]['qty'] += (int) $line->quantity;
+
+                if ($line->item_note) {
+                    $groups[$key]['notes'][] = [
+                        'number' => $order->order_number,
+                        'note' => $line->item_note,
+                    ];
+                }
+            }
+        }
+
+        return collect($groups)
+            ->sort(fn ($a, $b) => [$a['category_order'], (string) $a['category'], $a['dish'], (string) $a['options']]
+                <=> [$b['category_order'], (string) $b['category'], $b['dish'], (string) $b['options']])
+            ->values();
     }
 
     /**

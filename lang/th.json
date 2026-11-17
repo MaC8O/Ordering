@@ -321,5 +321,16 @@
     "Payment status": "สถานะการชำระเงิน",
     "Cash": "เงินสด",
     "Thank you!": "ขอบคุณค่ะ!",
-    "Print": "พิมพ์"
+    "Print": "พิมพ์",
+
+    "Summary sheet": "ใบสรุปออเดอร์",
+    "Kitchen totals": "ยอดรวมสำหรับครัว",
+    "Order list": "รายการออเดอร์",
+    "Printed": "พิมพ์เมื่อ",
+    "Orders": "ออเดอร์",
+    "Regular orders": "ออเดอร์ปกติ",
+    "Preorder batch": "รอบพรีออเดอร์",
+    "Total food value": "มูลค่าอาหารรวม",
+    "Total items": "จำนวนรายการรวม",
+    "{1} order|[2,*] orders": "{1} ออเดอร์|[2,*] ออเดอร์"
 }

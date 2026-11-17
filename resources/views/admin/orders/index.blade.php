@@ -3,9 +3,22 @@
 @section('title', 'Orders')
 
 @section('content')
-    <div class="mb-5 flex items-center justify-between gap-3">
+    <div class="mb-5 flex flex-wrap items-center justify-between gap-3">
         <h1 class="text-2xl font-bold">Orders</h1>
-        <a href="{{ route('admin.orders.create') }}" class="btn-primary !py-2 text-sm">+ New order</a>
+        <div class="flex flex-wrap items-center gap-2">
+            {{-- Quick summary sheets — no selection needed. --}}
+            <div class="flex items-center gap-1 rounded-lg border border-line bg-surface px-2 py-1">
+                <span class="px-1 text-xs font-semibold text-ink-soft">Today's summary</span>
+                <a href="{{ route('admin.orders.summary', ['scope' => 'today', 'lang' => 'en']) }}" target="_blank" class="btn-ghost !px-2 !py-1 text-xs font-semibold">English</a>
+                <a href="{{ route('admin.orders.summary', ['scope' => 'today', 'lang' => 'th']) }}" target="_blank" class="btn-ghost !px-2 !py-1 text-xs font-semibold">ไทย</a>
+            </div>
+            <div class="flex items-center gap-1 rounded-lg border border-line bg-surface px-2 py-1">
+                <span class="px-1 text-xs font-semibold text-ink-soft">Preorder summary</span>
+                <a href="{{ route('admin.orders.summary', ['scope' => 'preorder', 'lang' => 'en']) }}" target="_blank" class="btn-ghost !px-2 !py-1 text-xs font-semibold">English</a>
+                <a href="{{ route('admin.orders.summary', ['scope' => 'preorder', 'lang' => 'th']) }}" target="_blank" class="btn-ghost !px-2 !py-1 text-xs font-semibold">ไทย</a>
+            </div>
+            <a href="{{ route('admin.orders.create') }}" class="btn-primary !py-2 text-sm">+ New order</a>
+        </div>
     </div>
 
     {{-- Filters --}}
@@ -96,6 +109,10 @@
                 <button type="button" @click="printSelected('en')" class="btn-ghost !py-2 text-sm font-semibold">Print (English)</button>
                 <button type="button" @click="printSelected('th')" class="btn-ghost !py-2 text-sm font-semibold">Print (ไทย)</button>
 
+                {{-- One combined kitchen summary sheet for the whole selection. --}}
+                <button type="button" @click="printSummary('en')" class="btn-ghost !py-2 text-sm font-semibold">Print summary (English)</button>
+                <button type="button" @click="printSummary('th')" class="btn-ghost !py-2 text-sm font-semibold">Print summary (ไทย)</button>
+
                 <button type="button" @click="clear()" class="btn-ghost !py-2 text-sm">Clear</button>
             </div>
         </div>
@@ -164,6 +181,13 @@
                 printSelected(lang) {
                     if (this.selected.length === 0) return;
                     const url = '{{ route('admin.orders.bulkTicket') }}'
+                        + '?lang=' + encodeURIComponent(lang)
+                        + '&ids=' + this.selected.join(',');
+                    window.open(url, '_blank');
+                },
+                printSummary(lang) {
+                    if (this.selected.length === 0) return;
+                    const url = '{{ route('admin.orders.summary') }}'
                         + '?lang=' + encodeURIComponent(lang)
                         + '&ids=' + this.selected.join(',');
                     window.open(url, '_blank');

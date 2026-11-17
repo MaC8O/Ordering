@@ -119,8 +119,11 @@ Route::prefix('admin')->name('admin.')->group(function () {
         // Bulk actions — literal paths, registered before /orders/{order}.
         Route::patch('/orders/bulk-status', [AdminOrderController::class, 'bulkUpdateStatus'])->name('orders.bulkStatus');
         Route::delete('/orders/bulk-delete', [AdminOrderController::class, 'bulkDestroy'])->name('orders.bulkDelete');
-        // Bulk print — literal path, registered before /orders/{order}.
+        // Bulk print — literal paths, registered before /orders/{order}.
         Route::get('/orders/bulk-ticket', [AdminOrderController::class, 'bulkTicket'])->name('orders.bulkTicket');
+        // Kitchen summary sheet (selected orders, today's active orders, or the
+        // current preorder batch).
+        Route::get('/orders/summary', [AdminOrderController::class, 'summary'])->name('orders.summary');
         Route::get('/orders/{order}', [AdminOrderController::class, 'show'])->name('orders.show');
         Route::get('/orders/{order}/ticket', [AdminOrderController::class, 'ticket'])->name('orders.ticket');
         Route::patch('/orders/{order}/status', [AdminOrderController::class, 'updateStatus'])->name('orders.status');
